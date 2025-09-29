@@ -9,10 +9,10 @@ import lombok.Data;
 public class UserEntity extends PersonEntity{
     private Integer loyaltypoints;
     @PodamExclude
-    @OneToMany(mappedBy = "usuario")
-    private List<Reserva> reservas;
+    @OneToMany(mappedBy = "user")
+    private List<ReservationEntity> reservas;
 
     @PodamExclude
-    @OneToMany(mappedBy = "usuario")
+    @OneToMany(mappedBy = "user")
     private List<ShoppingCartEntity> carritos;
 }
