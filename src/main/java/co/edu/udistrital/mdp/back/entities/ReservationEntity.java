@@ -20,4 +20,6 @@ public class ReservationEntity extends BaseEntity {
     @PodamExclude
     @ManyToOne
     private BranchEntity branch;
+
+    
 }

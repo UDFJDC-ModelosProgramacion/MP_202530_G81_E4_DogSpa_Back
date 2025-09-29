@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Entity
 @Data
-public class Notification extends BaseEntity {
+public class NotificationEntity extends BaseEntity {
     private String message;
     private Date date;
     private Boolean read;

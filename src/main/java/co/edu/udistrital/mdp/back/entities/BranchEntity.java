@@ -2,6 +2,7 @@ package co.edu.udistrital.mdp.back.entities;
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
 import uk.co.jemos.podam.common.PodamExclude;
@@ -17,4 +18,11 @@ public class BranchEntity extends BaseEntity {
     @PodamExclude
     @OneToMany(mappedBy = "branch")
     private List<ReservationEntity> reservations = new ArrayList<>();
+
+    @PodamExclude
+    @ManyToMany(mappedBy = "branches")
+    private List<ServiceEntity> services = new ArrayList<>();
+
+    
 }
+
