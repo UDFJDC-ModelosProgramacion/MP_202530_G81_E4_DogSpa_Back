@@ -3,5 +3,5 @@ import jakarta.persistence.Entity;
 import lombok.Data;
     @Data
     @Entity
-public class AdministradorEntity extends PersonEntity{
+public class AdminEntity extends PersonEntity{
 }
