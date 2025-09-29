@@ -21,5 +21,8 @@ public class ReservationEntity extends BaseEntity {
     @ManyToOne
     private BranchEntity branch;
 
+    @ManyToOne
+    private UserEntity user;
+
     
 }
