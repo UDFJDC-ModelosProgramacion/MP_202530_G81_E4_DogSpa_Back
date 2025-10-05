@@ -4,6 +4,6 @@ import org.springframework.stereotype.Repository;
 import co.edu.udistrital.mdp.back.entities.ServiceEntity;
 
 @Repository
-public interface ServiceRep extends JpaRepository<ServiceEntity, Long>{
+public interface ServiceRepository extends JpaRepository<ServiceEntity, Long>{
     
 }

@@ -4,6 +4,6 @@ import org.springframework.stereotype.Repository;
 import co.edu.udistrital.mdp.back.entities.ProductEntity;
 
 @Repository
-public interface ProductRep extends JpaRepository<ProductEntity, Long>{
+public interface ProductRepository extends JpaRepository<ProductEntity, Long>{
 
 }

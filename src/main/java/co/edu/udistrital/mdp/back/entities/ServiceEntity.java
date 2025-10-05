@@ -10,6 +10,7 @@ import uk.co.jemos.podam.common.PodamExclude;
 @Entity
 @Data
 public class ServiceEntity extends BaseEntity {
+    
     private String name;
     private String description;
     private Double price;
