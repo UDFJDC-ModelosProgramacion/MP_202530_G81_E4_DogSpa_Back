@@ -4,6 +4,7 @@ import java.util.List;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
 import uk.co.jemos.podam.common.PodamExclude;
 
@@ -15,10 +16,14 @@ public class ServiceEntity extends BaseEntity {
     private String description;
     private Double price;
     private Integer duration;
-    /*
-    private Review review;
-    private Multimedia multimedia;
-     */
+    
+    @PodamExclude
+    @OneToMany(mappedBy = "service")
+    private List<ReviewEntity> reviews = new ArrayList<>();
+
+    @PodamExclude
+    @OneToMany(mappedBy = "service")
+    private List<MultimediaEntity> multimedia = new ArrayList<>();
 
     @PodamExclude
     @ManyToMany
