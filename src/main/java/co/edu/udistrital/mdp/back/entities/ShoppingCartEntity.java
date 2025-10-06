@@ -10,13 +10,18 @@ import uk.co.jemos.podam.common.PodamExclude;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
+import co.edu.udistrital.mdp.back.entities.ProductEntity;
+import co.edu.udistrital.mdp.back.entities.UserEntity;
+
 @Data
 @Entity
 public class ShoppingCartEntity extends BaseEntity {
     private double total;
 
     @PodamExclude
-    @ManyToMany(mappedBy = "shoppingCarts") 
+    @ManyToMany(mappedBy= "shoppingCarts")
     private List<ProductEntity> products = new ArrayList<>();
 
     @PodamExclude
