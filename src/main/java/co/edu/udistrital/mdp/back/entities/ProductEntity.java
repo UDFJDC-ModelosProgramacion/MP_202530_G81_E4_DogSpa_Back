@@ -16,6 +16,7 @@ public class ProductEntity extends BaseEntity {
     private String description;
     private Integer popularity;
     private Double price;
+    private Integer stock;
 
     @PodamExclude
     @ManyToMany
