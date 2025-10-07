@@ -1,9 +1,8 @@
 package co.edu.udistrital.mdp.back.entities;
 import java.sql.Date;
-
+import java.util.List;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
-
 import lombok.Data;
 
 @Entity
@@ -14,6 +13,6 @@ public class NotificationEntity extends BaseEntity {
     private Boolean read;
 
     @ManyToMany
-    private UserEntity user;
+    private List<UserEntity> user;
 
 }
