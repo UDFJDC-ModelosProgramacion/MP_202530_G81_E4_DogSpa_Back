@@ -12,6 +12,7 @@ public class ReviewEntity extends BaseEntity {
     private Integer rating;
     private String comments;
     private LocalDate reviewDate;
+    
     @PodamExclude
     @ManyToOne
     private ServiceEntity service;
