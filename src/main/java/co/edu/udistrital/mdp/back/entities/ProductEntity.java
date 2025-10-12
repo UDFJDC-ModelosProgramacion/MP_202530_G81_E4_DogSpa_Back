@@ -29,9 +29,5 @@ public class ProductEntity extends BaseEntity {
 
     @PodamExclude
     @OneToMany(mappedBy = "product")
-    private List<MultimediaEntity> multimedia = new ArrayList<>();
-
-    @PodamExclude
-    @OneToMany(mappedBy = "product")
     private List<OrderDetailEntity> orderDetails = new ArrayList<>();
 }
