@@ -68,7 +68,7 @@ class BranchServiceServiceTest {
             service = serviceService.save(service);
             servicesList.add(service);
         }
-        // Asociamos el primer servicio a la primera sucursal
+      
         branchServiceService.addServiceToBranch(branchesList.get(0).getId(), servicesList.get(0).getId());
     }
 
