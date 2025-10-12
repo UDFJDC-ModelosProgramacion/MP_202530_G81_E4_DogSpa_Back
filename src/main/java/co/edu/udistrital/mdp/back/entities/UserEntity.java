@@ -14,8 +14,9 @@ import lombok.Data;
 @Data
 @Entity
 public class UserEntity extends PersonEntity {
+
     private Integer loyaltypoints;
-    
+
     @PodamExclude
     @OneToMany(mappedBy = "user")
     private List<ReservationEntity> reservation;
@@ -23,9 +24,12 @@ public class UserEntity extends PersonEntity {
     @PodamExclude
     @OneToOne(mappedBy = "user")
     private ShoppingCartEntity shoppingCart;
-    
-    // ← FALTA ESTO
+
     @PodamExclude
     @ManyToMany
     private List<NotificationEntity> notifications = new ArrayList<>();
+
+    @PodamExclude
+    @OneToMany(mappedBy = "user")
+    private List<OrderEntity> orders = new ArrayList<>();
 }
