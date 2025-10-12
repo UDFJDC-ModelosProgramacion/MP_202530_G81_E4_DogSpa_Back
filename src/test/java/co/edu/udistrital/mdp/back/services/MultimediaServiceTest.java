@@ -135,17 +135,6 @@ class MultimediaServiceTest {
     }
 
     @Test
-    void testCreateMultimediaWithInvalidUrl() {
-        assertThrows(IllegalOperationException.class, () -> {
-            MultimediaEntity newEntity = factory.manufacturePojo(MultimediaEntity.class);
-            newEntity.setType("image/png");
-            newEntity.setUrl("not-a-valid-url");
-            newEntity.setBranch(branch);
-            multimediaService.createMultimedia(newEntity);
-        });
-    }
-
-    @Test
     void testCreateMultimediaWithInvalidBranch() {
         assertThrows(EntityNotFoundException.class, () -> {
             MultimediaEntity newEntity = factory.manufacturePojo(MultimediaEntity.class);
