@@ -1,5 +1,4 @@
 package co.edu.udistrital.mdp.back.entities;
-
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +19,9 @@ public class OrderEntity extends BaseEntity {
     private double discount;
 
     @PodamExclude
-    @ManyToOne
-    private UserEntity user;
-
-    @PodamExclude
     @OneToMany(mappedBy = "order")
     private List<OrderDetailEntity> orderDetails = new ArrayList<>();
+
+    @ManyToOne
+    private UserEntity user;
 }

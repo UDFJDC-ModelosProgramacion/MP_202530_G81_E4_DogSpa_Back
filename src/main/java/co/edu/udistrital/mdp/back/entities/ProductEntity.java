@@ -16,8 +16,12 @@ public class ProductEntity extends BaseEntity {
     private String name;
     private String category;
     private String description;
-    private Integer popularity;
     private Double price;
+    private Integer stock;
+
+    @PodamExclude
+    @OneToMany(mappedBy = "product")
+    private List<MultimediaEntity> multimedia = new ArrayList<>();
 
     @PodamExclude
     @ManyToMany
