@@ -19,7 +19,6 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
 
-    // ✅ Declara que puede lanzar IllegalOperationException
     public ReservationEntity createReservation(@Valid ReservationEntity reservation)
             throws IllegalOperationException {
         validateReservationTimes(reservation);
@@ -34,10 +33,9 @@ public class ReservationService {
     @Transactional(readOnly = true)
     public ReservationEntity getReservationById(Long id) {
         return reservationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("No se encontró una reserva con el ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("No reservation found with ID: " + id));
     }
 
-    // ✅ También aquí
     public ReservationEntity updateReservation(Long id, @Valid ReservationEntity reservation)
             throws IllegalOperationException {
         ReservationEntity existing = getReservationById(id);
@@ -58,12 +56,11 @@ public class ReservationService {
         reservationRepository.delete(reservation);
     }
 
-    // ✅ Este método ya está bien
     private void validateReservationTimes(ReservationEntity reservation)
             throws IllegalOperationException {
         if (reservation.getStartTime() != null && reservation.getEndTime() != null
                 && reservation.getEndTime().isBefore(reservation.getStartTime())) {
-            throw new IllegalOperationException("La hora de fin debe ser posterior a la hora de inicio.");
+            throw new IllegalOperationException("End time must be after start time.");
         }
     }
 }

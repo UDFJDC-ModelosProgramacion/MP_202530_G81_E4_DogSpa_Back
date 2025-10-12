@@ -1,8 +1,3 @@
-/*
-MIT License
-
-© 2025 Universidad Distrital Francisco José de Caldas
-*/
 
 package co.edu.udistrital.mdp.back.services;
 
@@ -62,7 +57,7 @@ class BranchServiceTest {
         }
     }
 
-    // ✅ Crear una sucursal válida
+
     @Test
     void testCreateBranch() throws IllegalOperationException {
         BranchEntity newEntity = new BranchEntity();
@@ -81,7 +76,7 @@ class BranchServiceTest {
         assertEquals(newEntity.getZone(), stored.getZone());
     }
 
-    // ❌ Crear sucursal con nombre vacío
+
     @Test
     void testCreateBranchInvalidName() {
         BranchEntity newEntity = new BranchEntity();
@@ -93,7 +88,6 @@ class BranchServiceTest {
         assertThrows(IllegalOperationException.class, () -> branchService.createBranch(newEntity));
     }
 
-    // ❌ Crear sucursal con teléfono inválido
     @Test
     void testCreateBranchInvalidPhone() {
         BranchEntity newEntity = new BranchEntity();
@@ -105,7 +99,7 @@ class BranchServiceTest {
         assertThrows(IllegalOperationException.class, () -> branchService.createBranch(newEntity));
     }
 
-    // ❌ Crear sucursal con ID duplicado
+
     @Test
     void testCreateBranchDuplicateId() throws IllegalOperationException {
         BranchEntity existing = branchList.get(0);
@@ -119,14 +113,13 @@ class BranchServiceTest {
         assertThrows(IllegalOperationException.class, () -> branchService.createBranch(duplicate));
     }
 
-    // 🔍 Obtener todas las sucursales
+
     @Test
     void testGetBranches() {
         List<BranchEntity> list = branchService.getBranches();
         assertEquals(branchList.size(), list.size());
     }
 
-    // 🔎 Obtener una sucursal por ID
     @Test
     void testGetBranch() throws EntityNotFoundException {
         BranchEntity entity = branchList.get(0);
@@ -135,13 +128,12 @@ class BranchServiceTest {
         assertEquals(entity.getName(), result.getName());
     }
 
-    // ❌ Obtener sucursal inexistente
+
     @Test
     void testGetInvalidBranch() {
         assertThrows(EntityNotFoundException.class, () -> branchService.getBranch(999L));
     }
 
-    // 🛠️ Actualizar sucursal válida
     @Test
     void testUpdateBranch() throws EntityNotFoundException, IllegalOperationException {
         BranchEntity entity = branchList.get(0);
@@ -156,7 +148,6 @@ class BranchServiceTest {
         assertEquals("3205556666", updated.getPhone());
     }
 
-    // ❌ Actualizar sucursal inexistente
     @Test
     void testUpdateInvalidBranch() {
         BranchEntity update = new BranchEntity();
@@ -168,7 +159,7 @@ class BranchServiceTest {
         assertThrows(EntityNotFoundException.class, () -> branchService.updateBranch(999L, update));
     }
 
-    // ❌ Actualizar sucursal con datos inválidos
+
     @Test
     void testUpdateBranchInvalidData() {
         BranchEntity entity = branchList.get(0);
@@ -181,7 +172,7 @@ class BranchServiceTest {
         assertThrows(IllegalOperationException.class, () -> branchService.updateBranch(entity.getId(), update));
     }
 
-    // 🗑️ Eliminar sucursal válida
+
     @Test
     void testDeleteBranch() throws EntityNotFoundException {
         BranchEntity entity = branchList.get(0);
@@ -190,7 +181,6 @@ class BranchServiceTest {
         assertNull(deleted);
     }
 
-    // ❌ Eliminar sucursal inexistente
     @Test
     void testDeleteInvalidBranch() {
         assertThrows(EntityNotFoundException.class, () -> branchService.deleteBranch(999L));
