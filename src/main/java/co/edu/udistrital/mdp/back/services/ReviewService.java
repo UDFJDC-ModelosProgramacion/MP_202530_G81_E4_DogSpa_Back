@@ -22,37 +22,37 @@ public class ReviewService {
 
     @Transactional
     public ReviewEntity createReview(ReviewEntity review) throws IllegalOperationException {
-        log.info("Inicia proceso de creación de reseña con fecha = {}", review.getReviewDate());
+        log.info("Starting review creation process with date = {}", review.getReviewDate());
         validateReview(review);
 
         ReviewEntity savedReview = reviewRepository.save(review);
-        log.info("Termina proceso de creación de reseña con id = {}", savedReview.getId());
+        log.info("Review creation process finished with id = {}", savedReview.getId());
         return savedReview;
     }
 
     public List<ReviewEntity> getReviews() {
-        log.info("Inicia proceso de consulta de todas las reseñas");
+        log.info("Starting process to retrieve all reviews");
         List<ReviewEntity> reviews = reviewRepository.findAll();
-        log.info("Termina proceso de consulta: se encontraron {} reseñas", reviews.size());
+        log.info("Finished retrieving reviews: {} found", reviews.size());
         return reviews;
     }
 
     public ReviewEntity getReview(Long id) throws EntityNotFoundException {
-        log.info("Inicia proceso de búsqueda de reseña con id = {}", id);
+        log.info("Starting process to find review with id = {}", id);
         Optional<ReviewEntity> review = reviewRepository.findById(id);
 
         if (review.isEmpty()) {
-            throw new EntityNotFoundException("La reseña no fue encontrada.");
+            throw new EntityNotFoundException("The review was not found.");
         }
 
-        log.info("Termina proceso de búsqueda de reseña con id = {}", id);
+        log.info("Finished finding review with id = {}", id);
         return review.get();
     }
 
     @Transactional
     public ReviewEntity updateReview(Long id, ReviewEntity review)
             throws EntityNotFoundException, IllegalOperationException {
-        log.info("Inicia proceso de actualización de reseña con id = {}", id);
+        log.info("Starting review update process with id = {}", id);
 
         ReviewEntity existing = getReview(id);
         validateReview(review);
@@ -62,29 +62,29 @@ public class ReviewService {
         existing.setReviewDate(review.getReviewDate());
 
         ReviewEntity updatedReview = reviewRepository.save(existing);
-        log.info("Termina proceso de actualización de reseña con id = {}", id);
+        log.info("Review update process finished with id = {}", id);
         return updatedReview;
     }
 
     @Transactional
     public void deleteReview(Long id) throws EntityNotFoundException {
-        log.info("Inicia proceso de eliminación de reseña con id = {}", id);
+        log.info("Starting review deletion process with id = {}", id);
         ReviewEntity review = getReview(id);
         reviewRepository.delete(review);
-        log.info("Termina proceso de eliminación de reseña con id = {}", id);
+        log.info("Review deletion process finished with id = {}", id);
     }
 
     private void validateReview(ReviewEntity review) throws IllegalOperationException {
         if (review.getRating() == null || review.getRating() < 1 || review.getRating() > 5) {
-            throw new IllegalOperationException("La calificación debe estar entre 1 y 5.");
+            throw new IllegalOperationException("The rating must be between 1 and 5.");
         }
 
         if (review.getComments() == null || review.getComments().trim().isEmpty()) {
-            throw new IllegalOperationException("El comentario no puede estar vacío.");
+            throw new IllegalOperationException("The comment cannot be empty.");
         }
 
         if (review.getReviewDate() == null) {
-            throw new IllegalOperationException("La fecha de reseña es obligatoria.");
+            throw new IllegalOperationException("The review date is required.");
         }
     }
 }
