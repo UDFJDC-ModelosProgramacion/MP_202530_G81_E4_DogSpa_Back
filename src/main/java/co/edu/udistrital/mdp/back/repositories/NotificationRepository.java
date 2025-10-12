@@ -7,6 +7,10 @@ import co.edu.udistrital.mdp.back.entities.NotificationEntity;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<NotificationEntity, Long>{
-    List<NotificationEntity> findByUserId(Long userId);
-    List<NotificationEntity> findByUserIdAndReadFalse(Long userId);
+    
+    
+    List<NotificationEntity> findByUsers_Id(Long userId);
+    
+    
+    List<NotificationEntity> findByUsers_IdAndReadFalse(Long userId);
 }
