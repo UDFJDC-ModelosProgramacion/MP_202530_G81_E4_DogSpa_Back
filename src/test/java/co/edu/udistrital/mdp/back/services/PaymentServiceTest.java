@@ -73,19 +73,20 @@ class PaymentServiceTest {
 
     @Test
     void testCreatePayment() throws EntityNotFoundException, IllegalOperationException {
-        PaymentEntity newEntity = factory.manufacturePojo(PaymentEntity.class);
-        newEntity.setMethod("pse");
-        newEntity.setAmount(250.0);
-        newEntity.setShoppingCart(shoppingCart);
+    PaymentEntity newEntity = new PaymentEntity();
+    newEntity.setMethod("pse");
+    newEntity.setAmount(250.0);
+    newEntity.setDate(LocalDateTime.now());
+    newEntity.setShoppingCart(shoppingCart);
 
-        PaymentEntity result = paymentService.createPayment(newEntity);
-        assertNotNull(result);
+    PaymentEntity result = paymentService.createPayment(newEntity);
+    assertNotNull(result);
 
-        PaymentEntity entity = entityManager.find(PaymentEntity.class, result.getId());
-        assertEquals("pse", entity.getMethod());
-        assertEquals(250.0, entity.getAmount());
-        assertEquals("pending", entity.getStatus());
-    }
+    PaymentEntity entity = entityManager.find(PaymentEntity.class, result.getId());
+    assertEquals("pse", entity.getMethod());
+    assertEquals(250.0, entity.getAmount());
+    assertEquals("pending", entity.getStatus());
+}
 
     @Test
     void testCreatePaymentWithoutMethod() {
@@ -286,9 +287,12 @@ class PaymentServiceTest {
 
     @Test
     void testGetPaymentsByShoppingCart() throws EntityNotFoundException {
-        List<PaymentEntity> payments = paymentService.getPaymentsByShoppingCart(shoppingCart.getId());
-        assertEquals(3, payments.size());
-    }
+    entityManager.flush();
+    entityManager.refresh(shoppingCart);
+    
+    List<PaymentEntity> payments = paymentService.getPaymentsByShoppingCart(shoppingCart.getId());
+    assertEquals(3, payments.size());
+}
 
     @Test
     void testGetPaymentsByInvalidShoppingCart() {

@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @Data
 public class ProductEntity extends BaseEntity {
+
     private String name;
     private String category;
     private String description;
@@ -25,4 +26,12 @@ public class ProductEntity extends BaseEntity {
     @PodamExclude
     @ManyToMany
     private List<ShoppingCartEntity> shoppingCarts = new ArrayList<>();
+
+    @PodamExclude
+    @OneToMany(mappedBy = "product")
+    private List<MultimediaEntity> multimedia = new ArrayList<>();
+
+    @PodamExclude
+    @OneToMany(mappedBy = "product")
+    private List<OrderDetailEntity> orderDetails = new ArrayList<>();
 }
