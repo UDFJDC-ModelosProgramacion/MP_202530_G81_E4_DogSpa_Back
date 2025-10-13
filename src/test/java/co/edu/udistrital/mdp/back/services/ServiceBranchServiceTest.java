@@ -57,18 +57,36 @@ class ServiceBranchServiceTest {
         entityManager.getEntityManager().createQuery("delete from ServiceEntity").executeUpdate();
     }
 
+    private BranchEntity createValidBranch(String nameSuffix) {
+        BranchEntity branch = new BranchEntity();
+        branch.setName("Sucursal " + nameSuffix);
+        branch.setAddress("Calle 123 #" + nameSuffix);
+        branch.setPhone("31245678" + nameSuffix); 
+        branch.setZone("Zona " + nameSuffix);
+        return branch;
+    }
+
+
+    private ServiceEntity createValidService(String nameSuffix) {
+        ServiceEntity service = new ServiceEntity();
+        service.setName("Servicio " + nameSuffix);
+        service.setDescription("Descripción del servicio " + nameSuffix);
+        service.setPrice(50000.0);
+        return service;
+    }
+
     private void insertData() throws IllegalOperationException, EntityNotFoundException {
         for (int i = 0; i < 3; i++) {
-            BranchEntity branch = factory.manufacturePojo(BranchEntity.class);
+            BranchEntity branch = createValidBranch(String.valueOf(i));
             branch = branchService.createBranch(branch);
             branchesList.add(branch);
         }
         for (int i = 0; i < 3; i++) {
-            ServiceEntity service = factory.manufacturePojo(ServiceEntity.class);
+            ServiceEntity service = createValidService(String.valueOf(i));
             service = serviceService.save(service);
             servicesList.add(service);
         }
-        // Asociamos la primera sucursal al primer servicio
+
         serviceBranchService.addBranchToService(servicesList.get(0).getId(), branchesList.get(0).getId());
     }
 
