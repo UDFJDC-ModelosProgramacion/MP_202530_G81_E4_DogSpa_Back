@@ -39,7 +39,7 @@ class PersonServiceTest {
     }
 
     @Test
-    void createPerson_valid_ok() throws IllegalOperationException {
+    void testCreatePerson_valid_ok() throws IllegalOperationException {
         PersonEntity person = new PersonEntity();
         person.setName("Nuevo");
         person.setLastname("Registro");
@@ -55,7 +55,7 @@ class PersonServiceTest {
     }
 
     @Test
-    void createPerson_emptyName_exception() {
+    void testCreatePerson_emptyName_exception() {
         PersonEntity person = new PersonEntity();
         person.setName("");
         person.setLastname("Apellido");
@@ -70,21 +70,21 @@ class PersonServiceTest {
     }
 
     @Test
-    void getPerson_valid_ok() throws EntityNotFoundException {
+    void testGetPerson_valid_ok() throws EntityNotFoundException {
         PersonEntity base = personRepository.findAll().get(0);
         PersonEntity found = personService.getPerson(base.getId());
         assertEquals(base.getEmail(), found.getEmail());
     }
 
     @Test
-    void getPerson_notFound_exception() {
+    void testGetPerson_notFound_exception() {
         assertThrows(EntityNotFoundException.class, () -> {
             personService.getPerson(9999L);
         });
     }
 
     @Test
-    void updatePerson_valid_ok() throws IllegalOperationException, EntityNotFoundException {
+    void testUpdatePerson_valid_ok() throws IllegalOperationException, EntityNotFoundException {
         PersonEntity base = personRepository.findAll().get(0);
         PersonEntity updated = new PersonEntity();
         updated.setName("Modificado");
@@ -99,14 +99,14 @@ class PersonServiceTest {
     }
 
     @Test
-    void deletePerson_valid_ok() throws EntityNotFoundException {
+    void testDeletePerson_valid_ok() throws EntityNotFoundException {
         PersonEntity base = personRepository.findAll().get(0);
         personService.deletePerson(base.getId());
         assertFalse(personRepository.findById(base.getId()).isPresent());
     }
 
     @Test
-    void deletePerson_notFound_exception() {
+    void testDeletePerson_notFound_exception() {
         assertThrows(EntityNotFoundException.class, () -> {
             personService.deletePerson(4444L);
         });

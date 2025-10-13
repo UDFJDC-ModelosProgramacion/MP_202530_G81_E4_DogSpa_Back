@@ -38,7 +38,7 @@ class UserServiceTest {
     }
 
     @Test
-    void createUser_valid_ok() throws IllegalOperationException {
+    void testCreateUser_valid_ok() throws IllegalOperationException {
         UserEntity user = new UserEntity();
         user.setName("Nuevo");
         user.setLastname("Cliente");
@@ -54,7 +54,7 @@ class UserServiceTest {
     }
 
     @Test
-    void createUser_invalidEmail_exception() {
+    void testCreateUser_invalidEmail_exception() {
         UserEntity user = new UserEntity();
         user.setName("Pepe");
         user.setLastname("Martinez");
@@ -70,14 +70,14 @@ class UserServiceTest {
     }
 
     @Test
-    void getUser_valid_ok() throws EntityNotFoundException {
+    void testGetUser_valid_ok() throws EntityNotFoundException {
         UserEntity base = userRepository.findAll().get(0);
         UserEntity found = userService.getUser(base.getId());
         assertEquals(base.getEmail(), found.getEmail());
     }
 
     @Test
-    void getUser_notFound_exception() {
+    void testGetUser_notFound_exception() {
         assertThrows(EntityNotFoundException.class, () -> {
             userService.getUser(9999L);
         });
