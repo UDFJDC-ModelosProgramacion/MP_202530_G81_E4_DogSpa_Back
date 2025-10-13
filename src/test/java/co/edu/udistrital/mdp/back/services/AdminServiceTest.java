@@ -37,7 +37,7 @@ class AdminServiceTest {
     }
 
     @Test
-    void createAdmin_valid_ok() throws IllegalOperationException {
+    void testCreateAdmin_valid_ok() throws IllegalOperationException {
         AdminEntity admin = new AdminEntity();
         admin.setName("Nuevo");
         admin.setLastname("Administrador");
@@ -52,7 +52,7 @@ class AdminServiceTest {
     }
 
     @Test
-    void createAdmin_emptyName_exception() {
+    void testCreateAdmin_emptyName_exception() {
         AdminEntity admin = new AdminEntity();
         admin.setName("");
         admin.setLastname("Apellido");
@@ -67,14 +67,14 @@ class AdminServiceTest {
     }
 
     @Test
-    void getAdmin_valid_ok() throws EntityNotFoundException {
+    void testGetAdmin_valid_ok() throws EntityNotFoundException {
         AdminEntity base = adminRepository.findAll().get(0);
         AdminEntity found = adminService.getAdmin(base.getId());
         assertEquals(base.getEmail(), found.getEmail());
     }
 
     @Test
-    void getAdmin_notFound_exception() {
+    void testGetAdmin_notFound_exception() {
         assertThrows(EntityNotFoundException.class, () -> {
             adminService.getAdmin(9999L);
         });
