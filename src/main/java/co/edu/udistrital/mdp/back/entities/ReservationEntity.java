@@ -25,4 +25,7 @@ public class ReservationEntity extends BaseEntity {
     private UserEntity user;
 
     
+    @PodamExclude
+    @ManyToOne
+    private ServiceEntity service;
 }
