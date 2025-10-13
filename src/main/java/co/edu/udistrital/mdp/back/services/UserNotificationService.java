@@ -31,8 +31,8 @@ public class UserNotificationService {
         return user.getNotifications();
     }
 
-    public void removeNotificationFromUser(Long userID, Long notificationId) throws EntityNotFoundException {
-        UserEntity user = userRepository.findById(UserId).orElseThrow(()-> new EntityNotFoundException("Usuario no encontrado"));
+    public void removeNotificationFromUser(Long userId, Long notificationId) throws EntityNotFoundException {
+        UserEntity user = userRepository.findById(userId).orElseThrow(()-> new EntityNotFoundException("Usuario no encontrado"));
         NotificationEntity notification = notificationRepository.findById(notificationId).orElseThrow(()-> new EntityNotFoundException("Notificación no encontrada"));
          user.getNotifications().remove(notification);
          userRepository.save(user);

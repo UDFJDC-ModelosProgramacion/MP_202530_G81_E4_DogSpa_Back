@@ -16,10 +16,10 @@ public class NotificationUserService {
     private NotificationRepository notificationRepository;
 
     @Autowired
-    private UserRepository UserRepository;
+    private UserRepository userRepository;
 
     public UserEntity addUserToNotification(Long notificationId, Long userId) throws EntityNotFoundException {
-        NotificationEntity notification = notificationRepository.findById(NotificationId).orElseThrow(()-> new EntityNotFoundException("Notificación no encontrada"));
+        NotificationEntity notification = notificationRepository.findById(notificationId).orElseThrow(()-> new EntityNotFoundException("Notificación no encontrada"));
         UserEntity user = userRepository.findById(userId).orElseThrow(()-> new EntityNotFoundException("Usuario no encontrado"));
 
         notification.getUsers().add(user);
