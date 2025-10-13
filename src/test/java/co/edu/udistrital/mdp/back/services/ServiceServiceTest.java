@@ -97,12 +97,12 @@ class ServiceServiceTest {
     @DisplayName("delete: con reservas activas (SCHEDULED) -> IllegalOperationException")
     void delete_withActiveReservations_throws() {
         when(serviceRepository.findById(1L)).thenReturn(Optional.of(grooming));
-        when(reservationRepository.countByServiceIdAndStatus(1L, "SCHEDULED")).thenReturn(3);
+        when(reservationRepository.countByService_IdAndReservationStatus(1L, "SCHEDULED")).thenReturn(3);
 
         assertThrows(IllegalOperationException.class, () -> serviceService.delete(1L));
 
         verify(serviceRepository).findById(1L);
-        verify(reservationRepository).countByServiceIdAndStatus(1L, "SCHEDULED");
+        verify(reservationRepository).countByService_IdAndReservationStatus(1L, "SCHEDULED");
         verifyNoMoreInteractions(serviceRepository, reservationRepository);
         verifyNoInteractions(orderDetailRepository);
     }
@@ -111,12 +111,12 @@ class ServiceServiceTest {
     @DisplayName("delete: sin reservas activas -> elimina el servicio")
     void delete_noActiveReservations_ok() throws Exception {
         when(serviceRepository.findById(1L)).thenReturn(Optional.of(grooming));
-        when(reservationRepository.countByServiceIdAndStatus(1L, "SCHEDULED")).thenReturn(0);
+        when(reservationRepository.countByService_IdAndReservationStatus(1L, "SCHEDULED")).thenReturn(0);
 
         serviceService.delete(1L);
 
         verify(serviceRepository).findById(1L);
-        verify(reservationRepository).countByServiceIdAndStatus(1L, "SCHEDULED");
+        verify(reservationRepository).countByService_IdAndReservationStatus(1L, "SCHEDULED");
         verify(serviceRepository).delete(grooming);
         verifyNoMoreInteractions(serviceRepository, reservationRepository);
         verifyNoInteractions(orderDetailRepository);
