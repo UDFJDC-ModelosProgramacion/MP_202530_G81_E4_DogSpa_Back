@@ -18,14 +18,17 @@ public class UserEntity extends PersonEntity {
     
     @PodamExclude
     @OneToMany(mappedBy = "user")
-    private List<ReservationEntity> reservation;
+    private List<ReservationEntity> reservation = new ArrayList<>();
 
     @PodamExclude
     @OneToOne(mappedBy = "user")
     private ShoppingCartEntity shoppingCart;
     
-    // ← FALTA ESTO
     @PodamExclude
     @ManyToMany
     private List<NotificationEntity> notifications = new ArrayList<>();
+
+    @PodamExclude
+    @OneToMany(mappedBy = "user")
+    private List<OrderEntity> orders = new ArrayList<>();
 }

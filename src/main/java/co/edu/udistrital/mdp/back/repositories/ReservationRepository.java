@@ -6,4 +6,5 @@ import co.edu.udistrital.mdp.back.entities.ReservationEntity;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<ReservationEntity, Long> {
+    int countByService_IdAndReservationStatus(Long serviceId, String status);
 }
