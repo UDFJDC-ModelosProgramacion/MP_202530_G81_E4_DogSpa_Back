@@ -1,5 +1,6 @@
 package co.edu.udistrital.mdp.back.services;
 
+import co.edu.udistrital.mdp.back.services.NotificationService;
 import co.edu.udistrital.mdp.back.entities.NotificationEntity;
 import co.edu.udistrital.mdp.back.entities.UserEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
@@ -33,11 +34,11 @@ class NotificationServiceTest {
     void setUp() {
         u1 = new UserEntity();
         u1.setId(1L);
-        u1.setUsername("alice");
+        u1.setName("alice");
 
         u2 = new UserEntity();
         u2.setId(2L);
-        u2.setUsername("bob");
+        u2.setName("bob");
     }
 
     // -------------------- createNotification --------------------
@@ -81,7 +82,7 @@ class NotificationServiceTest {
         assertNotNull(saved.getDate());
         assertTrue(saved.getDate() instanceof Date);
         assertEquals(Boolean.FALSE, saved.getRead());
-        assertEquals(List.of(u1, u2), saved.getUser()); // el service usa setUser(List<UserEntity>)
+        assertEquals(List.of(u1, u2), saved.getUsers()); // el service usa setUser(List<UserEntity>)
 
         verify(userRepository).findAllById(List.of(1L, 2L));
         verify(notificationRepository).save(any(NotificationEntity.class));
@@ -126,12 +127,12 @@ class NotificationServiceTest {
     @Test
     @DisplayName("getUserNotifications: onlyUnread=true usa findByUserIdAndReadFalse")
     void getUserNotifications_onlyUnread() {
-        when(notificationRepository.findByUserIdAndReadFalse(1L)).thenReturn(List.of());
+        when(notificationRepository.findByUsers_IdAndReadFalse(1L)).thenReturn(List.of());
 
         var result = service.getUserNotifications(1L, true);
 
         assertNotNull(result);
-        verify(notificationRepository).findByUserIdAndReadFalse(1L);
+        verify(notificationRepository).findByUsers_IdAndReadFalse(1L);
         verifyNoMoreInteractions(notificationRepository);
         verifyNoInteractions(userRepository);
     }
@@ -139,12 +140,12 @@ class NotificationServiceTest {
     @Test
     @DisplayName("getUserNotifications: onlyUnread=false usa findByUserId")
     void getUserNotifications_all() {
-        when(notificationRepository.findByUserId(1L)).thenReturn(List.of());
+        when(notificationRepository.findByUsers_Id(1L)).thenReturn(List.of());
 
         var result = service.getUserNotifications(1L, false);
 
         assertNotNull(result);
-        verify(notificationRepository).findByUserId(1L);
+        verify(notificationRepository).findByUsers_Id(1L);
         verifyNoMoreInteractions(notificationRepository);
         verifyNoInteractions(userRepository);
     }

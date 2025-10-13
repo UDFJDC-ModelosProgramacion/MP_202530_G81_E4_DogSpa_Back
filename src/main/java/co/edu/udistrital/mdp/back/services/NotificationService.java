@@ -35,7 +35,7 @@ public class NotificationService {
         notification.setMessage(message);
         notification.setDate(new Date(System.currentTimeMillis()));
         notification.setRead(false);
-        notification.setUser(users);
+        notification.setUsers(users);
         return notificationRepository.save(notification);
     }
 
@@ -51,9 +51,9 @@ public class NotificationService {
     // Regla: Obtener notificaciones de un usuario (no leídas o todas)
     public List<NotificationEntity> getUserNotifications(Long userId, boolean onlyUnread) {
         if (onlyUnread) {
-            return notificationRepository.findByUserIdAndReadFalse(userId);
+            return notificationRepository.findByUsers_IdAndReadFalse(userId);
         } else {
-            return notificationRepository.findByUserId(userId);
+            return notificationRepository.findByUsers_Id(userId);
         }
     }
 

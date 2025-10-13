@@ -42,7 +42,7 @@ public class ServiceService {
         ServiceEntity service = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new EntityNotFoundException("Service not found"));
 
-        int activeReservations = reservationRepository.countByServiceIdAndStatus(serviceId, "SCHEDULED");
+        int activeReservations = reservationRepository.countByService_IdAndReservationStatus(serviceId, "SCHEDULED");
 
         if (activeReservations > 0) {
             throw new IllegalOperationException("Cannot delete service with active reservations");
