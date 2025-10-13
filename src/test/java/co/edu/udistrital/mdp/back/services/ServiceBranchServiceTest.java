@@ -57,17 +57,16 @@ class ServiceBranchServiceTest {
         entityManager.getEntityManager().createQuery("delete from ServiceEntity").executeUpdate();
     }
 
-    // ✅ Crea una sucursal válida que cumpla las validaciones de BranchService
     private BranchEntity createValidBranch(String nameSuffix) {
         BranchEntity branch = new BranchEntity();
         branch.setName("Sucursal " + nameSuffix);
         branch.setAddress("Calle 123 #" + nameSuffix);
-        branch.setPhone("31245678" + nameSuffix); // 9 o 10 dígitos válidos
+        branch.setPhone("31245678" + nameSuffix); 
         branch.setZone("Zona " + nameSuffix);
         return branch;
     }
 
-    // ✅ Crea un servicio válido
+
     private ServiceEntity createValidService(String nameSuffix) {
         ServiceEntity service = new ServiceEntity();
         service.setName("Servicio " + nameSuffix);
@@ -87,7 +86,7 @@ class ServiceBranchServiceTest {
             service = serviceService.save(service);
             servicesList.add(service);
         }
-        // Asociamos la primera sucursal al primer servicio
+
         serviceBranchService.addBranchToService(servicesList.get(0).getId(), branchesList.get(0).getId());
     }
 
