@@ -1,0 +1,790 @@
+{
+	"info": {
+		"_postman_id": "3ef9b629-5fe8-4248-923b-b2cac5336f03",
+		"name": "Product - Shopping Carts API",
+		"description": "Collection for managing shopping carts associated with products with response examples",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49212629",
+		"_collection_link": "https://drkgodeater9-8872832.postman.co/workspace/DogSpa-Api~9ad14d8a-8a81-436c-82e7-b2651fa012d5/collection/49212629-3ef9b629-5fe8-4248-923b-b2cac5336f03?action=share&source=collection_link&creator=49212629"
+	},
+	"item": [
+		{
+			"name": "Get Shopping Carts for Product",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/products/:productId/shoppingcarts",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"products",
+						":productId",
+						"shoppingcarts"
+					],
+					"variable": [
+						{
+							"key": "productId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"id\": 1,\n    \"total\": 150.00,\n    \"user\": {\n      \"id\": 1,\n      \"name\": \"Juan Pérez\",\n      \"email\": \"juan@example.com\"\n    }\n  },\n  {\n    \"id\": 2,\n    \"total\": 200.00,\n    \"user\": {\n      \"id\": 2,\n      \"name\": \"María López\",\n      \"email\": \"maria@example.com\"\n    }\n  }\n]"
+				},
+				{
+					"name": "Not Found - Product Not Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Product with id = 999 not found\",\n  \"path\": \"/api/products/999/shoppingcarts\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Get Shopping Cart for Product",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/products/:productId/shoppingcarts/:shoppingCartId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"products",
+						":productId",
+						"shoppingcarts",
+						":shoppingCartId"
+					],
+					"variable": [
+						{
+							"key": "productId",
+							"value": "1"
+						},
+						{
+							"key": "shoppingCartId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts/:shoppingCartId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts",
+								":shoppingCartId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								},
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"total\": 150.00,\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Juan Pérez\"\n  }\n}"
+				},
+				{
+					"name": "Not Found - Product Not Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts/:shoppingCartId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts",
+								":shoppingCartId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								},
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Product with id = 999 not found\",\n  \"path\": \"/api/products/999/shoppingcarts/1\"\n}"
+				},
+				{
+					"name": "Not Found - Shopping Cart Not Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts/:shoppingCartId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts",
+								":shoppingCartId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								},
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Shopping cart with id = 999 not found\",\n  \"path\": \"/api/products/1/shoppingcarts/999\"\n}"
+				},
+				{
+					"name": "Bad Request - Not Associated",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts/:shoppingCartId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts",
+								":shoppingCartId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								},
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"The shopping cart is not associated to the product\",\n  \"path\": \"/api/products/1/shoppingcarts/5\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Add Shopping Cart to Product",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/products/:productId/shoppingcarts/:shoppingCartId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"products",
+						":productId",
+						"shoppingcarts",
+						":shoppingCartId"
+					],
+					"variable": [
+						{
+							"key": "productId",
+							"value": "1"
+						},
+						{
+							"key": "shoppingCartId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts/:shoppingCartId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts",
+								":shoppingCartId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								},
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"total\": 150.00,\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Juan Pérez\"\n  }\n}"
+				},
+				{
+					"name": "Not Found - Product Not Found",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts/:shoppingCartId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts",
+								":shoppingCartId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								},
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Product with id = 999 not found\",\n  \"path\": \"/api/products/999/shoppingcarts/1\"\n}"
+				},
+				{
+					"name": "Not Found - Shopping Cart Not Found",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts/:shoppingCartId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts",
+								":shoppingCartId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								},
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Shopping cart with id = 999 not found\",\n  \"path\": \"/api/products/1/shoppingcarts/999\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Replace Shopping Carts for Product",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"id\": 1\n  },\n  {\n    \"id\": 2\n  }\n]"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/products/:productId/shoppingcarts",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"products",
+						":productId",
+						"shoppingcarts"
+					],
+					"variable": [
+						{
+							"key": "productId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"id\": 1\n  },\n  {\n    \"id\": 2\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"id\": 1,\n    \"total\": 150.00\n  },\n  {\n    \"id\": 2,\n    \"total\": 200.00\n  }\n]"
+				},
+				{
+					"name": "Not Found - Product Not Found",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"id\": 1\n  },\n  {\n    \"id\": 2\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Product with id = 999 not found\",\n  \"path\": \"/api/products/999/shoppingcarts\"\n}"
+				},
+				{
+					"name": "Not Found - Shopping Cart Not Found",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"id\": 1\n  },\n  {\n    \"id\": 2\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Shopping cart with id = 999 not found\",\n  \"path\": \"/api/products/1/shoppingcarts\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Remove Shopping Cart from Product",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/products/:productId/shoppingcarts/:shoppingCartId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"products",
+						":productId",
+						"shoppingcarts",
+						":shoppingCartId"
+					],
+					"variable": [
+						{
+							"key": "productId",
+							"value": "1"
+						},
+						{
+							"key": "shoppingCartId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts/:shoppingCartId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts",
+								":shoppingCartId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								},
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Not Found - Product Not Found",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts/:shoppingCartId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts",
+								":shoppingCartId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								},
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Product with id = 999 not found\",\n  \"path\": \"/api/products/999/shoppingcarts/1\"\n}"
+				},
+				{
+					"name": "Not Found - Shopping Cart Not Found",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/:productId/shoppingcarts/:shoppingCartId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products",
+								":productId",
+								"shoppingcarts",
+								":shoppingCartId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "1"
+								},
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Shopping cart with id = 999 not found\",\n  \"path\": \"/api/products/1/shoppingcarts/999\"\n}"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}

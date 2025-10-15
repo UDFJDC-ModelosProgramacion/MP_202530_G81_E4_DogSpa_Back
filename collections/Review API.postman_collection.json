@@ -1,0 +1,508 @@
+{
+	"info": {
+		"_postman_id": "deee6ef9-ad77-4e1d-bf38-3f5c9f21e800",
+		"name": "Review API",
+		"description": "Collection for Review endpoints with response examples",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49212629",
+		"_collection_link": "https://drkgodeater9-8872832.postman.co/workspace/DogSpa-Api~9ad14d8a-8a81-436c-82e7-b2651fa012d5/collection/49212629-deee6ef9-ad77-4e1d-bf38-3f5c9f21e800?action=share&source=collection_link&creator=49212629"
+	},
+	"item": [
+		{
+			"name": "Get All Reviews",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/reviews",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"reviews"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/reviews",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reviews"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"id\": 1,\n    \"rating\": 5,\n    \"comments\": \"Excelente servicio, muy recomendado\",\n    \"reviewDate\": \"2025-10-13T10:30:00\",\n    \"service\": {\n      \"id\": 1,\n      \"name\": \"Baño completo\"\n    }\n  },\n  {\n    \"id\": 2,\n    \"rating\": 4,\n    \"comments\": \"Buen servicio pero podría mejorar el tiempo de espera\",\n    \"reviewDate\": \"2025-10-12T15:00:00\"\n  }\n]"
+				}
+			]
+		},
+		{
+			"name": "Get Review by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/reviews/:reviewId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"reviews",
+						":reviewId"
+					],
+					"variable": [
+						{
+							"key": "reviewId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/reviews/:reviewId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reviews",
+								":reviewId"
+							],
+							"variable": [
+								{
+									"key": "reviewId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"rating\": 5,\n  \"comments\": \"Excelente servicio, muy recomendado\",\n  \"reviewDate\": \"2025-10-13T10:30:00\",\n  \"service\": {\n    \"id\": 1,\n    \"name\": \"Baño completo\"\n  },\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Juan Pérez\"\n  }\n}"
+				},
+				{
+					"name": "Not Found Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/reviews/:reviewId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reviews",
+								":reviewId"
+							],
+							"variable": [
+								{
+									"key": "reviewId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"The review was not found.\",\n  \"path\": \"/api/reviews/999\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Create Review",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"rating\": 5,\n  \"comments\": \"Excelente atención y servicio de calidad\",\n  \"reviewDate\": \"2025-10-13T10:30:00\",\n  \"service\": {\n    \"id\": 1\n  },\n  \"user\": {\n    \"id\": 1\n  }\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/reviews",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"reviews"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Created Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rating\": 5,\n  \"comments\": \"Excelente atención y servicio de calidad\",\n  \"reviewDate\": \"2025-10-13T10:30:00\",\n  \"service\": {\n    \"id\": 1\n  },\n  \"user\": {\n    \"id\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/reviews",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reviews"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 3,\n  \"rating\": 5,\n  \"comments\": \"Excelente atención y servicio de calidad\",\n  \"reviewDate\": \"2025-10-13T10:30:00\",\n  \"service\": {\n    \"id\": 1,\n    \"name\": \"Baño completo\"\n  },\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Juan Pérez\"\n  }\n}"
+				},
+				{
+					"name": "Bad Request - Invalid Rating",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rating\": 5,\n  \"comments\": \"Excelente atención y servicio de calidad\",\n  \"reviewDate\": \"2025-10-13T10:30:00\",\n  \"service\": {\n    \"id\": 1\n  },\n  \"user\": {\n    \"id\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/reviews",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reviews"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"The rating must be between 1 and 5.\",\n  \"path\": \"/api/reviews\"\n}"
+				},
+				{
+					"name": "Bad Request - Empty Comment",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rating\": 5,\n  \"comments\": \"Excelente atención y servicio de calidad\",\n  \"reviewDate\": \"2025-10-13T10:30:00\",\n  \"service\": {\n    \"id\": 1\n  },\n  \"user\": {\n    \"id\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/reviews",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reviews"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"The comment cannot be empty.\",\n  \"path\": \"/api/reviews\"\n}"
+				},
+				{
+					"name": "Bad Request - Missing Date",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rating\": 5,\n  \"comments\": \"Excelente atención y servicio de calidad\",\n  \"reviewDate\": \"2025-10-13T10:30:00\",\n  \"service\": {\n    \"id\": 1\n  },\n  \"user\": {\n    \"id\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/reviews",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reviews"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"The review date is required.\",\n  \"path\": \"/api/reviews\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Update Review",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"rating\": 4,\n  \"comments\": \"Buen servicio, mejoró mucho\",\n  \"reviewDate\": \"2025-10-13T11:00:00\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/reviews/:reviewId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"reviews",
+						":reviewId"
+					],
+					"variable": [
+						{
+							"key": "reviewId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rating\": 4,\n  \"comments\": \"Buen servicio, mejoró mucho\",\n  \"reviewDate\": \"2025-10-13T11:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/reviews/:reviewId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reviews",
+								":reviewId"
+							],
+							"variable": [
+								{
+									"key": "reviewId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"rating\": 4,\n  \"comments\": \"Buen servicio, mejoró mucho\",\n  \"reviewDate\": \"2025-10-13T11:00:00\",\n  \"service\": {\n    \"id\": 1\n  }\n}"
+				}
+			]
+		},
+		{
+			"name": "Delete Review",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/reviews/:reviewId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"reviews",
+						":reviewId"
+					],
+					"variable": [
+						{
+							"key": "reviewId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/reviews/:reviewId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reviews",
+								":reviewId"
+							],
+							"variable": [
+								{
+									"key": "reviewId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Not Found Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/reviews/:reviewId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reviews",
+								":reviewId"
+							],
+							"variable": [
+								{
+									"key": "reviewId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"The review was not found.\",\n  \"path\": \"/api/reviews/999\"\n}"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
