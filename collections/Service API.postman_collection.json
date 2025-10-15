@@ -1,0 +1,525 @@
+{
+	"info": {
+		"_postman_id": "7623c0b1-f962-4bb3-85d5-a8abfc572239",
+		"name": "Service API",
+		"description": "Collection for Service endpoints with response examples",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49212629",
+		"_collection_link": "https://drkgodeater9-8872832.postman.co/workspace/DogSpa-Api~9ad14d8a-8a81-436c-82e7-b2651fa012d5/collection/49212629-7623c0b1-f962-4bb3-85d5-a8abfc572239?action=share&source=collection_link&creator=49212629"
+	},
+	"item": [
+		{
+			"name": "Create Service",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Baño completo\",\n  \"description\": \"Baño con shampoo premium y secado\",\n  \"price\": 50000.00,\n  \"duration\": 60\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/services",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"services"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Created Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Baño completo\",\n  \"description\": \"Baño con shampoo premium y secado\",\n  \"price\": 50000.00,\n  \"duration\": 60\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/services",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"services"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"name\": \"Baño completo\",\n  \"description\": \"Baño con shampoo premium y secado\",\n  \"price\": 50000.00,\n  \"duration\": 60\n}"
+				},
+				{
+					"name": "Bad Request - Invalid Price",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Baño completo\",\n  \"description\": \"Baño con shampoo premium y secado\",\n  \"price\": 50000.00,\n  \"duration\": 60\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/services",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"services"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Price must be greater than or equal to 0\",\n  \"path\": \"/api/services\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Update Service",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Baño completo premium\",\n  \"description\": \"Baño con shampoo premium, secado y perfume\",\n  \"price\": 60000.00,\n  \"duration\": 75\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/services/:serviceId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"services",
+						":serviceId"
+					],
+					"variable": [
+						{
+							"key": "serviceId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Baño completo premium\",\n  \"description\": \"Baño con shampoo premium, secado y perfume\",\n  \"price\": 60000.00,\n  \"duration\": 75\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/services/:serviceId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"services",
+								":serviceId"
+							],
+							"variable": [
+								{
+									"key": "serviceId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"name\": \"Baño completo premium\",\n  \"description\": \"Baño con shampoo premium, secado y perfume\",\n  \"price\": 60000.00,\n  \"duration\": 75\n}"
+				}
+			]
+		},
+		{
+			"name": "Delete Service",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/services/:serviceId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"services",
+						":serviceId"
+					],
+					"variable": [
+						{
+							"key": "serviceId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/services/:serviceId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"services",
+								":serviceId"
+							],
+							"variable": [
+								{
+									"key": "serviceId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Not Found Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/services/:serviceId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"services",
+								":serviceId"
+							],
+							"variable": [
+								{
+									"key": "serviceId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Service not found\",\n  \"path\": \"/api/services/999\"\n}"
+				},
+				{
+					"name": "Bad Request - Has Active Reservations",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/services/:serviceId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"services",
+								":serviceId"
+							],
+							"variable": [
+								{
+									"key": "serviceId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Cannot delete service with active reservations\",\n  \"path\": \"/api/services/1\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Get Branches of Service",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/services/:serviceId/branches",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"services",
+						":serviceId",
+						"branches"
+					],
+					"variable": [
+						{
+							"key": "serviceId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/services/:serviceId/branches",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"services",
+								":serviceId",
+								"branches"
+							],
+							"variable": [
+								{
+									"key": "serviceId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Sucursal Centro\",\n    \"address\": \"Calle 123\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Sucursal Sur\",\n    \"address\": \"Carrera 10\"\n  }\n]"
+				}
+			]
+		},
+		{
+			"name": "Add Branch to Service",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/services/:serviceId/branches/:branchId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"services",
+						":serviceId",
+						"branches",
+						":branchId"
+					],
+					"variable": [
+						{
+							"key": "serviceId",
+							"value": "1"
+						},
+						{
+							"key": "branchId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/services/:serviceId/branches/:branchId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"services",
+								":serviceId",
+								"branches",
+								":branchId"
+							],
+							"variable": [
+								{
+									"key": "serviceId",
+									"value": "1"
+								},
+								{
+									"key": "branchId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Remove Branch from Service",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/services/:serviceId/branches/:branchId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"services",
+						":serviceId",
+						"branches",
+						":branchId"
+					],
+					"variable": [
+						{
+							"key": "serviceId",
+							"value": "1"
+						},
+						{
+							"key": "branchId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/services/:serviceId/branches/:branchId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"services",
+								":serviceId",
+								"branches",
+								":branchId"
+							],
+							"variable": [
+								{
+									"key": "serviceId",
+									"value": "1"
+								},
+								{
+									"key": "branchId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}

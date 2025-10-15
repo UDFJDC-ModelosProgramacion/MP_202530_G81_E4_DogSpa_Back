@@ -1,0 +1,867 @@
+{
+	"info": {
+		"_postman_id": "af5d6e3a-9282-497e-ba8c-f242453ed5b8",
+		"name": "Shopping Cart - Products API",
+		"description": "Collection for managing products in shopping carts with response examples",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49212629",
+		"_collection_link": "https://drkgodeater9-8872832.postman.co/workspace/DogSpa-Api~9ad14d8a-8a81-436c-82e7-b2651fa012d5/collection/49212629-af5d6e3a-9282-497e-ba8c-f242453ed5b8?action=share&source=collection_link&creator=49212629"
+	},
+	"item": [
+		{
+			"name": "Get Products in Cart",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"shoppingcarts",
+						":shoppingCartId",
+						"products"
+					],
+					"variable": [
+						{
+							"key": "shoppingCartId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Shampoo Premium\",\n    \"description\": \"Shampoo especial para perros de pelo largo\",\n    \"price\": 50.00,\n    \"stock\": 10,\n    \"category\": \"Higiene\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Collar Anti-pulgas\",\n    \"description\": \"Collar con protección de 8 meses\",\n    \"price\": 35.00,\n    \"stock\": 25,\n    \"category\": \"Accesorios\"\n  },\n  {\n    \"id\": 3,\n    \"name\": \"Juguete Kong\",\n    \"description\": \"Juguete resistente para masticar\",\n    \"price\": 25.00,\n    \"stock\": 15,\n    \"category\": \"Juguetes\"\n  }\n]"
+				},
+				{
+					"name": "Success Response - Empty Cart",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[]"
+				},
+				{
+					"name": "Not Found - Cart Not Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Shopping cart with id = 999 not found\",\n  \"path\": \"/api/shoppingcarts/999/products\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Get Product in Cart",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"shoppingcarts",
+						":shoppingCartId",
+						"products",
+						":productId"
+					],
+					"variable": [
+						{
+							"key": "shoppingCartId",
+							"value": "1"
+						},
+						{
+							"key": "productId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								},
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"name\": \"Shampoo Premium\",\n  \"description\": \"Shampoo especial para perros de pelo largo\",\n  \"price\": 50.00,\n  \"stock\": 10,\n  \"category\": \"Higiene\",\n  \"brand\": \"PetCare\"\n}"
+				},
+				{
+					"name": "Not Found - Cart Not Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								},
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Shopping cart with id = 999 not found\",\n  \"path\": \"/api/shoppingcarts/999/products/1\"\n}"
+				},
+				{
+					"name": "Not Found - Product Not Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								},
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Product with id = 999 not found\",\n  \"path\": \"/api/shoppingcarts/1/products/999\"\n}"
+				},
+				{
+					"name": "Bad Request - Product Not Associated",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								},
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"The product is not associated to the shopping cart\",\n  \"path\": \"/api/shoppingcarts/1/products/5\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Add Product to Cart",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"shoppingcarts",
+						":shoppingCartId",
+						"products",
+						":productId"
+					],
+					"variable": [
+						{
+							"key": "shoppingCartId",
+							"value": "1"
+						},
+						{
+							"key": "productId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								},
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"name\": \"Shampoo Premium\",\n  \"description\": \"Shampoo especial para perros de pelo largo\",\n  \"price\": 50.00,\n  \"stock\": 10,\n  \"category\": \"Higiene\"\n}"
+				},
+				{
+					"name": "Not Found - Cart Not Found",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								},
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Shopping cart with id = 999 not found\",\n  \"path\": \"/api/shoppingcarts/999/products/1\"\n}"
+				},
+				{
+					"name": "Not Found - Product Not Found",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								},
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Product with id = 999 not found\",\n  \"path\": \"/api/shoppingcarts/1/products/999\"\n}"
+				},
+				{
+					"name": "Bad Request - No Stock",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								},
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Cannot add product without stock to cart\",\n  \"path\": \"/api/shoppingcarts/1/products/1\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Replace Products in Cart",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"id\": 1\n  },\n  {\n    \"id\": 2\n  },\n  {\n    \"id\": 3\n  }\n]"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"shoppingcarts",
+						":shoppingCartId",
+						"products"
+					],
+					"variable": [
+						{
+							"key": "shoppingCartId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"id\": 1\n  },\n  {\n    \"id\": 2\n  },\n  {\n    \"id\": 3\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Shampoo Premium\",\n    \"price\": 50.00,\n    \"stock\": 10\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Collar Anti-pulgas\",\n    \"price\": 35.00,\n    \"stock\": 25\n  },\n  {\n    \"id\": 3,\n    \"name\": \"Juguete Kong\",\n    \"price\": 25.00,\n    \"stock\": 15\n  }\n]"
+				},
+				{
+					"name": "Not Found - Cart Not Found",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"id\": 1\n  },\n  {\n    \"id\": 2\n  },\n  {\n    \"id\": 3\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Shopping cart with id = 999 not found\",\n  \"path\": \"/api/shoppingcarts/999/products\"\n}"
+				},
+				{
+					"name": "Not Found - Product Not Found",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"id\": 1\n  },\n  {\n    \"id\": 2\n  },\n  {\n    \"id\": 3\n  }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Product with id = 999 not found\",\n  \"path\": \"/api/shoppingcarts/1/products\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Remove Product from Cart",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"shoppingcarts",
+						":shoppingCartId",
+						"products",
+						":productId"
+					],
+					"variable": [
+						{
+							"key": "shoppingCartId",
+							"value": "1"
+						},
+						{
+							"key": "productId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								},
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Not Found - Cart Not Found",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								},
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Shopping cart with id = 999 not found\",\n  \"path\": \"/api/shoppingcarts/999/products/1\"\n}"
+				},
+				{
+					"name": "Not Found - Product Not Found",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/shoppingcarts/:shoppingCartId/products/:productId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"shoppingcarts",
+								":shoppingCartId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "shoppingCartId",
+									"value": "1"
+								},
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Product with id = 999 not found\",\n  \"path\": \"/api/shoppingcarts/1/products/999\"\n}"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
