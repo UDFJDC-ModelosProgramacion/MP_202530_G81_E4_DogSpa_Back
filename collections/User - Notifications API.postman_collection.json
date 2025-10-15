@@ -1,0 +1,382 @@
+{
+	"info": {
+		"_postman_id": "1e70b439-3bad-497a-b086-f8e45d50f1f1",
+		"name": "User - Notifications API",
+		"description": "Collection for managing notifications of users (Many-to-Many)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49212629",
+		"_collection_link": "https://drkgodeater9-8872832.postman.co/workspace/DogSpa-Api~9ad14d8a-8a81-436c-82e7-b2651fa012d5/collection/49212629-1e70b439-3bad-497a-b086-f8e45d50f1f1?action=share&source=collection_link&creator=49212629"
+	},
+	"item": [
+		{
+			"name": "Get Notifications of User",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/users/:userId/notifications",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						":userId",
+						"notifications"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/:userId/notifications",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":userId",
+								"notifications"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"id\": 1,\n    \"message\": \"Tu reserva ha sido confirmada\",\n    \"date\": \"2025-10-13\",\n    \"read\": false\n  },\n  {\n    \"id\": 2,\n    \"message\": \"Recordatorio: Tu cita es mañana\",\n    \"date\": \"2025-10-14\",\n    \"read\": false\n  }\n]"
+				},
+				{
+					"name": "Not Found - User Not Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/:userId/notifications",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":userId",
+								"notifications"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Usuario no encontrado\",\n  \"path\": \"/api/users/999/notifications\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Add Notification to User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/users/:userId/notifications/:notificationId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						":userId",
+						"notifications",
+						":notificationId"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "1"
+						},
+						{
+							"key": "notificationId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/:userId/notifications/:notificationId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":userId",
+								"notifications",
+								":notificationId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "notificationId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"message\": \"Tu reserva ha sido confirmada\",\n  \"date\": \"2025-10-13\",\n  \"read\": false\n}"
+				},
+				{
+					"name": "Not Found - User Not Found",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/:userId/notifications/:notificationId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":userId",
+								"notifications",
+								":notificationId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "notificationId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Usuario no encontrado\",\n  \"path\": \"/api/users/999/notifications/1\"\n}"
+				},
+				{
+					"name": "Not Found - Notification Not Found",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/:userId/notifications/:notificationId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":userId",
+								"notifications",
+								":notificationId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "notificationId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Notificación no encontrada\",\n  \"path\": \"/api/users/1/notifications/999\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Remove Notification from User",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/users/:userId/notifications/:notificationId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						":userId",
+						"notifications",
+						":notificationId"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "1"
+						},
+						{
+							"key": "notificationId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/:userId/notifications/:notificationId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":userId",
+								"notifications",
+								":notificationId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "notificationId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Not Found Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/:userId/notifications/:notificationId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":userId",
+								"notifications",
+								":notificationId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "notificationId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Usuario no encontrado\",\n  \"path\": \"/api/users/999/notifications/1\"\n}"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}

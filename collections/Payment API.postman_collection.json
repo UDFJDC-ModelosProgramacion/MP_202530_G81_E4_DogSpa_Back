@@ -1,0 +1,930 @@
+{
+	"info": {
+		"_postman_id": "2000167c-1f6e-4052-b732-c154b1d57425",
+		"name": "Payment API",
+		"description": "Collection for Payment endpoints with response examples",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49212629",
+		"_collection_link": "https://drkgodeater9-8872832.postman.co/workspace/DogSpa-Api~9ad14d8a-8a81-436c-82e7-b2651fa012d5/collection/49212629-2000167c-1f6e-4052-b732-c154b1d57425?action=share&source=collection_link&creator=49212629"
+	},
+	"item": [
+		{
+			"name": "Get All Payments",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/payments",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"payments"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/payments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"id\": 1,\n    \"method\": \"credit_card\",\n    \"amount\": 150.50,\n    \"date\": \"2025-10-13T10:30:00\",\n    \"status\": \"completed\",\n    \"shoppingCart\": {\n      \"id\": 1,\n      \"total\": 150.50\n    }\n  },\n  {\n    \"id\": 2,\n    \"method\": \"pse\",\n    \"amount\": 200.00,\n    \"date\": \"2025-10-13T11:00:00\",\n    \"status\": \"pending\",\n    \"shoppingCart\": {\n      \"id\": 2,\n      \"total\": 200.00\n    }\n  }\n]"
+				}
+			]
+		},
+		{
+			"name": "Get Payment by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/payments/:paymentId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						":paymentId"
+					],
+					"variable": [
+						{
+							"key": "paymentId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/payments/:paymentId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								":paymentId"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"method\": \"credit_card\",\n  \"amount\": 150.50,\n  \"date\": \"2025-10-13T10:30:00\",\n  \"status\": \"completed\",\n  \"shoppingCart\": {\n    \"id\": 1,\n    \"total\": 150.50,\n    \"user\": {\n      \"id\": 1,\n      \"name\": \"Juan Pérez\"\n    }\n  }\n}"
+				},
+				{
+					"name": "Not Found Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/payments/:paymentId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								":paymentId"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Payment with id = 999 not found\",\n  \"path\": \"/api/payments/999\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Create Payment - Credit Card",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"method\": \"credit_card\",\n  \"amount\": 100.50,\n  \"shoppingCart\": {\n    \"id\": 1\n  }\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/payments",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"payments"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Created Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"method\": \"credit_card\",\n  \"amount\": 100.50,\n  \"shoppingCart\": {\n    \"id\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/payments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 3,\n  \"method\": \"credit_card\",\n  \"amount\": 100.50,\n  \"date\": \"2025-10-13T12:00:00\",\n  \"status\": \"pending\",\n  \"shoppingCart\": {\n    \"id\": 1\n  }\n}"
+				},
+				{
+					"name": "Bad Request - No Payment Method",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"method\": \"credit_card\",\n  \"amount\": 100.50,\n  \"shoppingCart\": {\n    \"id\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/payments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Cannot create a payment without a payment method\",\n  \"path\": \"/api/payments\"\n}"
+				},
+				{
+					"name": "Bad Request - Invalid Method",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"method\": \"credit_card\",\n  \"amount\": 100.50,\n  \"shoppingCart\": {\n    \"id\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/payments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Invalid payment method: bitcoin. Valid methods: cash, credit_card, debit_card, transfer, pse, nequi, daviplata, paypal\",\n  \"path\": \"/api/payments\"\n}"
+				},
+				{
+					"name": "Bad Request - No Shopping Cart",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"method\": \"credit_card\",\n  \"amount\": 100.50,\n  \"shoppingCart\": {\n    \"id\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/payments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Cannot create a payment without an associated shopping cart\",\n  \"path\": \"/api/payments\"\n}"
+				},
+				{
+					"name": "Bad Request - Invalid Amount",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"method\": \"credit_card\",\n  \"amount\": 100.50,\n  \"shoppingCart\": {\n    \"id\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/payments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Payment amount must be greater than zero\",\n  \"path\": \"/api/payments\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Update Payment",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"method\": \"debit_card\",\n  \"amount\": 150.75,\n  \"status\": \"processing\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/payments/:paymentId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						":paymentId"
+					],
+					"variable": [
+						{
+							"key": "paymentId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"method\": \"debit_card\",\n  \"amount\": 150.75,\n  \"status\": \"processing\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/payments/:paymentId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								":paymentId"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"method\": \"debit_card\",\n  \"amount\": 150.75,\n  \"date\": \"2025-10-13T10:30:00\",\n  \"status\": \"processing\",\n  \"shoppingCart\": {\n    \"id\": 1\n  }\n}"
+				},
+				{
+					"name": "Bad Request - Already Completed",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"method\": \"debit_card\",\n  \"amount\": 150.75,\n  \"status\": \"processing\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/payments/:paymentId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								":paymentId"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Cannot update a payment that has already been completed\",\n  \"path\": \"/api/payments/1\"\n}"
+				},
+				{
+					"name": "Bad Request - Payment Failed",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"method\": \"debit_card\",\n  \"amount\": 150.75,\n  \"status\": \"processing\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/payments/:paymentId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								":paymentId"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Cannot update a payment that has failed\",\n  \"path\": \"/api/payments/1\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Process Payment",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/payments/:paymentId/process",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						":paymentId",
+						"process"
+					],
+					"variable": [
+						{
+							"key": "paymentId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/payments/:paymentId/process",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								":paymentId",
+								"process"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"method\": \"credit_card\",\n  \"amount\": 100.50,\n  \"date\": \"2025-10-13T10:30:00\",\n  \"status\": \"processing\",\n  \"shoppingCart\": {\n    \"id\": 1\n  }\n}"
+				},
+				{
+					"name": "Bad Request - Invalid Status",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/payments/:paymentId/process",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								":paymentId",
+								"process"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Only pending payments can be processed. Current status: completed\",\n  \"path\": \"/api/payments/1/process\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Complete Payment",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/payments/:paymentId/complete",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						":paymentId",
+						"complete"
+					],
+					"variable": [
+						{
+							"key": "paymentId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/payments/:paymentId/complete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								":paymentId",
+								"complete"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"method\": \"credit_card\",\n  \"amount\": 100.50,\n  \"date\": \"2025-10-13T10:30:00\",\n  \"status\": \"completed\",\n  \"shoppingCart\": {\n    \"id\": 1\n  }\n}"
+				},
+				{
+					"name": "Bad Request - Invalid Status",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/payments/:paymentId/complete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								":paymentId",
+								"complete"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Only processing payments can be completed. Current status: pending\",\n  \"path\": \"/api/payments/1/complete\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Cancel Payment",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/payments/:paymentId/cancel",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						":paymentId",
+						"cancel"
+					],
+					"variable": [
+						{
+							"key": "paymentId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/payments/:paymentId/cancel",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								":paymentId",
+								"cancel"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"id\": 1,\n  \"method\": \"credit_card\",\n  \"amount\": 100.50,\n  \"date\": \"2025-10-13T10:30:00\",\n  \"status\": \"cancelled\",\n  \"shoppingCart\": {\n    \"id\": 1\n  }\n}"
+				},
+				{
+					"name": "Bad Request - Cannot Cancel Completed",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/payments/:paymentId/cancel",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								":paymentId",
+								"cancel"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Cannot cancel a completed payment\",\n  \"path\": \"/api/payments/1/cancel\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Delete Payment",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/payments/:paymentId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						":paymentId"
+					],
+					"variable": [
+						{
+							"key": "paymentId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/payments/:paymentId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								":paymentId"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Bad Request - Completed Payment",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/payments/:paymentId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								":paymentId"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "Text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"timestamp\": \"2025-10-13T10:30:00.000+00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Cannot delete a payment associated with a completed order\",\n  \"path\": \"/api/payments/1\"\n}"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
