@@ -6,5 +6,15 @@ public enum OrderStatus {
     PAID,
     CANCELLED,
     SHIPPED,
-    DELIVERED
+    DELIVERED;
+
+
+// --- Regla: estados inmutables ---
+public static boolean isImmutable(OrderStatus status) {
+    return status == PAID
+        || status == SHIPPED
+        || status == DELIVERED
+        || status == CANCELLED;
+}
+
 }
