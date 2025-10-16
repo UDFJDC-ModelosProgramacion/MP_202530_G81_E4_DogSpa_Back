@@ -2,11 +2,16 @@ package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.OrderDetailEntity;
 import co.edu.udistrital.mdp.back.entities.OrderEntity;
+import co.edu.udistrital.mdp.back.entities.OrderStatus;
+import co.edu.udistrital.mdp.back.entities.ProductEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.OrderDetailRepository;
 import co.edu.udistrital.mdp.back.repositories.OrderRepository;
-import org.junit.jupiter.api.*;
+import co.edu.udistrital.mdp.back.repositories.ProductRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -24,124 +29,141 @@ class OrderDetailServiceTest {
 
     @MockBean private OrderDetailRepository orderDetailRepository;
     @MockBean private OrderRepository orderRepository;
+    @MockBean private ProductRepository productRepository;
 
-    private OrderEntity orderCreated;
+    private OrderEntity orderPending;
     private OrderEntity orderConfirmed;
     private OrderEntity orderPaid;
     private OrderEntity orderCancelled;
 
-    private OrderDetailEntity existingDetail; // para update/delete
+    private ProductEntity product;
+    private OrderDetailEntity existingDetail; 
 
     @BeforeEach
     void setUp() {
-        orderCreated = new OrderEntity();
-        orderCreated.setId(10L);
-        orderCreated.setStatus("CREATED");
+        
+        product = new ProductEntity();
+        product.setId(1L);
+        product.setName("Dog Shampoo");
+        product.setPrice(25.0);
+
+        orderPending = new OrderEntity();
+        orderPending.setId(10L);
+        orderPending.setStatus(OrderStatus.PENDING);
+        orderPending.setDiscount(0.0);
 
         orderConfirmed = new OrderEntity();
         orderConfirmed.setId(11L);
-        orderConfirmed.setStatus("CONFIRMED");
+        orderConfirmed.setStatus(OrderStatus.CONFIRMED);
+        orderConfirmed.setDiscount(0.0);
 
         orderPaid = new OrderEntity();
         orderPaid.setId(12L);
-        orderPaid.setStatus("PAID");
+        orderPaid.setStatus(OrderStatus.PAID);
+        orderPaid.setDiscount(0.0);
 
         orderCancelled = new OrderEntity();
         orderCancelled.setId(13L);
-        orderCancelled.setStatus("CANCELLED");
+        orderCancelled.setStatus(OrderStatus.CANCELLED);
+        orderCancelled.setDiscount(0.0);
 
         existingDetail = new OrderDetailEntity();
         existingDetail.setId(100L);
-        existingDetail.setOrder(orderCreated);
+        existingDetail.setOrder(orderPending);
+        existingDetail.setProduct(product);
         existingDetail.setQuantity(2);
-        existingDetail.setSubtotal(50.0);
+        existingDetail.setSubtotal(50.0); 
+        orderPending.getOrderDetails().add(existingDetail);
     }
-
-    // -------------------- addOrderDetail --------------------
 
     @Test
     @DisplayName("addOrderDetail: orden no existe -> EntityNotFoundException")
     void addOrderDetail_notFound() {
         when(orderRepository.findById(999L)).thenReturn(Optional.empty());
+
         var newDetail = new OrderDetailEntity();
         newDetail.setQuantity(1);
-        newDetail.setSubtotal(10.0);
+        newDetail.setProduct(product); 
 
         assertThrows(EntityNotFoundException.class,
                 () -> service.addOrderDetail(999L, newDetail));
 
         verify(orderRepository).findById(999L);
-        verifyNoInteractions(orderDetailRepository);
+        verifyNoInteractions(orderDetailRepository, productRepository);
     }
 
     @Test
     @DisplayName("addOrderDetail: no se puede agregar a una orden PAID")
     void addOrderDetail_paidForbidden() {
         when(orderRepository.findById(12L)).thenReturn(Optional.of(orderPaid));
+
         var newDetail = new OrderDetailEntity();
         newDetail.setQuantity(1);
-        newDetail.setSubtotal(10.0);
+        newDetail.setProduct(product);
 
         assertThrows(IllegalOperationException.class,
                 () -> service.addOrderDetail(12L, newDetail));
 
         verify(orderRepository).findById(12L);
-        verifyNoInteractions(orderDetailRepository);
+        verifyNoInteractions(orderDetailRepository, productRepository);
     }
 
     @Test
     @DisplayName("addOrderDetail: no se puede agregar a una orden CANCELLED")
     void addOrderDetail_cancelledForbidden() {
         when(orderRepository.findById(13L)).thenReturn(Optional.of(orderCancelled));
+
         var newDetail = new OrderDetailEntity();
         newDetail.setQuantity(1);
-        newDetail.setSubtotal(10.0);
+        newDetail.setProduct(product);
 
         assertThrows(IllegalOperationException.class,
                 () -> service.addOrderDetail(13L, newDetail));
 
         verify(orderRepository).findById(13L);
-        verifyNoInteractions(orderDetailRepository);
+        verifyNoInteractions(orderDetailRepository, productRepository);
     }
 
     @Test
     @DisplayName("addOrderDetail: quantity <= 0 -> IllegalOperationException")
     void addOrderDetail_invalidQuantity() {
-        when(orderRepository.findById(10L)).thenReturn(Optional.of(orderCreated));
+        when(orderRepository.findById(10L)).thenReturn(Optional.of(orderPending));
+
         var newDetail = new OrderDetailEntity();
         newDetail.setQuantity(0);
-        newDetail.setSubtotal(10.0);
+        newDetail.setProduct(product);
 
         assertThrows(IllegalOperationException.class,
                 () -> service.addOrderDetail(10L, newDetail));
 
         verify(orderRepository).findById(10L);
-        verifyNoInteractions(orderDetailRepository);
+        verifyNoInteractions(orderDetailRepository, productRepository);
     }
 
     @Test
-    @DisplayName("addOrderDetail: OK asigna la orden y guarda el detalle")
+    @DisplayName("addOrderDetail: OK calcula subtotal (price * quantity) y guarda; persiste recálculo de la orden")
     void addOrderDetail_ok() throws Exception {
-        when(orderRepository.findById(10L)).thenReturn(Optional.of(orderCreated));
-        when(orderDetailRepository.save(any(OrderDetailEntity.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
+        when(orderRepository.findById(10L)).thenReturn(Optional.of(orderPending));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(orderDetailRepository.save(any(OrderDetailEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         var newDetail = new OrderDetailEntity();
         newDetail.setQuantity(3);
-        newDetail.setSubtotal(30.0);
+        newDetail.setProduct(product);
 
         var saved = service.addOrderDetail(10L, newDetail);
 
-        assertSame(orderCreated, newDetail.getOrder());
-        assertSame(orderCreated, saved.getOrder());
+        assertSame(orderPending, saved.getOrder());
         assertEquals(3, saved.getQuantity());
-        assertEquals(30.0, saved.getSubtotal());
+        assertEquals(75.0, saved.getSubtotal());
 
         verify(orderRepository).findById(10L);
+        verify(productRepository).findById(1L);
         verify(orderDetailRepository).save(newDetail);
+        verify(orderRepository).save(orderPending);
     }
 
-    // -------------------- updateOrderDetail --------------------
 
     @Test
     @DisplayName("updateOrderDetail: detalle no existe -> EntityNotFoundException")
@@ -153,7 +175,7 @@ class OrderDetailServiceTest {
 
         verify(orderDetailRepository).findById(100L);
         verifyNoMoreInteractions(orderDetailRepository);
-        verifyNoInteractions(orderRepository);
+        verifyNoInteractions(orderRepository, productRepository);
     }
 
     @Test
@@ -171,6 +193,7 @@ class OrderDetailServiceTest {
 
         verify(orderDetailRepository, times(2)).findById(100L);
         verifyNoMoreInteractions(orderDetailRepository);
+        verifyNoInteractions(productRepository);
     }
 
     @Test
@@ -180,81 +203,55 @@ class OrderDetailServiceTest {
 
         var incoming = new OrderDetailEntity();
         incoming.setQuantity(0);
-        incoming.setSubtotal(999.0);
 
         assertThrows(IllegalOperationException.class,
                 () -> service.updateOrderDetail(100L, incoming));
 
         verify(orderDetailRepository).findById(100L);
         verifyNoMoreInteractions(orderDetailRepository);
+        verifyNoInteractions(productRepository);
     }
 
     @Test
-    @DisplayName("updateOrderDetail: CONFIRMED y cambia subtotal -> IllegalOperationException")
-    void updateOrderDetail_confirmedChangingPrice_forbidden() {
+    @DisplayName("updateOrderDetail: CONFIRMED -> no se permiten cambios (solo PENDING)")
+    void updateOrderDetail_confirmed_forbidden() {
         existingDetail.setOrder(orderConfirmed);
-        existingDetail.setSubtotal(50.0);
-
         when(orderDetailRepository.findById(100L)).thenReturn(Optional.of(existingDetail));
 
         var incoming = new OrderDetailEntity();
         incoming.setQuantity(5);
-        incoming.setSubtotal(60.0); // distinto
 
         assertThrows(IllegalOperationException.class,
                 () -> service.updateOrderDetail(100L, incoming));
 
         verify(orderDetailRepository).findById(100L);
         verifyNoMoreInteractions(orderDetailRepository);
+        verifyNoInteractions(productRepository);
     }
 
     @Test
-    @DisplayName("updateOrderDetail: CONFIRMED con el mismo subtotal -> actualiza solo cantidad")
-    void updateOrderDetail_confirmedSamePrice_updatesQuantityOnly() throws Exception {
-        existingDetail.setOrder(orderConfirmed);
-        existingDetail.setSubtotal(50.0);
-        existingDetail.setQuantity(2);
-
+    @DisplayName("updateOrderDetail: PENDING permite cambios; recalcula subtotal (price * quantity) y guarda")
+    void updateOrderDetail_pending_allowsAndRecalculates() throws Exception {
+        // Detalle asociado a PENDING (ya en setUp)
         when(orderDetailRepository.findById(100L)).thenReturn(Optional.of(existingDetail));
-        when(orderDetailRepository.save(any(OrderDetailEntity.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
-
-        var incoming = new OrderDetailEntity();
-        incoming.setQuantity(7);
-        incoming.setSubtotal(50.0); // igual
-
-        var saved = service.updateOrderDetail(100L, incoming);
-
-        assertEquals(7, saved.getQuantity());
-        assertEquals(50.0, saved.getSubtotal()); // sin cambio
-        verify(orderDetailRepository).findById(100L);
-        verify(orderDetailRepository).save(existingDetail);
-    }
-
-    @Test
-    @DisplayName("updateOrderDetail: CREATED permite cambiar cantidad y subtotal")
-    void updateOrderDetail_created_allowsAll() throws Exception {
-        existingDetail.setOrder(orderCreated);
-        existingDetail.setSubtotal(50.0);
-        existingDetail.setQuantity(2);
-
-        when(orderDetailRepository.findById(100L)).thenReturn(Optional.of(existingDetail));
-        when(orderDetailRepository.save(any(OrderDetailEntity.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(orderDetailRepository.save(any(OrderDetailEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         var incoming = new OrderDetailEntity();
         incoming.setQuantity(9);
-        incoming.setSubtotal(90.0);
+        incoming.setProduct(product); 
 
         var saved = service.updateOrderDetail(100L, incoming);
 
         assertEquals(9, saved.getQuantity());
-        assertEquals(90.0, saved.getSubtotal());
+        assertEquals(25.0 * 9, saved.getSubtotal());
         verify(orderDetailRepository).findById(100L);
+        verify(productRepository).findById(1L);
         verify(orderDetailRepository).save(existingDetail);
+        verify(orderRepository).save(orderPending); 
     }
 
-    // -------------------- deleteOrderDetail --------------------
 
     @Test
     @DisplayName("deleteOrderDetail: detalle no existe -> EntityNotFoundException")
@@ -266,6 +263,7 @@ class OrderDetailServiceTest {
 
         verify(orderDetailRepository).findById(100L);
         verifyNoMoreInteractions(orderDetailRepository);
+        verifyNoInteractions(orderRepository);
     }
 
     @Test
@@ -283,18 +281,19 @@ class OrderDetailServiceTest {
 
         verify(orderDetailRepository, times(2)).findById(100L);
         verifyNoMoreInteractions(orderDetailRepository);
+        verifyNoInteractions(orderRepository);
     }
 
     @Test
-    @DisplayName("deleteOrderDetail: CREATED -> elimina el detalle")
+    @DisplayName("deleteOrderDetail: PENDING -> elimina y persiste recálculo de la orden")
     void deleteOrderDetail_ok() throws Exception {
-        existingDetail.setOrder(orderCreated);
         when(orderDetailRepository.findById(100L)).thenReturn(Optional.of(existingDetail));
+        when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         service.deleteOrderDetail(100L);
 
         verify(orderDetailRepository).findById(100L);
         verify(orderDetailRepository).delete(existingDetail);
-        verifyNoMoreInteractions(orderDetailRepository);
+        verify(orderRepository).save(orderPending); // recálculo de total
     }
 }
