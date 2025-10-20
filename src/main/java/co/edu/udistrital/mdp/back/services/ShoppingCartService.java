@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import co.edu.udistrital.mdp.back.entities.ProductEntity;
 import co.edu.udistrital.mdp.back.entities.UserEntity;
 import co.edu.udistrital.mdp.back.entities.ShoppingCartEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
