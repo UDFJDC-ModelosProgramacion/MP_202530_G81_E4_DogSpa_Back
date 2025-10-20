@@ -4,7 +4,6 @@ import co.edu.udistrital.mdp.back.entities.PersonEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.PersonRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,9 +12,11 @@ import java.util.Optional;
 @Service
 public class PersonService {
 
-    @Autowired
     private PersonRepository personRepository;
 
+    public PersonService(PersonRepository personRepository) {
+    this.personRepository = personRepository;
+    }   
     public PersonEntity createPerson(PersonEntity person) throws IllegalOperationException {
         if (person.getName() == null || person.getName().isBlank()) {
             throw new IllegalOperationException("El nombre no puede estar vacío");
