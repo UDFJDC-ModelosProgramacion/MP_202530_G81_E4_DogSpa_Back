@@ -27,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor  // Genera el constructor para inyección de dependencias
 public class MultimediaService {
 
     // Campos final para inyección por constructor
@@ -35,13 +34,23 @@ public class MultimediaService {
     private final BranchRepository branchRepository;
     private final ServiceRepository serviceRepository;
     private final ProductRepository productRepository;
+    
+    // Constructor explícito para inyección de dependencias
+    public MultimediaService(MultimediaRepository multimediaRepository,
+                           BranchRepository branchRepository,
+                           ServiceRepository serviceRepository,
+                           ProductRepository productRepository) {
+        this.multimediaRepository = multimediaRepository;
+        this.branchRepository = branchRepository;
+        this.serviceRepository = serviceRepository;
+        this.productRepository = productRepository;
+    }
 
     // Constantes para mensajes de error duplicados
     private static final String MULTIMEDIA_NOT_FOUND = "Multimedia with id = %d not found";
     private static final String BRANCH_NOT_FOUND = "Branch with id = %d not found";
     private static final String SERVICE_NOT_FOUND = "Service with id = %d not found";
     private static final String PRODUCT_NOT_FOUND = "Product with id = %d not found";
-    private static final String NOT_FOUND_SUFFIX = " not found";
 
     // Tipos de multimedia soportados
     private static final List<String> SUPPORTED_TYPES = Arrays.asList("image", "video");
@@ -231,7 +240,7 @@ public class MultimediaService {
 
         String type = multimedia.getType().toLowerCase();
         
-        if (!SUPPORTED_TYPES.stream().anyMatch(type::contains)) {
+        if (SUPPORTED_TYPES.stream().noneMatch(type::contains)) {
             throw new IllegalOperationException(
                     "Unsupported file type: " + multimedia.getType() + 
                     ". Supported types: image, video");
@@ -280,3 +289,4 @@ public class MultimediaService {
             throw new IllegalOperationException("Unsupported file extension or corrupted file");
         }
     }
+}
