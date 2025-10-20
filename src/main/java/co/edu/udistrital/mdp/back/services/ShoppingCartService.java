@@ -25,14 +25,24 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class ShoppingCartService {
 
-    @Autowired
-    private ShoppingCartRepository shoppingCartRepository;
+    // Constantes para evitar duplicación de strings
+    private static final String SHOPPING_CART_NOT_FOUND_PREFIX = "Shopping cart with id = ";
+    private static final String NOT_FOUND_SUFFIX = " not found";
+    private static final String PRODUCT_NOT_FOUND_PREFIX = "Product with id = ";
+    private static final String USER_NOT_FOUND_PREFIX = "User with id = ";
 
-    @Autowired
-    private UserRepository userRepository;
+    private final ShoppingCartRepository shoppingCartRepository;
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
 
-    @Autowired
-    private ProductRepository productRepository;
+    // Constructor para inyección de dependencias
+    public ShoppingCartService(ShoppingCartRepository shoppingCartRepository,
+                              UserRepository userRepository,
+                              ProductRepository productRepository) {
+        this.shoppingCartRepository = shoppingCartRepository;
+        this.userRepository = userRepository;
+        this.productRepository = productRepository;
+    }
 
     /**
      * Returns all shopping carts
@@ -54,10 +64,11 @@ public class ShoppingCartService {
      */
     @Transactional
     public ShoppingCartEntity getShoppingCart(Long shoppingCartId) throws EntityNotFoundException {
-        log.info("Starting process to query shopping cart with id = {0}", shoppingCartId);
+        log.info("Starting process to query shopping cart with id = {}", shoppingCartId);
         ShoppingCartEntity shoppingCartEntity = shoppingCartRepository.findById(shoppingCartId)
-                .orElseThrow(() -> new EntityNotFoundException("Shopping cart with id = " + shoppingCartId + " not found"));
-        log.info("Finishing process to query shopping cart with id = {0}", shoppingCartId);
+                .orElseThrow(() -> new EntityNotFoundException(
+                        SHOPPING_CART_NOT_FOUND_PREFIX + shoppingCartId + NOT_FOUND_SUFFIX));
+        log.info("Finishing process to query shopping cart with id = {}", shoppingCartId);
         return shoppingCartEntity;
     }
 
@@ -82,7 +93,7 @@ public class ShoppingCartService {
 
         UserEntity userEntity = userRepository.findById(shoppingCartEntity.getUser().getId())
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "User with id = " + shoppingCartEntity.getUser().getId() + " not found"));
+                        USER_NOT_FOUND_PREFIX + shoppingCartEntity.getUser().getId() + NOT_FOUND_SUFFIX));
 
         if (userEntity.getShoppingCart() != null) {
             throw new IllegalOperationException("User already has an associated shopping cart");
@@ -107,10 +118,11 @@ public class ShoppingCartService {
     @Transactional
     public ShoppingCartEntity updateShoppingCart(Long shoppingCartId, ShoppingCartEntity shoppingCart)
             throws EntityNotFoundException, IllegalOperationException {
-        log.info("Starting process to update shopping cart with id = {0}", shoppingCartId);
+        log.info("Starting process to update shopping cart with id = {}", shoppingCartId);
 
         ShoppingCartEntity shoppingCartEntity = shoppingCartRepository.findById(shoppingCartId)
-                .orElseThrow(() -> new EntityNotFoundException("Shopping cart with id = " + shoppingCartId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        SHOPPING_CART_NOT_FOUND_PREFIX + shoppingCartId + NOT_FOUND_SUFFIX));
 
         if (shoppingCart.getProducts() != null && !shoppingCart.getProducts().isEmpty()) {
             for (ProductEntity product : shoppingCart.getProducts()) {
@@ -126,7 +138,7 @@ public class ShoppingCartService {
         shoppingCartEntity.setTotal(shoppingCart.getTotal());
         shoppingCartEntity.setProducts(shoppingCart.getProducts());
 
-        log.info("Finishing process to update shopping cart with id = {0}", shoppingCartId);
+        log.info("Finishing process to update shopping cart with id = {}", shoppingCartId);
         return shoppingCartRepository.save(shoppingCartEntity);
     }
 
@@ -141,17 +153,18 @@ public class ShoppingCartService {
      */
     @Transactional
     public void deleteShoppingCart(Long shoppingCartId) throws EntityNotFoundException, IllegalOperationException {
-        log.info("Starting process to delete shopping cart with id = {0}", shoppingCartId);
+        log.info("Starting process to delete shopping cart with id = {}", shoppingCartId);
 
         ShoppingCartEntity shoppingCartEntity = shoppingCartRepository.findById(shoppingCartId)
-                .orElseThrow(() -> new EntityNotFoundException("Shopping cart with id = " + shoppingCartId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        SHOPPING_CART_NOT_FOUND_PREFIX + shoppingCartId + NOT_FOUND_SUFFIX));
 
         if (shoppingCartEntity.getPayments() != null && !shoppingCartEntity.getPayments().isEmpty()) {
             throw new IllegalOperationException("Cannot delete shopping cart because it has associated payments/orders");
         }
 
         shoppingCartRepository.delete(shoppingCartEntity);
-        log.info("Finishing process to delete shopping cart with id = {0}", shoppingCartId);
+        log.info("Finishing process to delete shopping cart with id = {}", shoppingCartId);
     }
 
     /**
@@ -166,14 +179,15 @@ public class ShoppingCartService {
     @Transactional
     public ShoppingCartEntity addProductToCart(Long shoppingCartId, Long productId)
             throws EntityNotFoundException, IllegalOperationException {
-        log.info("Starting process to add product with id = {0} to cart with id = {1}", productId, shoppingCartId);
+        log.info("Starting process to add product with id = {} to cart with id = {}", productId, shoppingCartId);
 
         ShoppingCartEntity cart = shoppingCartRepository.findById(shoppingCartId)
-                .orElseThrow(() -> new EntityNotFoundException("Shopping cart with id = " + shoppingCartId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        SHOPPING_CART_NOT_FOUND_PREFIX + shoppingCartId + NOT_FOUND_SUFFIX));
 
         ProductEntity product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalOperationException(
-                        "Cannot add non-existent product with id = " + productId + " to cart"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        PRODUCT_NOT_FOUND_PREFIX + productId + NOT_FOUND_SUFFIX));
 
         cart.getProducts().add(product);
         double newTotal = cart.getTotal() + product.getPrice();
@@ -194,13 +208,15 @@ public class ShoppingCartService {
     @Transactional
     public ShoppingCartEntity removeProductFromCart(Long shoppingCartId, Long productId)
             throws EntityNotFoundException {
-        log.info("Starting process to remove product with id = {0} from cart with id = {1}", productId, shoppingCartId);
+        log.info("Starting process to remove product with id = {} from cart with id = {}", productId, shoppingCartId);
 
         ShoppingCartEntity cart = shoppingCartRepository.findById(shoppingCartId)
-                .orElseThrow(() -> new EntityNotFoundException("Shopping cart with id = " + shoppingCartId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        SHOPPING_CART_NOT_FOUND_PREFIX + shoppingCartId + NOT_FOUND_SUFFIX));
 
         ProductEntity product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("Product with id = " + productId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        PRODUCT_NOT_FOUND_PREFIX + productId + NOT_FOUND_SUFFIX));
 
         cart.getProducts().remove(product);
         double newTotal = cart.getTotal() - product.getPrice();

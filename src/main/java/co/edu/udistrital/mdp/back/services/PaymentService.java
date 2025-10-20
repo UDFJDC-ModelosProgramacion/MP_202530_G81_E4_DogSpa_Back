@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +13,7 @@ import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.PaymentRepository;
 import co.edu.udistrital.mdp.back.repositories.ShoppingCartRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -23,17 +23,22 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor  // Genera el constructor para inyección de dependencias
 public class PaymentService {
 
-    @Autowired
-    private PaymentRepository paymentRepository;
+    // Campos final para inyección por constructor
+    private final PaymentRepository paymentRepository;
+    private final ShoppingCartRepository shoppingCartRepository;
 
-    @Autowired
-    private ShoppingCartRepository shoppingCartRepository;
+    // Constantes para mensajes de error duplicados
+    private static final String PAYMENT_NOT_FOUND = "Payment with id = %d not found";
+    private static final String SHOPPING_CART_NOT_FOUND = "Shopping cart with id = %d not found";
 
+    // Métodos de pago válidos
     private static final List<String> VALID_PAYMENT_METHODS = Arrays.asList(
             "cash", "credit_card", "debit_card", "transfer", "pse", "nequi", "daviplata", "paypal");
 
+    // Estados de pago
     private static final String STATUS_PENDING = "pending";
     private static final String STATUS_PROCESSING = "processing";
     private static final String STATUS_COMPLETED = "completed";
@@ -60,10 +65,10 @@ public class PaymentService {
      */
     @Transactional
     public PaymentEntity getPayment(Long paymentId) throws EntityNotFoundException {
-        log.info("Starting process to query payment with id = {0}", paymentId);
+        log.info("Starting process to query payment with id = {}", paymentId);
         PaymentEntity paymentEntity = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new EntityNotFoundException("Payment with id = " + paymentId + " not found"));
-        log.info("Finishing process to query payment with id = {0}", paymentId);
+                .orElseThrow(() -> new EntityNotFoundException(String.format(PAYMENT_NOT_FOUND, paymentId)));
+        log.info("Finishing process to query payment with id = {}", paymentId);
         return paymentEntity;
     }
 
@@ -99,7 +104,7 @@ public class PaymentService {
 
         ShoppingCartEntity shoppingCart = shoppingCartRepository.findById(paymentEntity.getShoppingCart().getId())
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "Shopping cart with id = " + paymentEntity.getShoppingCart().getId() + " not found"));
+                        String.format(SHOPPING_CART_NOT_FOUND, paymentEntity.getShoppingCart().getId())));
 
         if (paymentEntity.getAmount() <= 0) {
             throw new IllegalOperationException("Payment amount must be greater than zero");
@@ -134,10 +139,10 @@ public class PaymentService {
     @Transactional
     public PaymentEntity updatePayment(Long paymentId, PaymentEntity payment)
             throws EntityNotFoundException, IllegalOperationException {
-        log.info("Starting process to update payment with id = {0}", paymentId);
+        log.info("Starting process to update payment with id = {}", paymentId);
 
         PaymentEntity existingPayment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new EntityNotFoundException("Payment with id = " + paymentId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(PAYMENT_NOT_FOUND, paymentId)));
 
         if (STATUS_COMPLETED.equalsIgnoreCase(existingPayment.getStatus())) {
             throw new IllegalOperationException("Cannot update a payment that has already been completed");
@@ -165,7 +170,7 @@ public class PaymentService {
             existingPayment.setStatus(payment.getStatus());
         }
 
-        log.info("Finishing process to update payment with id = {0}", paymentId);
+        log.info("Finishing process to update payment with id = {}", paymentId);
         return paymentRepository.save(existingPayment);
     }
 
@@ -180,17 +185,17 @@ public class PaymentService {
      */
     @Transactional
     public void deletePayment(Long paymentId) throws EntityNotFoundException, IllegalOperationException {
-        log.info("Starting process to delete payment with id = {0}", paymentId);
+        log.info("Starting process to delete payment with id = {}", paymentId);
 
         PaymentEntity payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new EntityNotFoundException("Payment with id = " + paymentId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(PAYMENT_NOT_FOUND, paymentId)));
 
         if (STATUS_COMPLETED.equalsIgnoreCase(payment.getStatus())) {
             throw new IllegalOperationException("Cannot delete a payment associated with a completed order");
         }
 
         paymentRepository.delete(payment);
-        log.info("Finishing process to delete payment with id = {0}", paymentId);
+        log.info("Finishing process to delete payment with id = {}", paymentId);
     }
 
     /**
@@ -203,10 +208,10 @@ public class PaymentService {
      */
     @Transactional
     public PaymentEntity processPayment(Long paymentId) throws EntityNotFoundException, IllegalOperationException {
-        log.info("Starting process to process payment with id = {0}", paymentId);
+        log.info("Starting process to process payment with id = {}", paymentId);
 
         PaymentEntity payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new EntityNotFoundException("Payment with id = " + paymentId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(PAYMENT_NOT_FOUND, paymentId)));
 
         if (!STATUS_PENDING.equalsIgnoreCase(payment.getStatus())) {
             throw new IllegalOperationException(
@@ -214,7 +219,7 @@ public class PaymentService {
         }
 
         payment.setStatus(STATUS_PROCESSING);
-        log.info("Finishing process to process payment with id = {0}", paymentId);
+        log.info("Finishing process to process payment with id = {}", paymentId);
         return paymentRepository.save(payment);
     }
 
@@ -228,10 +233,10 @@ public class PaymentService {
      */
     @Transactional
     public PaymentEntity completePayment(Long paymentId) throws EntityNotFoundException, IllegalOperationException {
-        log.info("Starting process to complete payment with id = {0}", paymentId);
+        log.info("Starting process to complete payment with id = {}", paymentId);
 
         PaymentEntity payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new EntityNotFoundException("Payment with id = " + paymentId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(PAYMENT_NOT_FOUND, paymentId)));
 
         if (!STATUS_PROCESSING.equalsIgnoreCase(payment.getStatus())) {
             throw new IllegalOperationException(
@@ -239,7 +244,7 @@ public class PaymentService {
         }
 
         payment.setStatus(STATUS_COMPLETED);
-        log.info("Finishing process to complete payment with id = {0}", paymentId);
+        log.info("Finishing process to complete payment with id = {}", paymentId);
         return paymentRepository.save(payment);
     }
 
@@ -253,17 +258,17 @@ public class PaymentService {
      */
     @Transactional
     public PaymentEntity cancelPayment(Long paymentId) throws EntityNotFoundException, IllegalOperationException {
-        log.info("Starting process to cancel payment with id = {0}", paymentId);
+        log.info("Starting process to cancel payment with id = {}", paymentId);
 
         PaymentEntity payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new EntityNotFoundException("Payment with id = " + paymentId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(PAYMENT_NOT_FOUND, paymentId)));
 
         if (STATUS_COMPLETED.equalsIgnoreCase(payment.getStatus())) {
             throw new IllegalOperationException("Cannot cancel a completed payment");
         }
 
         payment.setStatus(STATUS_CANCELLED);
-        log.info("Finishing process to cancel payment with id = {0}", paymentId);
+        log.info("Finishing process to cancel payment with id = {}", paymentId);
         return paymentRepository.save(payment);
     }
 
@@ -276,12 +281,12 @@ public class PaymentService {
      */
     @Transactional
     public List<PaymentEntity> getPaymentsByShoppingCart(Long shoppingCartId) throws EntityNotFoundException {
-        log.info("Starting process to query payments for shopping cart with id = {0}", shoppingCartId);
+        log.info("Starting process to query payments for shopping cart with id = {}", shoppingCartId);
 
         ShoppingCartEntity shoppingCart = shoppingCartRepository.findById(shoppingCartId)
-                .orElseThrow(() -> new EntityNotFoundException("Shopping cart with id = " + shoppingCartId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(SHOPPING_CART_NOT_FOUND, shoppingCartId)));
 
-        log.info("Finishing process to query payments for shopping cart with id = {0}", shoppingCartId);
+        log.info("Finishing process to query payments for shopping cart with id = {}", shoppingCartId);
         return shoppingCart.getPayments();
     }
 }
