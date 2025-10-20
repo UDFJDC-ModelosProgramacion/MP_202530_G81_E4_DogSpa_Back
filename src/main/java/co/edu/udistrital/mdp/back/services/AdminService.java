@@ -4,7 +4,6 @@ import co.edu.udistrital.mdp.back.entities.AdminEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.AdminRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -12,8 +11,11 @@ import java.util.Optional;
 @Service
 public class AdminService {
 
-    @Autowired
     private AdminRepository adminRepository;
+
+    public AdminService(AdminRepository adminRepository) {
+        this.adminRepository = adminRepository;
+    }
 
     public AdminEntity createAdmin(AdminEntity admin) throws IllegalOperationException {
         if (admin.getName() == null || admin.getName().isBlank()) {
