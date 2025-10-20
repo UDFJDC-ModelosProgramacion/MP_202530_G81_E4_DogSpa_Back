@@ -11,10 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
-import co.edu.udistrital.mdp.back.entities.ProductEntity;
-import co.edu.udistrital.mdp.back.entities.UserEntity;
-
 @Data
 @Entity
 public class ShoppingCartEntity extends BaseEntity {
