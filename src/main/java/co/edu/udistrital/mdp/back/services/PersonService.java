@@ -26,7 +26,7 @@ public class PersonService {
         return personRepository.save(person);
     }
 
-    public PersonEntity getPerson(Long id) throws EntityNotFoundException {
+    public PersonEntity getPerson(Long id) {
         Optional<PersonEntity> person = personRepository.findById(id);
         if (person.isEmpty()) {
             throw new EntityNotFoundException("Persona no encontrada");
@@ -39,7 +39,7 @@ public class PersonService {
     }
 
     public PersonEntity updatePerson(Long id, PersonEntity person)
-            throws EntityNotFoundException, IllegalOperationException {
+            throws IllegalOperationException {
 
         Optional<PersonEntity> existing = personRepository.findById(id);
         if (existing.isEmpty()) {
@@ -53,7 +53,7 @@ public class PersonService {
         return personRepository.save(person);
     }
 
-    public void deletePerson(Long id) throws EntityNotFoundException {
+    public void deletePerson(Long id) {
         Optional<PersonEntity> existing = personRepository.findById(id);
         if (existing.isEmpty()) {
             throw new EntityNotFoundException("Persona no encontrada");
