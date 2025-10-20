@@ -22,7 +22,7 @@ public class AdminService {
         return adminRepository.save(admin);
     }
 
-    public AdminEntity getAdmin(Long id) throws EntityNotFoundException {
+    public AdminEntity getAdmin(Long id) {
         Optional<AdminEntity> admin = adminRepository.findById(id);
         if (admin.isEmpty()) {
             throw new EntityNotFoundException("Administrador no encontrado");
@@ -31,7 +31,7 @@ public class AdminService {
     }
 
     public AdminEntity updateAdmin(Long id, AdminEntity admin)
-            throws EntityNotFoundException, IllegalOperationException {
+            throws IllegalOperationException {
 
         Optional<AdminEntity> existing = adminRepository.findById(id);
         if (existing.isEmpty()) {
@@ -46,7 +46,7 @@ public class AdminService {
         return adminRepository.save(admin);
     }
 
-    public void deleteAdmin(Long id) throws EntityNotFoundException {
+    public void deleteAdmin(Long id) {
         Optional<AdminEntity> existing = adminRepository.findById(id);
         if (existing.isEmpty()) {
             throw new EntityNotFoundException("Administrador no encontrado");

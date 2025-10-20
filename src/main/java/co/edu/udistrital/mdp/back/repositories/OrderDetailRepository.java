@@ -10,7 +10,6 @@ public interface  OrderDetailRepository extends JpaRepository<OrderDetailEntity,
     
     int countByProductId(Long productId);
 
-    
-    @Query("SELECT SUM(od.quantity) FROM OrderDetailEntity od WHERE od.product.id = :productId AND od.order.status = 'OPEN'")
+    @Query("SELECT SUM(od.quantity) FROM OrderDetailEntity od WHERE od.product.id = :productId AND od.order.status = 'PENDING'")
     Integer countReservedForProduct(Long productId);
 }

@@ -3,7 +3,6 @@ package co.edu.udistrital.mdp.back.services;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,17 +12,21 @@ import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.ProductRepository;
 import co.edu.udistrital.mdp.back.repositories.ShoppingCartRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor  // Esta anotación genera el constructor automáticamente
 public class ShoppingCartProductService {
 
-    @Autowired
-    private ShoppingCartRepository shoppingCartRepository;
+    // Constantes para mensajes de error
+    private static final String SHOPPING_CART_NOT_FOUND = "Shopping cart with id = %d not found";
+    private static final String PRODUCT_NOT_FOUND = "Product with id = %d not found";
 
-    @Autowired
-    private ProductRepository productRepository;
+    // Campos final para inyección por constructor
+    private final ShoppingCartRepository shoppingCartRepository;
+    private final ProductRepository productRepository;
 
     @Transactional
     public ProductEntity addProduct(Long shoppingCartId, Long productId) 
@@ -33,11 +36,11 @@ public class ShoppingCartProductService {
         
         Optional<ShoppingCartEntity> shoppingCartEntity = shoppingCartRepository.findById(shoppingCartId);
         if (shoppingCartEntity.isEmpty())
-            throw new EntityNotFoundException("Shopping cart with id = " + shoppingCartId + " not found");
+            throw new EntityNotFoundException(String.format(SHOPPING_CART_NOT_FOUND, shoppingCartId));
 
         Optional<ProductEntity> productEntity = productRepository.findById(productId);
         if (productEntity.isEmpty())
-            throw new EntityNotFoundException("Product with id = " + productId + " not found");
+            throw new EntityNotFoundException(String.format(PRODUCT_NOT_FOUND, productId));
 
         if (productEntity.get().getStock() <= 0) {
             throw new IllegalOperationException("Cannot add product without stock to cart");
@@ -61,7 +64,7 @@ public class ShoppingCartProductService {
         
         Optional<ShoppingCartEntity> shoppingCartEntity = shoppingCartRepository.findById(shoppingCartId);
         if (shoppingCartEntity.isEmpty())
-            throw new EntityNotFoundException("Shopping cart with id = " + shoppingCartId + " not found");
+            throw new EntityNotFoundException(String.format(SHOPPING_CART_NOT_FOUND, shoppingCartId));
 
         log.info("Finishing process to query all products of shopping cart with id = {}", shoppingCartId);
         return shoppingCartEntity.get().getProducts();
@@ -75,11 +78,11 @@ public class ShoppingCartProductService {
         
         Optional<ShoppingCartEntity> shoppingCartEntity = shoppingCartRepository.findById(shoppingCartId);
         if (shoppingCartEntity.isEmpty())
-            throw new EntityNotFoundException("Shopping cart with id = " + shoppingCartId + " not found");
+            throw new EntityNotFoundException(String.format(SHOPPING_CART_NOT_FOUND, shoppingCartId));
 
         Optional<ProductEntity> productEntity = productRepository.findById(productId);
         if (productEntity.isEmpty())
-            throw new EntityNotFoundException("Product with id = " + productId + " not found");
+            throw new EntityNotFoundException(String.format(PRODUCT_NOT_FOUND, productId));
 
         log.info("Finishing process to query product with id = {} of shopping cart with id = {}", 
                 productId, shoppingCartId);
@@ -98,13 +101,13 @@ public class ShoppingCartProductService {
         
         Optional<ShoppingCartEntity> shoppingCartEntity = shoppingCartRepository.findById(shoppingCartId);
         if (shoppingCartEntity.isEmpty())
-            throw new EntityNotFoundException("Shopping cart with id = " + shoppingCartId + " not found");
+            throw new EntityNotFoundException(String.format(SHOPPING_CART_NOT_FOUND, shoppingCartId));
 
         double newTotal = 0.0;
         for (ProductEntity product : products) {
             Optional<ProductEntity> productEntity = productRepository.findById(product.getId());
             if (productEntity.isEmpty())
-                throw new EntityNotFoundException("Product with id = " + product.getId() + " not found");
+                throw new EntityNotFoundException(String.format(PRODUCT_NOT_FOUND, product.getId()));
             
             newTotal += productEntity.get().getPrice();
         }
@@ -125,11 +128,11 @@ public class ShoppingCartProductService {
         
         Optional<ShoppingCartEntity> shoppingCartEntity = shoppingCartRepository.findById(shoppingCartId);
         if (shoppingCartEntity.isEmpty())
-            throw new EntityNotFoundException("Shopping cart with id = " + shoppingCartId + " not found");
+            throw new EntityNotFoundException(String.format(SHOPPING_CART_NOT_FOUND, shoppingCartId));
 
         Optional<ProductEntity> productEntity = productRepository.findById(productId);
         if (productEntity.isEmpty())
-            throw new EntityNotFoundException("Product with id = " + productId + " not found");
+            throw new EntityNotFoundException(String.format(PRODUCT_NOT_FOUND, productId));
 
         shoppingCartEntity.get().getProducts().remove(productEntity.get());
         

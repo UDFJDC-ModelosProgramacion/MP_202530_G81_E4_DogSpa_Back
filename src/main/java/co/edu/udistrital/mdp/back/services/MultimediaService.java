@@ -3,7 +3,6 @@ package co.edu.udistrital.mdp.back.services;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +16,7 @@ import co.edu.udistrital.mdp.back.repositories.BranchRepository;
 import co.edu.udistrital.mdp.back.repositories.MultimediaRepository;
 import co.edu.udistrital.mdp.back.repositories.ProductRepository;
 import co.edu.udistrital.mdp.back.repositories.ServiceRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -29,18 +29,30 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class MultimediaService {
 
-    @Autowired
-    private MultimediaRepository multimediaRepository;
+    // Campos final para inyección por constructor
+    private final MultimediaRepository multimediaRepository;
+    private final BranchRepository branchRepository;
+    private final ServiceRepository serviceRepository;
+    private final ProductRepository productRepository;
+    
+    // Constructor explícito para inyección de dependencias
+    public MultimediaService(MultimediaRepository multimediaRepository,
+                           BranchRepository branchRepository,
+                           ServiceRepository serviceRepository,
+                           ProductRepository productRepository) {
+        this.multimediaRepository = multimediaRepository;
+        this.branchRepository = branchRepository;
+        this.serviceRepository = serviceRepository;
+        this.productRepository = productRepository;
+    }
 
-    @Autowired
-    private BranchRepository branchRepository;
+    // Constantes para mensajes de error duplicados
+    private static final String MULTIMEDIA_NOT_FOUND = "Multimedia with id = %d not found";
+    private static final String BRANCH_NOT_FOUND = "Branch with id = %d not found";
+    private static final String SERVICE_NOT_FOUND = "Service with id = %d not found";
+    private static final String PRODUCT_NOT_FOUND = "Product with id = %d not found";
 
-    @Autowired
-    private ServiceRepository serviceRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
-
+    // Tipos de multimedia soportados
     private static final List<String> SUPPORTED_TYPES = Arrays.asList("image", "video");
 
     /**
@@ -63,10 +75,10 @@ public class MultimediaService {
      */
     @Transactional
     public MultimediaEntity getMultimedia(Long multimediaId) throws EntityNotFoundException {
-        log.info("Starting process to query multimedia with id = {0}", multimediaId);
+        log.info("Starting process to query multimedia with id = {}", multimediaId);
         MultimediaEntity multimediaEntity = multimediaRepository.findById(multimediaId)
-                .orElseThrow(() -> new EntityNotFoundException("Multimedia with id = " + multimediaId + " not found"));
-        log.info("Finishing process to query multimedia with id = {0}", multimediaId);
+                .orElseThrow(() -> new EntityNotFoundException(String.format(MULTIMEDIA_NOT_FOUND, multimediaId)));
+        log.info("Finishing process to query multimedia with id = {}", multimediaId);
         return multimediaEntity;
     }
 
@@ -105,21 +117,21 @@ public class MultimediaService {
         if (multimediaEntity.getBranch() != null) {
             BranchEntity branch = branchRepository.findById(multimediaEntity.getBranch().getId())
                     .orElseThrow(() -> new EntityNotFoundException(
-                            "Branch with id = " + multimediaEntity.getBranch().getId() + " not found"));
+                            String.format(BRANCH_NOT_FOUND, multimediaEntity.getBranch().getId())));
             multimediaEntity.setBranch(branch);
         }
 
         if (multimediaEntity.getService() != null) {
             ServiceEntity service = serviceRepository.findById(multimediaEntity.getService().getId())
                     .orElseThrow(() -> new EntityNotFoundException(
-                            "Service with id = " + multimediaEntity.getService().getId() + " not found"));
+                            String.format(SERVICE_NOT_FOUND, multimediaEntity.getService().getId())));
             multimediaEntity.setService(service);
         }
 
         if (multimediaEntity.getProduct() != null) {
             ProductEntity product = productRepository.findById(multimediaEntity.getProduct().getId())
                     .orElseThrow(() -> new EntityNotFoundException(
-                            "Product with id = " + multimediaEntity.getProduct().getId() + " not found"));
+                            String.format(PRODUCT_NOT_FOUND, multimediaEntity.getProduct().getId())));
             multimediaEntity.setProduct(product);
         }
 
@@ -143,10 +155,10 @@ public class MultimediaService {
     @Transactional
     public MultimediaEntity updateMultimedia(Long multimediaId, MultimediaEntity multimedia)
             throws EntityNotFoundException, IllegalOperationException {
-        log.info("Starting process to update multimedia with id = {0}", multimediaId);
+        log.info("Starting process to update multimedia with id = {}", multimediaId);
 
         MultimediaEntity multimediaEntity = multimediaRepository.findById(multimediaId)
-                .orElseThrow(() -> new EntityNotFoundException("Multimedia with id = " + multimediaId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(MULTIMEDIA_NOT_FOUND, multimediaId)));
 
         if (multimedia.getType() != null || multimedia.getUrl() != null) {
             MultimediaEntity tempMultimedia = new MultimediaEntity();
@@ -164,7 +176,7 @@ public class MultimediaService {
             multimediaEntity.setUrl(multimedia.getUrl());
         }
 
-        log.info("Finishing process to update multimedia with id = {0}", multimediaId);
+        log.info("Finishing process to update multimedia with id = {}", multimediaId);
         return multimediaRepository.save(multimediaEntity);
     }
 
@@ -179,10 +191,10 @@ public class MultimediaService {
      */
     @Transactional
     public void deleteMultimedia(Long multimediaId) throws EntityNotFoundException, IllegalOperationException {
-        log.info("Starting process to delete multimedia with id = {0}", multimediaId);
+        log.info("Starting process to delete multimedia with id = {}", multimediaId);
 
         MultimediaEntity multimedia = multimediaRepository.findById(multimediaId)
-                .orElseThrow(() -> new EntityNotFoundException("Multimedia with id = " + multimediaId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(MULTIMEDIA_NOT_FOUND, multimediaId)));
 
         if (multimedia.getBranch() != null) {
             long count = multimediaRepository.findAll().stream()
@@ -212,7 +224,7 @@ public class MultimediaService {
         }
 
         multimediaRepository.delete(multimedia);
-        log.info("Finishing process to delete multimedia with id = {0}", multimediaId);
+        log.info("Finishing process to delete multimedia with id = {}", multimediaId);
     }
 
     /**
@@ -228,7 +240,7 @@ public class MultimediaService {
 
         String type = multimedia.getType().toLowerCase();
         
-        if (!SUPPORTED_TYPES.stream().anyMatch(type::contains)) {
+        if (SUPPORTED_TYPES.stream().noneMatch(type::contains)) {
             throw new IllegalOperationException(
                     "Unsupported file type: " + multimedia.getType() + 
                     ". Supported types: image, video");

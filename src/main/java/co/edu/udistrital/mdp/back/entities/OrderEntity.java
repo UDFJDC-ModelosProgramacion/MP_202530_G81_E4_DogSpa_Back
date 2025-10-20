@@ -3,7 +3,10 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
@@ -13,7 +16,10 @@ import uk.co.jemos.podam.common.PodamExclude;
 @Data
 public class OrderEntity extends BaseEntity {
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OrderStatus status;
+
     private Date orderDate;
     private Double totalAmount;
     private double discount;

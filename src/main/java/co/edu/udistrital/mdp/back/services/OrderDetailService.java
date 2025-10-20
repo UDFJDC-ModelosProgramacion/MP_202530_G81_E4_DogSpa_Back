@@ -2,10 +2,14 @@ package co.edu.udistrital.mdp.back.services;
 
 import co.edu.udistrital.mdp.back.entities.OrderDetailEntity;
 import co.edu.udistrital.mdp.back.entities.OrderEntity;
+import co.edu.udistrital.mdp.back.entities.OrderStatus;
+import co.edu.udistrital.mdp.back.entities.ProductEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.OrderDetailRepository;
 import co.edu.udistrital.mdp.back.repositories.OrderRepository;
+import co.edu.udistrital.mdp.back.repositories.ProductRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,74 +23,118 @@ public class OrderDetailService {
     @Autowired
     private OrderRepository orderRepository;
 
-    // Regla: quantity debe ser entero > 0
+    @Autowired
+    private ProductRepository productRepository; 
+
+    private final String orderDetailNotFoundMessage = "Order detail not found";
+
     private void validateQuantity(int quantity) throws IllegalOperationException {
         if (quantity <= 0) {
             throw new IllegalOperationException("Quantity must be greater than 0");
         }
     }
 
-    // Agregar un nuevo detalle a una orden
-    @Transactional
-    public OrderDetailEntity addOrderDetail(Long orderId, OrderDetailEntity detail) throws EntityNotFoundException, IllegalOperationException {
+    private double computeLineSubtotal(OrderDetailEntity d) throws IllegalOperationException {
+        ProductEntity p = d.getProduct();
+        if (p == null || p.getId() == null) {
+            throw new IllegalOperationException("Order detail must reference a valid product");
+        }
+        ProductEntity dbProduct = productRepository.findById(p.getId())
+                .orElseThrow(() -> new IllegalOperationException("Product not found"));
+        if (dbProduct.getPrice() == null) {
+            throw new IllegalOperationException("Product has no price configured");
+        }
+        return dbProduct.getPrice() * d.getQuantity();
+    }
+
+   @Transactional
+    public OrderDetailEntity addOrderDetail(Long orderId, OrderDetailEntity incoming)
+        throws EntityNotFoundException, IllegalOperationException {
+
         OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+            .orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
-        if ("PAID".equals(order.getStatus()) || "CANCELLED".equals(order.getStatus())) {
-            throw new IllegalOperationException("Cannot add items to a PAID or CANCELLED order");
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalOperationException("Cannot add items unless order is PENDING (current: " + order.getStatus() + ")");
         }
 
-        validateQuantity(detail.getQuantity());
-        detail.setOrder(order);
-        return orderDetailRepository.save(detail);
+        validateQuantity(incoming.getQuantity());
+
+        incoming.setOrder(order);
+        incoming.setSubtotal(computeLineSubtotal(incoming));   
+        OrderDetailEntity saved = orderDetailRepository.save(incoming);
+
+        recalcAndPersistOrderTotal(order);
+        return saved;
     }
 
-    // Actualizar un detalle de orden (no se puede cambiar price si la orden está CONFIRMED o superior)
     @Transactional
-    public OrderDetailEntity updateOrderDetail(Long detailId, OrderDetailEntity updatedDetail) throws EntityNotFoundException, IllegalOperationException {
-        OrderDetailEntity existingDetail = orderDetailRepository.findById(detailId)
-                .orElseThrow(() -> new EntityNotFoundException("Order detail not found"));
+    public OrderDetailEntity updateOrderDetail(Long detailId, OrderDetailEntity incoming)
+        throws EntityNotFoundException, IllegalOperationException {
 
-        OrderEntity order = existingDetail.getOrder();
+        OrderDetailEntity existing = orderDetailRepository.findById(detailId)
+            .orElseThrow(() -> new EntityNotFoundException(orderDetailNotFoundMessage));
 
-        if ("PAID".equals(order.getStatus()) || "CANCELLED".equals(order.getStatus())) {
-            throw new IllegalOperationException("Cannot update items in a PAID or CANCELLED order");
+        OrderEntity order = existing.getOrder();
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalOperationException("Cannot update items unless order is PENDING (current: " + order.getStatus() + ")");
         }
 
-        validateQuantity(updatedDetail.getQuantity());
-
-        // No se puede cambiar price si la orden está CONFIRMED o superior
-        if (isStatusConfirmedOrHigher(order.getStatus()) &&
-                !existingDetail.getSubtotal().equals(updatedDetail.getSubtotal())) {
-            throw new IllegalOperationException("Cannot change price when order is CONFIRMED or higher");
+        if (incoming.getProduct() != null && incoming.getProduct().getId() != null) {
+            existing.setProduct(incoming.getProduct());
         }
 
-        existingDetail.setQuantity(updatedDetail.getQuantity());
-        // Solo permite cambiar subtotal si la orden no está CONFIRMED o superior
-        if (!isStatusConfirmedOrHigher(order.getStatus())) {
-            existingDetail.setSubtotal(updatedDetail.getSubtotal());
-        }
+        validateQuantity(incoming.getQuantity());
+        existing.setQuantity(incoming.getQuantity());
 
-        return orderDetailRepository.save(existingDetail);
+        existing.setSubtotal(computeLineSubtotal(existing));   
+        OrderDetailEntity saved = orderDetailRepository.save(existing);
+
+        recalcAndPersistOrderTotal(order);
+        return saved;
     }
 
-    // Eliminar un detalle de orden (no se puede si la orden está PAID o CANCELLED)
     @Transactional
-    public void deleteOrderDetail(Long detailId) throws EntityNotFoundException, IllegalOperationException {
+    public void deleteOrderDetail(Long detailId)
+            throws EntityNotFoundException, IllegalOperationException {
+
         OrderDetailEntity detail = orderDetailRepository.findById(detailId)
-                .orElseThrow(() -> new EntityNotFoundException("Order detail not found"));
+                .orElseThrow(() -> new EntityNotFoundException(orderDetailNotFoundMessage));
 
         OrderEntity order = detail.getOrder();
 
-        if ("PAID".equals(order.getStatus()) || "CANCELLED".equals(order.getStatus())) {
-            throw new IllegalOperationException("Cannot delete items from a PAID or CANCELLED order");
+        if (order.getStatus() != OrderStatus.PENDING) {
+            String msg = OrderStatus.isImmutable(order.getStatus())
+                    ? "Cannot delete items when order is " + order.getStatus()
+                    : "Cannot delete items unless order is PENDING (current: " + order.getStatus() + ")";
+            throw new IllegalOperationException(msg);
         }
 
         orderDetailRepository.delete(detail);
+
+        recalcAndPersistOrderTotal(order);
     }
 
-    // Utilidad: determina si el estado es CONFIRMED o superior
-    private boolean isStatusConfirmedOrHigher(String status) {
-        return "CONFIRMED".equals(status) || "PAID".equals(status) || "CANCELLED".equals(status);
+    private void recalcAndPersistOrderTotal(OrderEntity order) {
+        double subtotal = 0.0;
+
+        if (order.getOrderDetails() != null) {
+            for (OrderDetailEntity detail : order.getOrderDetails()) {
+                Double lineSubtotal = detail.getSubtotal();
+                if (lineSubtotal != null) {
+                subtotal += lineSubtotal;
+                }
+            }   
+        }
+        double discount = order.getDiscount();
+        if (discount < 0 || discount > 1) {
+            throw new IllegalArgumentException("Discount must be between 0 and 1 (e.g., 0.3 = 30%).");
+        }
+
+        double total = subtotal - (subtotal * discount);
+        if (total < 0) total = 0.0;
+
+        order.setTotalAmount(total);
+        orderRepository.save(order);
     }
 }

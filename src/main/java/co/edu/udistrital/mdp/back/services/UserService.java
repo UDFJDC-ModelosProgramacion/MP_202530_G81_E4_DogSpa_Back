@@ -22,7 +22,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserEntity getUser(Long id) throws EntityNotFoundException {
+    public UserEntity getUser(Long id) {
         Optional<UserEntity> user = userRepository.findById(id);
         if (user.isEmpty()) {
             throw new EntityNotFoundException("Usuario no encontrado");
@@ -31,7 +31,7 @@ public class UserService {
     }
 
     public UserEntity updateUser(Long id, UserEntity user)
-            throws EntityNotFoundException, IllegalOperationException {
+            throws IllegalOperationException {
 
         Optional<UserEntity> existing = userRepository.findById(id);
         if (existing.isEmpty()) {
@@ -46,7 +46,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public void deleteUser(Long id) throws EntityNotFoundException {
+    public void deleteUser(Long id) {
         Optional<UserEntity> existing = userRepository.findById(id);
         if (existing.isEmpty()) {
             throw new EntityNotFoundException("Usuario no encontrado");
