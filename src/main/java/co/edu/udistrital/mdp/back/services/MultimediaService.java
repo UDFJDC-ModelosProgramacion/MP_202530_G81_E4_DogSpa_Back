@@ -16,7 +16,6 @@ import co.edu.udistrital.mdp.back.repositories.BranchRepository;
 import co.edu.udistrital.mdp.back.repositories.MultimediaRepository;
 import co.edu.udistrital.mdp.back.repositories.ProductRepository;
 import co.edu.udistrital.mdp.back.repositories.ServiceRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**

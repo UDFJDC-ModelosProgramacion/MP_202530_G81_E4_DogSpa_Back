@@ -20,7 +20,6 @@ import co.edu.udistrital.mdp.back.entities.ProductEntity;
 import co.edu.udistrital.mdp.back.entities.ServiceEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
-import co.edu.udistrital.mdp.back.services.MultimediaService;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
@@ -69,11 +68,15 @@ class MultimediaServiceTest {
             MultimediaEntity entity = factory.manufacturePojo(MultimediaEntity.class);
             entity.setType("image/jpeg");
             entity.setUrl("https://example.com/image" + i + ".jpg");
-            
-            if (i == 0) entity.setBranch(branch);
-            else if (i == 1) entity.setService(service);
-            else entity.setProduct(product);
-            
+
+            if (i == 0) {
+                entity.setBranch(branch); 
+            }else if (i == 1) {
+                entity.setService(service); 
+            }else {
+                entity.setProduct(product);
+            }
+
             entityManager.persist(entity);
             multimediaList.add(entity);
         }
@@ -99,52 +102,52 @@ class MultimediaServiceTest {
 
     @Test
     void testCreateMultimediaWithoutEntity() {
-        assertThrows(IllegalOperationException.class, () -> {
-            MultimediaEntity newEntity = factory.manufacturePojo(MultimediaEntity.class);
-            newEntity.setType("image/png");
-            newEntity.setUrl("https://example.com/test.png");
-            newEntity.setBranch(null);
-            newEntity.setService(null);
-            newEntity.setProduct(null);
-            multimediaService.createMultimedia(newEntity);
-        });
+        MultimediaEntity newEntity = factory.manufacturePojo(MultimediaEntity.class);
+        newEntity.setType("image/png");
+        newEntity.setUrl("https://example.com/test.png");
+        newEntity.setBranch(null);
+        newEntity.setService(null);
+        newEntity.setProduct(null);
+
+        assertThrows(IllegalOperationException.class,
+                () -> multimediaService.createMultimedia(newEntity));
     }
 
     @Test
     void testCreateMultimediaWithMultipleEntities() {
-        assertThrows(IllegalOperationException.class, () -> {
-            MultimediaEntity newEntity = factory.manufacturePojo(MultimediaEntity.class);
-            newEntity.setType("image/png");
-            newEntity.setUrl("https://example.com/test.png");
-            newEntity.setBranch(branch);
-            newEntity.setService(service);
-            newEntity.setProduct(null);
-            multimediaService.createMultimedia(newEntity);
-        });
+        MultimediaEntity newEntity = factory.manufacturePojo(MultimediaEntity.class);
+        newEntity.setType("image/png");
+        newEntity.setUrl("https://example.com/test.png");
+        newEntity.setBranch(branch);
+        newEntity.setService(service);
+        newEntity.setProduct(null);
+
+        assertThrows(IllegalOperationException.class,
+                () -> multimediaService.createMultimedia(newEntity));
     }
 
     @Test
     void testCreateMultimediaWithInvalidType() {
-        assertThrows(IllegalOperationException.class, () -> {
-            MultimediaEntity newEntity = factory.manufacturePojo(MultimediaEntity.class);
-            newEntity.setType("audio/mp3");
-            newEntity.setUrl("https://example.com/test.mp3");
-            newEntity.setBranch(branch);
-            multimediaService.createMultimedia(newEntity);
-        });
+        MultimediaEntity newEntity = factory.manufacturePojo(MultimediaEntity.class);
+        newEntity.setType("audio/mp3");
+        newEntity.setUrl("https://example.com/test.mp3");
+        newEntity.setBranch(branch);
+
+        assertThrows(IllegalOperationException.class,
+                () -> multimediaService.createMultimedia(newEntity));
     }
 
     @Test
     void testCreateMultimediaWithInvalidBranch() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            MultimediaEntity newEntity = factory.manufacturePojo(MultimediaEntity.class);
-            newEntity.setType("image/png");
-            newEntity.setUrl("https://example.com/test.png");
-            BranchEntity invalidBranch = new BranchEntity();
-            invalidBranch.setId(0L);
-            newEntity.setBranch(invalidBranch);
-            multimediaService.createMultimedia(newEntity);
-        });
+        MultimediaEntity newEntity = factory.manufacturePojo(MultimediaEntity.class);
+        newEntity.setType("image/png");
+        newEntity.setUrl("https://example.com/test.png");
+        BranchEntity invalidBranch = new BranchEntity();
+        invalidBranch.setId(0L);
+        newEntity.setBranch(invalidBranch);
+
+        assertThrows(EntityNotFoundException.class,
+                () -> multimediaService.createMultimedia(newEntity));
     }
 
     @Test
@@ -165,9 +168,8 @@ class MultimediaServiceTest {
 
     @Test
     void testGetInvalidMultimedia() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            multimediaService.getMultimedia(0L);
-        });
+        assertThrows(EntityNotFoundException.class,
+                () -> multimediaService.getMultimedia(0L));
     }
 
     @Test
@@ -178,23 +180,22 @@ class MultimediaServiceTest {
         updateEntity.setUrl("https://example.com/updated.png");
 
         MultimediaEntity result = multimediaService.updateMultimedia(entity.getId(), updateEntity);
-        
+
         assertEquals("image/png", result.getType());
         assertEquals("https://example.com/updated.png", result.getUrl());
     }
 
     @Test
     void testUpdateInvalidMultimedia() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            MultimediaEntity updateEntity = new MultimediaEntity();
-            updateEntity.setType("image/png");
-            multimediaService.updateMultimedia(0L, updateEntity);
-        });
+        MultimediaEntity updateEntity = new MultimediaEntity();
+        updateEntity.setType("image/png");
+
+        assertThrows(EntityNotFoundException.class,
+                () -> multimediaService.updateMultimedia(0L, updateEntity));
     }
 
     @Test
     void testDeleteMultimedia() throws EntityNotFoundException, IllegalOperationException {
-        // Crear multimedia adicional para el branch
         MultimediaEntity extra = factory.manufacturePojo(MultimediaEntity.class);
         extra.setType("image/jpeg");
         extra.setUrl("https://example.com/extra.jpg");
@@ -203,23 +204,23 @@ class MultimediaServiceTest {
 
         MultimediaEntity entity = multimediaList.get(0);
         multimediaService.deleteMultimedia(entity.getId());
-        
+
         MultimediaEntity deleted = entityManager.find(MultimediaEntity.class, entity.getId());
         assertNull(deleted);
     }
 
     @Test
     void testDeleteInvalidMultimedia() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            multimediaService.deleteMultimedia(0L);
-        });
+        assertThrows(EntityNotFoundException.class,
+                () -> multimediaService.deleteMultimedia(0L));
     }
 
     @Test
     void testDeleteOnlyMultimedia() {
-        assertThrows(IllegalOperationException.class, () -> {
-            MultimediaEntity entity = multimediaList.get(0);
-            multimediaService.deleteMultimedia(entity.getId());
-        });
+        MultimediaEntity entity = multimediaList.get(0);
+        Long id = entity.getId();
+
+        assertThrows(IllegalOperationException.class,
+                () -> multimediaService.deleteMultimedia(id));
     }
 }

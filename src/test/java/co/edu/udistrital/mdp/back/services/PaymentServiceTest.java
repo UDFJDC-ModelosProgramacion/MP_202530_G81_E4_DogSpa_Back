@@ -73,76 +73,86 @@ class PaymentServiceTest {
 
     @Test
     void testCreatePayment() throws EntityNotFoundException, IllegalOperationException {
-    PaymentEntity newEntity = new PaymentEntity();
-    newEntity.setMethod("pse");
-    newEntity.setAmount(250.0);
-    newEntity.setDate(LocalDateTime.now());
-    newEntity.setShoppingCart(shoppingCart);
+        PaymentEntity newEntity = new PaymentEntity();
+        newEntity.setMethod("pse");
+        newEntity.setAmount(250.0);
+        newEntity.setDate(LocalDateTime.now());
+        newEntity.setShoppingCart(shoppingCart);
 
-    PaymentEntity result = paymentService.createPayment(newEntity);
-    assertNotNull(result);
+        PaymentEntity result = paymentService.createPayment(newEntity);
+        assertNotNull(result);
 
-    PaymentEntity entity = entityManager.find(PaymentEntity.class, result.getId());
-    assertEquals("pse", entity.getMethod());
-    assertEquals(250.0, entity.getAmount());
-    assertEquals("pending", entity.getStatus());
-}
+        PaymentEntity entity = entityManager.find(PaymentEntity.class, result.getId());
+        assertEquals("pse", entity.getMethod());
+        assertEquals(250.0, entity.getAmount());
+        assertEquals("pending", entity.getStatus());
+    }
 
     @Test
     void testCreatePaymentWithoutMethod() {
-        assertThrows(IllegalOperationException.class, () -> {
-            PaymentEntity newEntity = factory.manufacturePojo(PaymentEntity.class);
-            newEntity.setMethod(null);
-            newEntity.setAmount(100.0);
-            newEntity.setShoppingCart(shoppingCart);
-            paymentService.createPayment(newEntity);
-        });
+        assertThrows(IllegalOperationException.class, this::throwCreatePaymentWithoutMethod);
+    }
+
+    private void throwCreatePaymentWithoutMethod() throws IllegalOperationException {
+        PaymentEntity newEntity = factory.manufacturePojo(PaymentEntity.class);
+        newEntity.setMethod(null);
+        newEntity.setAmount(100.0);
+        newEntity.setShoppingCart(shoppingCart);
+        paymentService.createPayment(newEntity);
     }
 
     @Test
     void testCreatePaymentWithInvalidMethod() {
-        assertThrows(IllegalOperationException.class, () -> {
-            PaymentEntity newEntity = factory.manufacturePojo(PaymentEntity.class);
-            newEntity.setMethod("bitcoin");
-            newEntity.setAmount(100.0);
-            newEntity.setShoppingCart(shoppingCart);
-            paymentService.createPayment(newEntity);
-        });
+        assertThrows(IllegalOperationException.class, this::throwCreatePaymentWithInvalidMethod);
+    }
+
+    private void throwCreatePaymentWithInvalidMethod() throws IllegalOperationException {
+        PaymentEntity newEntity = factory.manufacturePojo(PaymentEntity.class);
+        newEntity.setMethod("bitcoin");
+        newEntity.setAmount(100.0);
+        newEntity.setShoppingCart(shoppingCart);
+        paymentService.createPayment(newEntity);
     }
 
     @Test
     void testCreatePaymentWithoutCart() {
-        assertThrows(IllegalOperationException.class, () -> {
-            PaymentEntity newEntity = factory.manufacturePojo(PaymentEntity.class);
-            newEntity.setMethod("cash");
-            newEntity.setAmount(100.0);
-            newEntity.setShoppingCart(null);
-            paymentService.createPayment(newEntity);
-        });
+        assertThrows(IllegalOperationException.class, this::throwCreatePaymentWithoutCart);
+    }
+
+    private void throwCreatePaymentWithoutCart() throws IllegalOperationException {
+        PaymentEntity newEntity = factory.manufacturePojo(PaymentEntity.class);
+        newEntity.setMethod("cash");
+        newEntity.setAmount(100.0);
+        newEntity.setShoppingCart(null);
+        paymentService.createPayment(newEntity);
     }
 
     @Test
     void testCreatePaymentWithInvalidCart() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            PaymentEntity newEntity = factory.manufacturePojo(PaymentEntity.class);
-            newEntity.setMethod("cash");
-            newEntity.setAmount(100.0);
-            ShoppingCartEntity invalidCart = new ShoppingCartEntity();
-            invalidCart.setId(0L);
-            newEntity.setShoppingCart(invalidCart);
-            paymentService.createPayment(newEntity);
-        });
+        assertThrows(EntityNotFoundException.class, this::throwCreatePaymentWithInvalidCart);
+    }
+
+    private void throwCreatePaymentWithInvalidCart() throws EntityNotFoundException {
+        PaymentEntity newEntity = factory.manufacturePojo(PaymentEntity.class);
+        newEntity.setMethod("cash");
+        newEntity.setAmount(100.0);
+        ShoppingCartEntity invalidCart = new ShoppingCartEntity();
+        invalidCart.setId(0L);
+        newEntity.setShoppingCart(invalidCart);
+        paymentService.createPayment(newEntity);
     }
 
     @Test
     void testCreatePaymentWithInvalidAmount() {
-        assertThrows(IllegalOperationException.class, () -> {
-            PaymentEntity newEntity = factory.manufacturePojo(PaymentEntity.class);
-            newEntity.setMethod("cash");
-            newEntity.setAmount(0.0);
-            newEntity.setShoppingCart(shoppingCart);
-            paymentService.createPayment(newEntity);
-        });
+        assertThrows(IllegalOperationException.class, this::throwCreatePaymentWithInvalidAmount);
+    }
+
+    private void throwCreatePaymentWithInvalidAmount() throws IllegalOperationException {
+        PaymentEntity newEntity = factory.manufacturePojo(PaymentEntity.class);
+        newEntity.setMethod("cash");
+        newEntity.setAmount(0.0);
+        newEntity.setShoppingCart(shoppingCart);
+        paymentService.createPayment(newEntity);
     }
 
     @Test
@@ -161,9 +171,7 @@ class PaymentServiceTest {
 
     @Test
     void testGetInvalidPayment() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            paymentService.getPayment(0L);
-        });
+        assertThrows(EntityNotFoundException.class, () -> paymentService.getPayment(0L));
     }
 
     @Test
@@ -174,77 +182,75 @@ class PaymentServiceTest {
         updateEntity.setAmount(300.0);
 
         PaymentEntity result = paymentService.updatePayment(entity.getId(), updateEntity);
-        
         assertEquals("debit_card", result.getMethod());
         assertEquals(300.0, result.getAmount());
     }
 
     @Test
     void testUpdateCompletedPayment() {
-        assertThrows(IllegalOperationException.class, () -> {
-            PaymentEntity entity = paymentList.get(0);
-            entity.setStatus("completed");
-            entityManager.persist(entity);
+        assertThrows(IllegalOperationException.class, this::throwUpdateCompletedPayment);
+    }
 
-            PaymentEntity updateEntity = new PaymentEntity();
-            updateEntity.setAmount(500.0);
-            paymentService.updatePayment(entity.getId(), updateEntity);
-        });
+    private void throwUpdateCompletedPayment() throws IllegalOperationException {
+        PaymentEntity entity = paymentList.get(0);
+        entity.setStatus("completed");
+        entityManager.persist(entity);
+        PaymentEntity updateEntity = new PaymentEntity();
+        updateEntity.setAmount(500.0);
+        paymentService.updatePayment(entity.getId(), updateEntity);
     }
 
     @Test
-    void testUpdateInvalidPayment() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            PaymentEntity updateEntity = new PaymentEntity();
-            updateEntity.setAmount(100.0);
-            paymentService.updatePayment(0L, updateEntity);
-        });
-    }
+void testUpdateInvalidPayment() {
+    PaymentEntity updateEntity = new PaymentEntity();
+    updateEntity.setAmount(100.0);
+    assertThrows(EntityNotFoundException.class,
+        () -> paymentService.updatePayment(0L, updateEntity)
+    );
+}
 
     @Test
     void testDeletePayment() throws EntityNotFoundException, IllegalOperationException {
         PaymentEntity entity = paymentList.get(0);
         paymentService.deletePayment(entity.getId());
-        
         PaymentEntity deleted = entityManager.find(PaymentEntity.class, entity.getId());
         assertNull(deleted);
     }
 
     @Test
     void testDeleteCompletedPayment() {
-        assertThrows(IllegalOperationException.class, () -> {
-            PaymentEntity entity = paymentList.get(0);
-            entity.setStatus("completed");
-            entityManager.persist(entity);
-            
-            paymentService.deletePayment(entity.getId());
-        });
+        assertThrows(IllegalOperationException.class, this::throwDeleteCompletedPayment);
+    }
+
+    private void throwDeleteCompletedPayment() throws IllegalOperationException {
+        PaymentEntity entity = paymentList.get(0);
+        entity.setStatus("completed");
+        entityManager.persist(entity);
+        paymentService.deletePayment(entity.getId());
     }
 
     @Test
     void testDeleteInvalidPayment() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            paymentService.deletePayment(0L);
-        });
+        assertThrows(EntityNotFoundException.class, () -> paymentService.deletePayment(0L));
     }
 
     @Test
     void testProcessPayment() throws EntityNotFoundException, IllegalOperationException {
         PaymentEntity entity = paymentList.get(0);
         PaymentEntity result = paymentService.processPayment(entity.getId());
-        
         assertEquals("processing", result.getStatus());
     }
 
     @Test
     void testProcessNonPendingPayment() {
-        assertThrows(IllegalOperationException.class, () -> {
-            PaymentEntity entity = paymentList.get(0);
-            entity.setStatus("completed");
-            entityManager.persist(entity);
-            
-            paymentService.processPayment(entity.getId());
-        });
+        assertThrows(IllegalOperationException.class, this::throwProcessNonPendingPayment);
+    }
+
+    private void throwProcessNonPendingPayment() throws IllegalOperationException {
+        PaymentEntity entity = paymentList.get(0);
+        entity.setStatus("completed");
+        entityManager.persist(entity);
+        paymentService.processPayment(entity.getId());
     }
 
     @Test
@@ -252,52 +258,53 @@ class PaymentServiceTest {
         PaymentEntity entity = paymentList.get(0);
         entity.setStatus("processing");
         entityManager.persist(entity);
-        
         PaymentEntity result = paymentService.completePayment(entity.getId());
-        
         assertEquals("completed", result.getStatus());
     }
 
     @Test
     void testCompleteNonProcessingPayment() {
-        assertThrows(IllegalOperationException.class, () -> {
-            PaymentEntity entity = paymentList.get(0);
-            paymentService.completePayment(entity.getId());
-        });
+        assertThrows(IllegalOperationException.class, this::throwCompleteNonProcessingPayment);
+    }
+
+    private void throwCompleteNonProcessingPayment() throws IllegalOperationException {
+        PaymentEntity entity = paymentList.get(0);
+        paymentService.completePayment(entity.getId());
     }
 
     @Test
     void testCancelPayment() throws EntityNotFoundException, IllegalOperationException {
         PaymentEntity entity = paymentList.get(0);
         PaymentEntity result = paymentService.cancelPayment(entity.getId());
-        
         assertEquals("cancelled", result.getStatus());
     }
 
     @Test
     void testCancelCompletedPayment() {
-        assertThrows(IllegalOperationException.class, () -> {
-            PaymentEntity entity = paymentList.get(0);
-            entity.setStatus("completed");
-            entityManager.persist(entity);
-            
-            paymentService.cancelPayment(entity.getId());
-        });
+        assertThrows(IllegalOperationException.class, this::throwCancelCompletedPayment);
+    }
+
+    private void throwCancelCompletedPayment() throws IllegalOperationException {
+        PaymentEntity entity = paymentList.get(0);
+        entity.setStatus("completed");
+        entityManager.persist(entity);
+        paymentService.cancelPayment(entity.getId());
     }
 
     @Test
     void testGetPaymentsByShoppingCart() throws EntityNotFoundException {
-    entityManager.flush();
-    entityManager.refresh(shoppingCart);
-    
-    List<PaymentEntity> payments = paymentService.getPaymentsByShoppingCart(shoppingCart.getId());
-    assertEquals(3, payments.size());
-}
+        entityManager.flush();
+        entityManager.refresh(shoppingCart);
+        List<PaymentEntity> payments = paymentService.getPaymentsByShoppingCart(shoppingCart.getId());
+        assertEquals(3, payments.size());
+    }
 
     @Test
     void testGetPaymentsByInvalidShoppingCart() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            paymentService.getPaymentsByShoppingCart(0L);
-        });
+        assertThrows(EntityNotFoundException.class, this::throwGetPaymentsByInvalidShoppingCart);
+    }
+
+    private void throwGetPaymentsByInvalidShoppingCart() throws EntityNotFoundException {
+        paymentService.getPaymentsByShoppingCart(0L);
     }
 }
