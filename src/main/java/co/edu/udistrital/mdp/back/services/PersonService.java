@@ -12,17 +12,22 @@ import java.util.Optional;
 @Service
 public class PersonService {
 
-    private PersonRepository personRepository;
+    private static final String PERSON_NOT_FOUND = "Persona no encontrada";
+    private static final String PERSON_NAME_REQUIRED = "El nombre no puede estar vacío";
+    private static final String PERSON_EMAIL_INVALID = "El correo es inválido";
+
+    private final PersonRepository personRepository;
 
     public PersonService(PersonRepository personRepository) {
-    this.personRepository = personRepository;
-    }   
+        this.personRepository = personRepository;
+    }
+
     public PersonEntity createPerson(PersonEntity person) throws IllegalOperationException {
         if (person.getName() == null || person.getName().isBlank()) {
-            throw new IllegalOperationException("El nombre no puede estar vacío");
+            throw new IllegalOperationException(PERSON_NAME_REQUIRED);
         }
         if (person.getEmail() == null || !person.getEmail().contains("@")) {
-            throw new IllegalOperationException("El correo es inválido");
+            throw new IllegalOperationException(PERSON_EMAIL_INVALID);
         }
         return personRepository.save(person);
     }
@@ -30,7 +35,7 @@ public class PersonService {
     public PersonEntity getPerson(Long id) {
         Optional<PersonEntity> person = personRepository.findById(id);
         if (person.isEmpty()) {
-            throw new EntityNotFoundException("Persona no encontrada");
+            throw new EntityNotFoundException(PERSON_NOT_FOUND);
         }
         return person.get();
     }
@@ -44,10 +49,10 @@ public class PersonService {
 
         Optional<PersonEntity> existing = personRepository.findById(id);
         if (existing.isEmpty()) {
-            throw new EntityNotFoundException("Persona no encontrada");
+            throw new EntityNotFoundException(PERSON_NOT_FOUND);
         }
         if (person.getName() == null || person.getName().isBlank()) {
-            throw new IllegalOperationException("El nombre no puede estar vacío");
+            throw new IllegalOperationException(PERSON_NAME_REQUIRED);
         }
 
         person.setId(id);
@@ -57,9 +62,8 @@ public class PersonService {
     public void deletePerson(Long id) {
         Optional<PersonEntity> existing = personRepository.findById(id);
         if (existing.isEmpty()) {
-            throw new EntityNotFoundException("Persona no encontrada");
+            throw new EntityNotFoundException(PERSON_NOT_FOUND);
         }
         personRepository.deleteById(id);
     }
 }
-

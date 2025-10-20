@@ -11,7 +11,10 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    private UserRepository userRepository;
+    private static final String USER_NOT_FOUND = "Usuario no encontrado";
+    private static final String INVALID_EMAIL = "Correo inválido";
+
+    private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -19,7 +22,7 @@ public class UserService {
 
     public UserEntity createUser(UserEntity user) throws IllegalOperationException {
         if (user.getEmail() == null || !user.getEmail().contains("@")) {
-            throw new IllegalOperationException("Correo inválido");
+            throw new IllegalOperationException(INVALID_EMAIL);
         }
         return userRepository.save(user);
     }
@@ -27,7 +30,7 @@ public class UserService {
     public UserEntity getUser(Long id) {
         Optional<UserEntity> user = userRepository.findById(id);
         if (user.isEmpty()) {
-            throw new EntityNotFoundException("Usuario no encontrado");
+            throw new EntityNotFoundException(USER_NOT_FOUND);
         }
         return user.get();
     }
@@ -37,11 +40,11 @@ public class UserService {
 
         Optional<UserEntity> existing = userRepository.findById(id);
         if (existing.isEmpty()) {
-            throw new EntityNotFoundException("Usuario no encontrado");
+            throw new EntityNotFoundException(USER_NOT_FOUND);
         }
 
         if (user.getEmail() == null || !user.getEmail().contains("@")) {
-            throw new IllegalOperationException("Correo inválido");
+            throw new IllegalOperationException(INVALID_EMAIL);
         }
 
         user.setId(id);
@@ -51,7 +54,7 @@ public class UserService {
     public void deleteUser(Long id) {
         Optional<UserEntity> existing = userRepository.findById(id);
         if (existing.isEmpty()) {
-            throw new EntityNotFoundException("Usuario no encontrado");
+            throw new EntityNotFoundException(USER_NOT_FOUND);
         }
         userRepository.deleteById(id);
     }
