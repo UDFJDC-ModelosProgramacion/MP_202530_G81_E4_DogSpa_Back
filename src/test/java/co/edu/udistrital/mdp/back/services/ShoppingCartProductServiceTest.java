@@ -94,50 +94,57 @@ class ShoppingCartProductServiceTest {
 
     @Test
     void testAddProductInvalidShoppingCart() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            ProductEntity newProduct = factory.manufacturePojo(ProductEntity.class);
-            newProduct.setStock(5);
-            entityManager.persist(newProduct);
-            shoppingCartProductService.addProduct(0L, newProduct.getId());
-        });
+        ProductEntity newProduct = factory.manufacturePojo(ProductEntity.class);
+        newProduct.setStock(5);
+        entityManager.persist(newProduct);
+        Long invalidCartId = 0L;
+        Long validProductId = newProduct.getId();
+
+        assertThrows(EntityNotFoundException.class,
+                () -> shoppingCartProductService.addProduct(invalidCartId, validProductId));
     }
 
     @Test
     void testAddInvalidProduct() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            shoppingCartProductService.addProduct(shoppingCart.getId(), 0L);
-        });
+        Long invalidProductId = 0L;
+        Long validCartId = shoppingCart.getId();
+
+        assertThrows(EntityNotFoundException.class,
+                () -> shoppingCartProductService.addProduct(validCartId, invalidProductId));
     }
 
     @Test
     void testAddProductWithoutStock() {
-        assertThrows(IllegalOperationException.class, () -> {
-            ProductEntity newProduct = factory.manufacturePojo(ProductEntity.class);
-            newProduct.setPrice(100.0);
-            newProduct.setStock(0);
-            entityManager.persist(newProduct);
-            shoppingCartProductService.addProduct(shoppingCart.getId(), newProduct.getId());
-        });
+        ProductEntity newProduct = factory.manufacturePojo(ProductEntity.class);
+        newProduct.setPrice(100.0);
+        newProduct.setStock(0);
+        entityManager.persist(newProduct);
+        Long validCartId = shoppingCart.getId();
+        Long productId = newProduct.getId();
+
+        assertThrows(IllegalOperationException.class,
+                () -> shoppingCartProductService.addProduct(validCartId, productId));
     }
 
     @Test
     void testAddProductAlreadyInCart() throws EntityNotFoundException, IllegalOperationException {
         ProductEntity existingProduct = productList.get(0);
         double totalBefore = shoppingCart.getTotal();
-        
-        ProductEntity result = shoppingCartProductService.addProduct(shoppingCart.getId(), existingProduct.getId());
-        
+        Long cartId = shoppingCart.getId();
+        Long productId = existingProduct.getId();
+
+        ProductEntity result = shoppingCartProductService.addProduct(cartId, productId);
+
         assertNotNull(result);
         entityManager.flush();
         entityManager.clear();
-        ShoppingCartEntity updatedCart = entityManager.find(ShoppingCartEntity.class, shoppingCart.getId());
+        ShoppingCartEntity updatedCart = entityManager.find(ShoppingCartEntity.class, cartId);
         assertEquals(totalBefore, updatedCart.getTotal());
     }
 
     @Test
     void testGetProducts() throws EntityNotFoundException {
         List<ProductEntity> products = shoppingCartProductService.getProducts(shoppingCart.getId());
-
         assertEquals(productList.size(), products.size());
         for (ProductEntity product : productList) {
             assertTrue(products.contains(product));
@@ -146,60 +153,69 @@ class ShoppingCartProductServiceTest {
 
     @Test
     void testGetProductsInvalidShoppingCart() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            shoppingCartProductService.getProducts(0L);
-        });
+        Long invalidCartId = 0L;
+        assertThrows(EntityNotFoundException.class,
+                () -> shoppingCartProductService.getProducts(invalidCartId));
     }
 
     @Test
     void testGetProduct() throws EntityNotFoundException, IllegalOperationException {
         ProductEntity product = productList.get(0);
-        ProductEntity result = shoppingCartProductService.getProduct(shoppingCart.getId(), product.getId());
-        
+        Long cartId = shoppingCart.getId();
+        Long productId = product.getId();
+
+        ProductEntity result = shoppingCartProductService.getProduct(cartId, productId);
+
         assertNotNull(result);
-        assertEquals(product.getId(), result.getId());
+        assertEquals(productId, result.getId());
         assertEquals(product.getName(), result.getName());
         assertEquals(product.getPrice(), result.getPrice());
     }
 
     @Test
     void testGetProductInvalidShoppingCart() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            ProductEntity product = productList.get(0);
-            shoppingCartProductService.getProduct(0L, product.getId());
-        });
+        ProductEntity product = productList.get(0);
+        Long invalidCartId = 0L;
+        Long productId = product.getId();
+
+        assertThrows(EntityNotFoundException.class,
+                () -> shoppingCartProductService.getProduct(invalidCartId, productId));
     }
 
     @Test
     void testGetInvalidProduct() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            shoppingCartProductService.getProduct(shoppingCart.getId(), 0L);
-        });
+        Long invalidProductId = 0L;
+        Long validCartId = shoppingCart.getId();
+
+        assertThrows(EntityNotFoundException.class,
+                () -> shoppingCartProductService.getProduct(validCartId, invalidProductId));
     }
 
     @Test
     void testGetProductNotAssociatedShoppingCart() {
-        assertThrows(IllegalOperationException.class, () -> {
-            UserEntity newUser = factory.manufacturePojo(UserEntity.class);
-            entityManager.persist(newUser);
+        UserEntity newUser = factory.manufacturePojo(UserEntity.class);
+        entityManager.persist(newUser);
 
-            ShoppingCartEntity newCart = factory.manufacturePojo(ShoppingCartEntity.class);
-            newCart.setUser(newUser);
-            entityManager.persist(newCart);
+        ShoppingCartEntity newCart = factory.manufacturePojo(ShoppingCartEntity.class);
+        newCart.setUser(newUser);
+        entityManager.persist(newCart);
 
-            ProductEntity newProduct = factory.manufacturePojo(ProductEntity.class);
-            newProduct.setStock(5);
-            entityManager.persist(newProduct);
+        ProductEntity newProduct = factory.manufacturePojo(ProductEntity.class);
+        newProduct.setStock(5);
+        entityManager.persist(newProduct);
 
-            shoppingCartProductService.getProduct(newCart.getId(), newProduct.getId());
-        });
+        Long newCartId = newCart.getId();
+        Long newProductId = newProduct.getId();
+
+        assertThrows(IllegalOperationException.class,
+                () -> shoppingCartProductService.getProduct(newCartId, newProductId));
     }
 
     @Test
     void testReplaceProducts() throws EntityNotFoundException {
         List<ProductEntity> newList = new ArrayList<>();
         double expectedTotal = 0.0;
-        
+
         for (int i = 0; i < 2; i++) {
             ProductEntity entity = factory.manufacturePojo(ProductEntity.class);
             entity.setPrice(50.0 + i * 10);
@@ -208,14 +224,13 @@ class ShoppingCartProductServiceTest {
             newList.add(entity);
             expectedTotal += entity.getPrice();
         }
-        
+
         List<ProductEntity> result = shoppingCartProductService.replaceProducts(shoppingCart.getId(), newList);
-        
         assertEquals(newList.size(), result.size());
         for (ProductEntity product : newList) {
             assertTrue(result.contains(product));
         }
-        
+
         entityManager.flush();
         entityManager.clear();
         ShoppingCartEntity updatedCart = entityManager.find(ShoppingCartEntity.class, shoppingCart.getId());
@@ -224,25 +239,27 @@ class ShoppingCartProductServiceTest {
 
     @Test
     void testReplaceProductsInvalidShoppingCart() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            List<ProductEntity> newList = new ArrayList<>();
-            ProductEntity entity = factory.manufacturePojo(ProductEntity.class);
-            entity.setStock(5);
-            entityManager.persist(entity);
-            newList.add(entity);
-            shoppingCartProductService.replaceProducts(0L, newList);
-        });
+        List<ProductEntity> newList = new ArrayList<>();
+        ProductEntity entity = factory.manufacturePojo(ProductEntity.class);
+        entity.setStock(5);
+        entityManager.persist(entity);
+        newList.add(entity);
+        Long invalidCartId = 0L;
+
+        assertThrows(EntityNotFoundException.class,
+                () -> shoppingCartProductService.replaceProducts(invalidCartId, newList));
     }
 
     @Test
     void testReplaceInvalidProducts() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            List<ProductEntity> newList = new ArrayList<>();
-            ProductEntity entity = factory.manufacturePojo(ProductEntity.class);
-            entity.setId(0L);
-            newList.add(entity);
-            shoppingCartProductService.replaceProducts(shoppingCart.getId(), newList);
-        });
+        ProductEntity entity = factory.manufacturePojo(ProductEntity.class);
+        entity.setId(0L);
+        List<ProductEntity> newList = new ArrayList<>();
+        newList.add(entity);
+        Long validCartId = shoppingCart.getId();
+
+        assertThrows(EntityNotFoundException.class,
+                () -> shoppingCartProductService.replaceProducts(validCartId, newList));
     }
 
     @Test
@@ -250,43 +267,50 @@ class ShoppingCartProductServiceTest {
         ProductEntity product = productList.get(0);
         double priceBefore = product.getPrice();
         double totalBefore = shoppingCart.getTotal();
-        
-        shoppingCartProductService.removeProduct(shoppingCart.getId(), product.getId());
-        
+        Long cartId = shoppingCart.getId();
+        Long productId = product.getId();
+
+        shoppingCartProductService.removeProduct(cartId, productId);
+
         entityManager.flush();
         entityManager.clear();
-        ShoppingCartEntity updatedCart = entityManager.find(ShoppingCartEntity.class, shoppingCart.getId());
+        ShoppingCartEntity updatedCart = entityManager.find(ShoppingCartEntity.class, cartId);
         assertEquals(totalBefore - priceBefore, updatedCart.getTotal());
         assertFalse(updatedCart.getProducts().contains(product));
     }
 
     @Test
     void testRemoveAllProducts() throws EntityNotFoundException {
+        Long cartId = shoppingCart.getId();
         for (ProductEntity product : productList) {
-            shoppingCartProductService.removeProduct(shoppingCart.getId(), product.getId());
+            shoppingCartProductService.removeProduct(cartId, product.getId());
         }
-        
-        List<ProductEntity> remainingProducts = shoppingCartProductService.getProducts(shoppingCart.getId());
+
+        List<ProductEntity> remainingProducts = shoppingCartProductService.getProducts(cartId);
         assertTrue(remainingProducts.isEmpty());
-        
+
         entityManager.flush();
         entityManager.clear();
-        ShoppingCartEntity updatedCart = entityManager.find(ShoppingCartEntity.class, shoppingCart.getId());
+        ShoppingCartEntity updatedCart = entityManager.find(ShoppingCartEntity.class, cartId);
         assertEquals(0.0, updatedCart.getTotal());
     }
 
     @Test
     void testRemoveProductInvalidShoppingCart() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            ProductEntity product = productList.get(0);
-            shoppingCartProductService.removeProduct(0L, product.getId());
-        });
+        ProductEntity product = productList.get(0);
+        Long invalidCartId = 0L;
+        Long productId = product.getId();
+
+        assertThrows(EntityNotFoundException.class,
+                () -> shoppingCartProductService.removeProduct(invalidCartId, productId));
     }
 
     @Test
     void testRemoveInvalidProduct() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            shoppingCartProductService.removeProduct(shoppingCart.getId(), 0L);
-        });
+        Long cartId = shoppingCart.getId();
+        Long invalidProductId = 0L;
+
+        assertThrows(EntityNotFoundException.class,
+                () -> shoppingCartProductService.removeProduct(cartId, invalidProductId));
     }
 }
