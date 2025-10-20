@@ -1,22 +1,25 @@
 package co.edu.udistrital.mdp.back.services;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import co.edu.udistrital.mdp.back.entities.OrderDetailEntity;
 import co.edu.udistrital.mdp.back.entities.OrderEntity;
-import co.edu.udistrital.mdp.back.entities.PersonEntity;
+import co.edu.udistrital.mdp.back.entities.OrderStatus;
 import co.edu.udistrital.mdp.back.entities.ProductEntity;
+import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.OrderDetailRepository;
 import co.edu.udistrital.mdp.back.repositories.OrderRepository;
 import co.edu.udistrital.mdp.back.repositories.PersonRepository;
 import co.edu.udistrital.mdp.back.repositories.ProductRepository;
-import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 @Service
 public class OrderService {
-    
+
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
@@ -26,86 +29,140 @@ public class OrderService {
     @Autowired
     private PersonRepository personRepository;
 
-    // Cambia el estado de la orden y aplica reglas de negocio
-    @Transactional
-    public OrderEntity changeStatus(Long orderId, String newStatus) throws IllegalOperationException, EntityNotFoundException {
-        OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+    private final String orderNotFoundMessage = "Order not found";
 
-        if ("PAID".equals(order.getStatus())) {
-            throw new IllegalOperationException("Cannot change status of a PAID order");
-        }
-        if ("CANCELLED".equals(order.getStatus())) {
-            throw new IllegalOperationException("Cannot change status of a CANCELLED order");
+    @Transactional
+    public OrderEntity changeStatus(Long orderId, OrderStatus newStatus)
+            throws IllegalOperationException, EntityNotFoundException {
+
+        OrderEntity order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException(orderNotFoundMessage));
+
+        OrderStatus current = order.getStatus();
+
+        if (!isValidTransition(current, newStatus)) {
+            throw new IllegalOperationException("Invalid transition: " + current + " → " + newStatus);
         }
 
         switch (newStatus) {
-            case "CONFIRMED":
-                confirmOrder(order);
-                break;
-            case "PAID":
-                payOrder(order);
-                break;
-            case "CANCELLED":
-                cancelOrder(order);
-                break;
-            default:
-                order.setStatus(newStatus);
+            case CONFIRMED -> confirmOrder(order); 
+            case PAID      -> payOrder(order);    
+            case CANCELLED -> cancelOrder(order);  
+            case SHIPPED   -> shipOrder(order);   
+            case DELIVERED -> deliverOrder(order); 
+            default        -> order.setStatus(newStatus);
         }
+
         return orderRepository.save(order);
     }
 
-    // CONFIRMED: verificar stock y reservar
+
     private void confirmOrder(OrderEntity order) throws IllegalOperationException {
         for (OrderDetailEntity detail : order.getOrderDetails()) {
             ProductEntity product = detail.getProduct();
-            int reserved = orderDetailRepository.countReservedForProduct(product.getId());
+            int reserved = orderDetailRepository.countReservedForProduct(product.getId()); 
             int available = product.getStock() - reserved;
             if (available < detail.getQuantity()) {
                 throw new IllegalOperationException("Not enough stock for product: " + product.getName());
             }
         }
-        order.setStatus("CONFIRMED");
+        order.setStatus(OrderStatus.CONFIRMED);
     }
 
-    // PAID: descontar stock reservado
-    private void payOrder(OrderEntity order) {
+    private void payOrder(OrderEntity order) throws IllegalOperationException {
+        if (order.getStatus() != OrderStatus.CONFIRMED) {
+            throw new IllegalOperationException("Order must be CONFIRMED before payment.");
+        }
         for (OrderDetailEntity detail : order.getOrderDetails()) {
             ProductEntity product = detail.getProduct();
             product.setStock(product.getStock() - detail.getQuantity());
             productRepository.save(product);
         }
-        order.setStatus("PAID");
+        order.setStatus(OrderStatus.PAID);
     }
 
-    // CANCELLED: solo cambia el estado
     private void cancelOrder(OrderEntity order) {
-        order.setStatus("CANCELLED");
+        order.setStatus(OrderStatus.CANCELLED);
     }
 
-
-    // No se permite editar cliente, moneda, ítems o precios si está PAID o CANCELLED
-    @Transactional
-    public OrderEntity updateOrder(Long orderId, OrderEntity updatedOrder) throws IllegalOperationException, EntityNotFoundException {
-        OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
-
-        if ("PAID".equals(order.getStatus()) || "CANCELLED".equals(order.getStatus())) {
-            throw new IllegalOperationException("Cannot edit client, currency, items or prices when order is PAID or CANCELLED");
+    private void shipOrder(OrderEntity order) throws IllegalOperationException {
+        if (order.getStatus() != OrderStatus.PAID) {
+            throw new IllegalOperationException("Order must be PAID before shipping.");
         }
-        // Aquí se pueden actualizar solo los campos permitidos
-        // order.set... (otros campos editables)
-        return orderRepository.save(order);
+        order.setStatus(OrderStatus.SHIPPED);
     }
 
-    // No se puede eliminar una orden PAID; solo anulación vía CANCELLED
+    private void deliverOrder(OrderEntity order) throws IllegalOperationException {
+        if (order.getStatus() != OrderStatus.SHIPPED) {
+            throw new IllegalOperationException("Order must be SHIPPED before delivery.");
+        }
+        order.setStatus(OrderStatus.DELIVERED);
+    }
+
     @Transactional
-    public void deleteOrder(Long orderId) throws EntityNotFoundException, IllegalOperationException {
+    public OrderEntity updateOrder(Long orderId, OrderEntity incoming)
+        throws IllegalOperationException, EntityNotFoundException {
+
+        OrderEntity current = orderRepository.findById(orderId)
+            .orElseThrow(() -> new EntityNotFoundException(orderNotFoundMessage));
+
+        if (OrderStatus.isImmutable(current.getStatus())) {
+            throw new IllegalOperationException(
+                "Orders in status " + current.getStatus() + " are immutable. Only status changes via changeStatus() are allowed.");
+        }
+
+        if (incoming.getOrderDate() != null) current.setOrderDate(incoming.getOrderDate());
+        if (incoming.getUser() != null)      current.setUser(incoming.getUser());
+        current.setDiscount(incoming.getDiscount());
+        current.setTotalAmount(recalculateTotalAmount(current));
+
+        return orderRepository.save(current);
+    }
+
+    @Transactional
+    public void deleteOrder(Long orderId)
+        throws EntityNotFoundException, IllegalOperationException {
         OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
-        if ("PAID".equals(order.getStatus())) {
-            throw new IllegalOperationException("Cannot delete a PAID order. Use CANCELLED status instead.");
+            .orElseThrow(() -> new EntityNotFoundException(orderNotFoundMessage));
+
+        if (OrderStatus.isImmutable(order.getStatus())) {
+            throw new IllegalOperationException("Cannot delete an order in status " + order.getStatus() + ".");
         }
         orderRepository.delete(order);
+    }
+
+    // =========================================================
+    // Helpers de reglas
+    // =========================================================
+
+    private boolean isValidTransition(OrderStatus current, OrderStatus target) {
+        Set<OrderStatus> allowed = switch (current) {
+            case PENDING   -> EnumSet.of(OrderStatus.CONFIRMED, OrderStatus.CANCELLED);
+            case CONFIRMED -> EnumSet.of(OrderStatus.PAID, OrderStatus.CANCELLED);
+            case PAID      -> EnumSet.of(OrderStatus.SHIPPED, OrderStatus.CANCELLED); 
+            case SHIPPED   -> EnumSet.of(OrderStatus.DELIVERED);
+            case DELIVERED -> EnumSet.noneOf(OrderStatus.class); 
+            case CANCELLED -> EnumSet.noneOf(OrderStatus.class);
+        };
+        return allowed.contains(target);
+    }
+
+    private double recalculateTotalAmount(OrderEntity order) {
+        double sum = 0.0;
+        if (order.getOrderDetails() != null) {
+            for (OrderDetailEntity d : order.getOrderDetails()) {
+            
+                Double lineTotal = null;
+
+                lineTotal = d.getSubtotal();
+
+                if (lineTotal != null) {
+                    sum += lineTotal;
+                }
+            }
+        }
+        double discount = order.getDiscount() != 0 ? order.getDiscount() : 0.0;
+        double total = sum - (sum * discount);
+        return total < 0 ? 0.0 : total;
     }
 }
