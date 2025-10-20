@@ -208,7 +208,6 @@ class ShoppingCartServiceTest {
 
     @Test
     void testAddInvalidProductToCart() {
-        // CORREGIDO: Ahora espera EntityNotFoundException en lugar de IllegalOperationException
         assertThrows(EntityNotFoundException.class, () -> {
             ShoppingCartEntity cart = cartList.get(0);
             shoppingCartService.addProductToCart(cart.getId(), 0L);
