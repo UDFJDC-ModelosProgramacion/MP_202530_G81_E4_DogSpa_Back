@@ -29,7 +29,7 @@ public class OrderService {
     @Autowired
     private PersonRepository personRepository;
 
-    private final String orderNotFoundMessage = "Order not found";
+    private static final String orderNotFoundMessage = "Order not found";
 
     @Transactional
     public OrderEntity changeStatus(Long orderId, OrderStatus newStatus)
