@@ -1,9 +1,7 @@
 package co.edu.udistrital.mdp.back.services;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,19 +14,25 @@ import co.edu.udistrital.mdp.back.repositories.ServiceRepository;
 @Service
 public class ServiceBranchService {
 
-    @Autowired
-    private ServiceRepository serviceRepository;
+    private static final String SERVICE_NOT_FOUND = "Service not found";
+    private static final String BRANCH_NOT_FOUND = "Branch not found";
 
-    @Autowired
-    private BranchRepository branchRepository;
+    private final ServiceRepository serviceRepository;
+    private final BranchRepository branchRepository;
+
+    // Constructor injection
+    public ServiceBranchService(ServiceRepository serviceRepository, BranchRepository branchRepository) {
+        this.serviceRepository = serviceRepository;
+        this.branchRepository = branchRepository;
+    }
 
     @Transactional
     public void addBranchToService(Long serviceId, Long branchId) throws EntityNotFoundException {
         ServiceEntity service = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new EntityNotFoundException("Service not found"));
+                .orElseThrow(() -> new EntityNotFoundException(SERVICE_NOT_FOUND));
 
         BranchEntity branch = branchRepository.findById(branchId)
-                .orElseThrow(() -> new EntityNotFoundException("Branch not found"));
+                .orElseThrow(() -> new EntityNotFoundException(BRANCH_NOT_FOUND));
 
         if (!service.getBranches().contains(branch)) {
             service.getBranches().add(branch);
@@ -42,10 +46,10 @@ public class ServiceBranchService {
     @Transactional
     public void removeBranchFromService(Long serviceId, Long branchId) throws EntityNotFoundException {
         ServiceEntity service = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new EntityNotFoundException("Service not found"));
+                .orElseThrow(() -> new EntityNotFoundException(SERVICE_NOT_FOUND));
 
         BranchEntity branch = branchRepository.findById(branchId)
-                .orElseThrow(() -> new EntityNotFoundException("Branch not found"));
+                .orElseThrow(() -> new EntityNotFoundException(BRANCH_NOT_FOUND));
 
         service.getBranches().remove(branch);
         branch.getServices().remove(service);
@@ -54,10 +58,10 @@ public class ServiceBranchService {
         branchRepository.save(branch);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<BranchEntity> getBranches(Long serviceId) throws EntityNotFoundException {
         ServiceEntity service = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new EntityNotFoundException("Service not found"));
+                .orElseThrow(() -> new EntityNotFoundException(SERVICE_NOT_FOUND));
         return service.getBranches();
     }
 }

@@ -4,8 +4,7 @@ import java.lang.reflect.Type;
 import co.edu.udistrital.mdp.back.entities.NotificationEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.services.NotificationService;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+
 
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -14,7 +13,6 @@ import org.modelmapper.TypeToken;
 
 import java.util.List;
 
-import javax.management.Notification;
 
 import co.edu.udistrital.mdp.back.dto.NotificationDTO;
 
