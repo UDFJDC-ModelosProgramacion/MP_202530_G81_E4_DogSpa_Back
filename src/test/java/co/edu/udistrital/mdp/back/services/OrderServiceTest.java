@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = OrderService.class)
@@ -232,6 +233,34 @@ class OrderServiceTest {
 
         verify(orderRepository).findById(100L);
         verifyNoMoreInteractions(orderRepository);
+    }
+    @Test
+    @DisplayName("changeStatus lanza IllegalOperationException si la transición es inválida")
+    void changeStatus_invalidTransition_throwsException() throws Exception {
+        OrderEntity order = new OrderEntity();
+        order.setId(1L);
+        order.setStatus(OrderStatus.PAID);
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+
+        assertThrows(IllegalOperationException.class,
+            () -> orderService.changeStatus(1L, OrderStatus.CONFIRMED));
+    }
+
+    @Test
+    @DisplayName("deleteOrder lanza IllegalOperationException si el pedido ya está completado")
+    void deleteOrder_immutableStatus_throwsException() {
+        OrderEntity order = new OrderEntity();
+        order.setStatus(OrderStatus.DELIVERED);
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        assertThrows(IllegalOperationException.class, () -> orderService.deleteOrder(1L));
+    }
+
+    @Test
+    @DisplayName("updateOrder lanza EntityNotFoundException si no existe el pedido")
+    void updateOrder_notFound_throwsException() {
+        when(orderRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, 
+            () -> orderService.updateOrder(1L, new OrderEntity()));
     }
 
 }
