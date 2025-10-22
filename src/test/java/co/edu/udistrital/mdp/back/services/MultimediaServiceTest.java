@@ -1,13 +1,16 @@
 package co.edu.udistrital.mdp.back.services;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.transaction.Transactional;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -223,4 +226,34 @@ class MultimediaServiceTest {
         assertThrows(IllegalOperationException.class,
                 () -> multimediaService.deleteMultimedia(id));
     }
+    @Test
+    @DisplayName("createMultimedia lanza IllegalOperationException si no tiene entidad asociada")
+    void createMultimedia_noEntity_throwsException() {
+        MultimediaEntity m = new MultimediaEntity();
+        m.setType("image");
+        assertThrows(IllegalOperationException.class, () -> multimediaService.createMultimedia(m));
+    }
+
+    @Test
+    @DisplayName("createMultimedia lanza IllegalOperationException si hay más de una entidad asociada")
+    void createMultimedia_multipleEntities_throwsException() {
+        MultimediaEntity m = new MultimediaEntity();
+        m.setBranch(new BranchEntity());
+        m.setService(new ServiceEntity());
+        m.setType("image");
+        assertThrows(IllegalOperationException.class, () -> multimediaService.createMultimedia(m));
+    }
+
+    @Test
+    @DisplayName("updateMultimedia lanza EntityNotFoundException si no existe el ID")
+    void updateMultimedia_notFound_throwsException() {
+        MultimediaEntity updateEntity = new MultimediaEntity();
+        updateEntity.setType("image/png");
+
+        assertThrows(EntityNotFoundException.class,
+                () -> multimediaService.updateMultimedia(9999L, updateEntity));
+    }
+
+
+
 }
