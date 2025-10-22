@@ -1,6 +1,7 @@
 package co.edu.udistrital.mdp.back.dto;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class BranchDetailDTO extends BranchDTO {
     private List<ServiceDTO> reviews = new ArrayList<>();
