@@ -1,10 +1,10 @@
 package co.edu.udistrital.mdp.back.services;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import co.edu.udistrital.mdp.back.entities.ProductEntity;
@@ -15,13 +15,16 @@ import jakarta.transaction.Transactional;
 @Service
 public class ProductService {
     
-    @Autowired
-    private ProductRepository productRepository;
+    private static final String PRODUCT_NOT_FOUND_MESSAGE = "Product not found";
 
-    @Autowired
-    private OrderDetailRepository orderDetailRepository;
+    private final ProductRepository productRepository;
+    private final OrderDetailRepository orderDetailRepository;
 
-    private static final String productNotFoundMessage = "Product not found";
+    // Constructor injection
+    public ProductService(ProductRepository productRepository, OrderDetailRepository orderDetailRepository) {
+        this.productRepository = productRepository;
+        this.orderDetailRepository = orderDetailRepository;
+    }
 
     public List<ProductEntity> findAll() {
         return productRepository.findAll();
@@ -30,9 +33,10 @@ public class ProductService {
     public Optional<ProductEntity> findById(Long id) {
         return productRepository.findById(id);
     }
+    
     public ProductEntity getByIdOrThrow(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(productNotFoundMessage));
+                .orElseThrow(() -> new IllegalArgumentException(PRODUCT_NOT_FOUND_MESSAGE));
     }
 
     @Transactional
@@ -102,7 +106,6 @@ public class ProductService {
     }
     
     public ProductEntity getById(Long id) {
-    return getByIdOrThrow(id);
+        return getByIdOrThrow(id);
     }
-
 }

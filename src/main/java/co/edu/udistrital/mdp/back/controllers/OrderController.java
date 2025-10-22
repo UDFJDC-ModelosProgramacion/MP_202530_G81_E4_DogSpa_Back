@@ -2,7 +2,6 @@ package co.edu.udistrital.mdp.back.controllers;
 
 import java.lang.reflect.Type;
 
-import co.edu.udistrital.mdp.back.entities.OrderDetailEntity;
 import co.edu.udistrital.mdp.back.entities.OrderEntity;
 import co.edu.udistrital.mdp.back.entities.OrderStatus;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;

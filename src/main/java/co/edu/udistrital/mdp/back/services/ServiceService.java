@@ -6,26 +6,24 @@ import co.edu.udistrital.mdp.back.entities.ServiceEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.ReservationRepository;
-import co.edu.udistrital.mdp.back.repositories.OrderDetailRepository;
 import co.edu.udistrital.mdp.back.repositories.ServiceRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ServiceService {
 
-    @Autowired
-    private ServiceRepository serviceRepository;
+    private static final String SERVICE_NOT_FOUND_MESSAGE = "Service not found";
 
-    @Autowired
-    private ReservationRepository reservationRepository;
+    private final ServiceRepository serviceRepository;
+    private final ReservationRepository reservationRepository;
 
-    @Autowired
-    private OrderDetailRepository orderDetailRepository;
-
-    private static final String ServiceNotFoundMessage = "Service not found";
+    // Constructor injection
+    public ServiceService(ServiceRepository serviceRepository, ReservationRepository reservationRepository) {
+        this.serviceRepository = serviceRepository;
+        this.reservationRepository = reservationRepository;
+    }
 
     // Validar que el precio sea mayor o igual a 0
     private void validatePrice(Double price) throws IllegalOperationException {
@@ -44,7 +42,7 @@ public class ServiceService {
     @Transactional(readOnly = true)
     public ServiceEntity getServiceById(Long serviceId) throws EntityNotFoundException {
         return serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new EntityNotFoundException(ServiceNotFoundMessage));
+                .orElseThrow(() -> new EntityNotFoundException(SERVICE_NOT_FOUND_MESSAGE));
     }
     
     // Crear un servicio o actualizar uno existente
@@ -73,7 +71,7 @@ public class ServiceService {
     @Transactional
     public void delete(Long serviceId) throws EntityNotFoundException, IllegalOperationException {
         ServiceEntity service = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new EntityNotFoundException(ServiceNotFoundMessage));
+                .orElseThrow(() -> new EntityNotFoundException(SERVICE_NOT_FOUND_MESSAGE));
 
         int activeReservations = reservationRepository.countByService_IdAndReservationStatus(serviceId, "SCHEDULED");
 
@@ -83,5 +81,4 @@ public class ServiceService {
 
         serviceRepository.delete(service);
     }
-
 }

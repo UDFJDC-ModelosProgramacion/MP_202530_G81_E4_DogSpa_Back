@@ -3,7 +3,6 @@ package co.edu.udistrital.mdp.back.services;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class ReviewService {
 
-    @Autowired
-    private ReviewRepository reviewRepository;
+    private final ReviewRepository reviewRepository;
+
+    // Constructor injection
+    public ReviewService(ReviewRepository reviewRepository) {
+        this.reviewRepository = reviewRepository;
+    }
 
     @Transactional
     public ReviewEntity createReview(ReviewEntity review) throws IllegalOperationException {
@@ -30,6 +33,7 @@ public class ReviewService {
         return savedReview;
     }
 
+    @Transactional(readOnly = true)
     public List<ReviewEntity> getReviews() {
         log.info("Starting process to retrieve all reviews");
         List<ReviewEntity> reviews = reviewRepository.findAll();
@@ -37,6 +41,7 @@ public class ReviewService {
         return reviews;
     }
 
+    @Transactional(readOnly = true)
     public ReviewEntity getReview(Long id) throws EntityNotFoundException {
         log.info("Starting process to find review with id = {}", id);
         Optional<ReviewEntity> review = reviewRepository.findById(id);
@@ -54,7 +59,9 @@ public class ReviewService {
             throws EntityNotFoundException, IllegalOperationException {
         log.info("Starting review update process with id = {}", id);
 
-        ReviewEntity existing = getReview(id);
+        ReviewEntity existing = reviewRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("The review was not found."));
+        
         validateReview(review);
 
         existing.setRating(review.getRating());
@@ -69,7 +76,8 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Long id) throws EntityNotFoundException {
         log.info("Starting review deletion process with id = {}", id);
-        ReviewEntity review = getReview(id);
+        ReviewEntity review = reviewRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("The review was not found."));
         reviewRepository.delete(review);
         log.info("Review deletion process finished with id = {}", id);
     }
