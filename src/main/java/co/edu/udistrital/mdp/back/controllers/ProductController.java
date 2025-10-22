@@ -5,8 +5,6 @@ import java.lang.reflect.Type;
 import co.edu.udistrital.mdp.back.dto.ProductDTO;
 import co.edu.udistrital.mdp.back.entities.ProductEntity;
 import co.edu.udistrital.mdp.back.services.ProductService;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

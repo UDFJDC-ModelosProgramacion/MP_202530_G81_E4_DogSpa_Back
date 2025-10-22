@@ -14,11 +14,13 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ReservationService {
+
+    private static final String RESERVATION_NOT_FOUND_MESSAGE = "No reservation found with ID: ";
 
     private final ReservationRepository reservationRepository;
 
+    @Transactional
     public ReservationEntity createReservation(@Valid ReservationEntity reservation)
             throws IllegalOperationException {
         validateReservationTimes(reservation);
@@ -33,13 +35,20 @@ public class ReservationService {
     @Transactional(readOnly = true)
     public ReservationEntity getReservationById(Long id) {
         return reservationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("No reservation found with ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(RESERVATION_NOT_FOUND_MESSAGE + id));
     }
 
+    @Transactional
     public ReservationEntity updateReservation(Long id, @Valid ReservationEntity reservation)
             throws IllegalOperationException {
-        ReservationEntity existing = getReservationById(id);
-        validateReservationTimes(reservation);
+        ReservationEntity existing = reservationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(RESERVATION_NOT_FOUND_MESSAGE + id));
+        
+        // Validate times before updating
+        if (reservation.getStartTime() != null && reservation.getEndTime() != null
+                && reservation.getEndTime().isBefore(reservation.getStartTime())) {
+            throw new IllegalOperationException("End time must be after start time.");
+        }
 
         existing.setReservationDate(reservation.getReservationDate());
         existing.setReservationStatus(reservation.getReservationStatus());
@@ -51,8 +60,10 @@ public class ReservationService {
         return reservationRepository.save(existing);
     }
 
+    @Transactional
     public void deleteReservation(Long id) {
-        ReservationEntity reservation = getReservationById(id);
+        ReservationEntity reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(RESERVATION_NOT_FOUND_MESSAGE + id));
         reservationRepository.delete(reservation);
     }
 

@@ -5,7 +5,6 @@ import co.edu.udistrital.mdp.back.entities.UserEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.repositories.NotificationRepository;
 import co.edu.udistrital.mdp.back.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,13 +14,17 @@ import java.util.List;
 @Service
 public class NotificationService {
 
-    @Autowired
-    private NotificationRepository notificationRepository;
+    private static final String NOTIFICATION_NOT_FOUND_MESSAGE = "Notification not found";
+    private static final String USER_NOT_FOUND_MESSAGE = "User not found";
 
-    @Autowired
-    private UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
 
-    private static final String notificationNotFoundMessage = "Notification not found";
+    // Constructor injection
+    public NotificationService(NotificationRepository notificationRepository, UserRepository userRepository) {
+        this.notificationRepository = notificationRepository;
+        this.userRepository = userRepository;
+    }
 
     // Regla: Crear notificación para uno o varios usuarios
     @Transactional
@@ -47,7 +50,7 @@ public class NotificationService {
 
     public NotificationEntity getById(Long notificationId) throws EntityNotFoundException {
         return notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new EntityNotFoundException(notificationNotFoundMessage));
+                .orElseThrow(() -> new EntityNotFoundException(NOTIFICATION_NOT_FOUND_MESSAGE));
     }
 
 
@@ -55,7 +58,7 @@ public class NotificationService {
     @Transactional
     public void markAsRead(Long notificationId) throws EntityNotFoundException {
         NotificationEntity notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new EntityNotFoundException(notificationNotFoundMessage));
+                .orElseThrow(() -> new EntityNotFoundException(NOTIFICATION_NOT_FOUND_MESSAGE));
         notification.setRead(true);
         notificationRepository.save(notification);
     }
@@ -94,7 +97,7 @@ public class NotificationService {
             throws EntityNotFoundException {
         NotificationEntity n = getById(notificationId);
         UserEntity u = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_MESSAGE));
         if (!n.getUsers().contains(u)) {
             n.getUsers().add(u);
         }
@@ -106,7 +109,7 @@ public class NotificationService {
             throws EntityNotFoundException {
         NotificationEntity n = getById(notificationId);
         UserEntity u = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_MESSAGE));
         n.getUsers().remove(u);
         notificationRepository.save(n);
     }
@@ -116,7 +119,7 @@ public class NotificationService {
     @Transactional
     public void deleteNotification(Long notificationId) throws EntityNotFoundException {
         NotificationEntity notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new EntityNotFoundException(notificationNotFoundMessage));
+                .orElseThrow(() -> new EntityNotFoundException(NOTIFICATION_NOT_FOUND_MESSAGE));
         if (!Boolean.TRUE.equals(notification.getRead())) {
             throw new IllegalArgumentException("Cannot delete unread notification");
         }

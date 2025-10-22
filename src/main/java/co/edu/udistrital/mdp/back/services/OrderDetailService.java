@@ -12,23 +12,28 @@ import co.edu.udistrital.mdp.back.repositories.OrderDetailRepository;
 import co.edu.udistrital.mdp.back.repositories.OrderRepository;
 import co.edu.udistrital.mdp.back.repositories.ProductRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderDetailService {
 
-    @Autowired
-    private OrderDetailRepository orderDetailRepository;
+    private static final String ORDER_DETAIL_NOT_FOUND_MESSAGE = "Order detail not found";
+    private static final String ORDER_NOT_FOUND_MESSAGE = "Order not found";
+    private static final String PRODUCT_NOT_FOUND_MESSAGE = "Product not found";
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private final OrderDetailRepository orderDetailRepository;
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
 
-    @Autowired
-    private ProductRepository productRepository; 
-
-    private final String orderDetailNotFoundMessage = "Order detail not found";
+    // Constructor injection
+    public OrderDetailService(OrderDetailRepository orderDetailRepository,
+                            OrderRepository orderRepository,
+                            ProductRepository productRepository) {
+        this.orderDetailRepository = orderDetailRepository;
+        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
+    }
 
     private void validateQuantity(int quantity) throws IllegalOperationException {
         if (quantity <= 0) {
@@ -42,7 +47,7 @@ public class OrderDetailService {
             throw new IllegalOperationException("Order detail must reference a valid product");
         }
         ProductEntity dbProduct = productRepository.findById(p.getId())
-                .orElseThrow(() -> new IllegalOperationException("Product not found"));
+                .orElseThrow(() -> new IllegalOperationException(PRODUCT_NOT_FOUND_MESSAGE));
         if (dbProduct.getPrice() == null) {
             throw new IllegalOperationException("Product has no price configured");
         }
@@ -57,7 +62,7 @@ public class OrderDetailService {
     @Transactional(readOnly = true)
     public OrderDetailEntity getOrderDetailById(Long id) throws EntityNotFoundException {
         return orderDetailRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(orderDetailNotFoundMessage));
+                .orElseThrow(() -> new EntityNotFoundException(ORDER_DETAIL_NOT_FOUND_MESSAGE));
     }
 
    @Transactional
@@ -65,7 +70,7 @@ public class OrderDetailService {
         throws EntityNotFoundException, IllegalOperationException {
 
         OrderEntity order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+            .orElseThrow(() -> new EntityNotFoundException(ORDER_NOT_FOUND_MESSAGE));
 
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new IllegalOperationException("Cannot add items unless order is PENDING (current: " + order.getStatus() + ")");
@@ -86,7 +91,7 @@ public class OrderDetailService {
         throws EntityNotFoundException, IllegalOperationException {
 
         OrderDetailEntity existing = orderDetailRepository.findById(detailId)
-            .orElseThrow(() -> new EntityNotFoundException(orderDetailNotFoundMessage));
+            .orElseThrow(() -> new EntityNotFoundException(ORDER_DETAIL_NOT_FOUND_MESSAGE));
 
         OrderEntity order = existing.getOrder();
         if (order.getStatus() != OrderStatus.PENDING) {
@@ -112,7 +117,7 @@ public class OrderDetailService {
             throws EntityNotFoundException, IllegalOperationException {
 
         OrderDetailEntity detail = orderDetailRepository.findById(detailId)
-                .orElseThrow(() -> new EntityNotFoundException(orderDetailNotFoundMessage));
+                .orElseThrow(() -> new EntityNotFoundException(ORDER_DETAIL_NOT_FOUND_MESSAGE));
 
         OrderEntity order = detail.getOrder();
 
