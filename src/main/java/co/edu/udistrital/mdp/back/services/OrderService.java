@@ -11,10 +11,12 @@ import co.edu.udistrital.mdp.back.repositories.OrderRepository;
 import co.edu.udistrital.mdp.back.repositories.PersonRepository;
 import co.edu.udistrital.mdp.back.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -30,6 +32,45 @@ public class OrderService {
     private PersonRepository personRepository;
 
     private static final String orderNotFoundMessage = "Order not found";
+
+    @Transactional
+    public OrderEntity findById(Long orderId) throws EntityNotFoundException {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException(orderNotFoundMessage));
+    }
+
+    @Transactional
+    public List<OrderEntity> findAll() {
+        return orderRepository.findAll();
+    }
+    
+    @Transactional
+    public OrderEntity createOrder(OrderEntity incoming) throws EntityNotFoundException {
+        if (incoming.getUser() != null && incoming.getUser().getId() != null) {
+            var userId = incoming.getUser().getId();
+            personRepository.findById(userId).orElseThrow(
+                    () -> new EntityNotFoundException("User not found with id " + userId));
+        }
+
+        // Status por defecto
+        if (incoming.getStatus() == null) {
+            incoming.setStatus(OrderStatus.PENDING);
+        }
+
+        if (incoming.getOrderDetail() != null) {
+            for (OrderDetailEntity d : incoming.getOrderDetail()) {
+                attachProductIfOnlyId(d); 
+                d.setOrder(incoming);
+                if (d.getSubtotal() == null) {
+                    d.setSubtotal(calcLineSubtotal(d));
+                }
+            }
+        }
+        incoming.setTotalAmount(recalculateTotalAmount(incoming));
+
+        return orderRepository.save(incoming);
+    }
+
 
     @Transactional
     public OrderEntity changeStatus(Long orderId, OrderStatus newStatus)
@@ -164,5 +205,16 @@ public class OrderService {
         double discount = order.getDiscount() != 0 ? order.getDiscount() : 0.0;
         double total = sum - (sum * discount);
         return total < 0 ? 0.0 : total;
+    }
+
+    private void attachProductIfOnlyId(OrderDetailEntity d) throws EntityNotFoundException {
+        if (d.getProduct() == null) {
+            throw new EntityNotFoundException("Product must be provided in order detail.");
+        }
+        if (d.getProduct().getId() != null && (d.getProduct().getName() == null)) {
+            ProductEntity product = productRepository.findById(d.getProduct().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Product not found with id " + d.getProduct().getId()));
+            d.setProduct(product);
+        }
     }
 }
