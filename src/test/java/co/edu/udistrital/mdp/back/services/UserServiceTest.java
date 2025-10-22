@@ -70,7 +70,7 @@ class UserServiceTest {
     }
 
     @Test
-    void testGetUser_valid_ok() throws EntityNotFoundException {
+    void testGetUser_valid_ok() {
         UserEntity base = userRepository.findAll().get(0);
         UserEntity found = userService.getUser(base.getId());
         assertEquals(base.getEmail(), found.getEmail());
@@ -80,6 +80,40 @@ class UserServiceTest {
     void testGetUser_notFound_exception() {
         assertThrows(EntityNotFoundException.class, () -> {
             userService.getUser(9999L);
+        });
+    }
+
+    @Test
+    void testUpdateUser_valid_ok() throws Exception {
+        UserEntity base = userRepository.findAll().get(0);
+        base.setName("Actualizado");
+        UserEntity result = userService.updateUser(base.getId(), base);
+        assertEquals("Actualizado", result.getName());
+    }
+
+    @Test
+    void testUpdateUser_notFound_exception() {
+        UserEntity fake = new UserEntity();
+        fake.setId(999L);
+        fake.setName("Falso");
+        fake.setEmail("falso@correo.com");
+
+        assertThrows(EntityNotFoundException.class, () -> {
+            userService.updateUser(999L, fake);
+        });
+    }
+
+    @Test
+    void testDeleteUser_valid_ok() {
+        UserEntity base = userRepository.findAll().get(0);
+        userService.deleteUser(base.getId());
+        assertTrue(userRepository.findAll().isEmpty());
+    }
+
+    @Test
+    void testDeleteUser_notFound_exception() {
+        assertThrows(EntityNotFoundException.class, () -> {
+            userService.deleteUser(123456L);
         });
     }
 }

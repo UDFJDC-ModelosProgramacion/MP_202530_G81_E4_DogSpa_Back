@@ -67,7 +67,7 @@ class AdminServiceTest {
     }
 
     @Test
-    void testGetAdmin_valid_ok() throws EntityNotFoundException {
+    void testGetAdmin_valid_ok() {
         AdminEntity base = adminRepository.findAll().get(0);
         AdminEntity found = adminService.getAdmin(base.getId());
         assertEquals(base.getEmail(), found.getEmail());
@@ -77,6 +77,40 @@ class AdminServiceTest {
     void testGetAdmin_notFound_exception() {
         assertThrows(EntityNotFoundException.class, () -> {
             adminService.getAdmin(9999L);
+        });
+    }
+
+    @Test
+    void testUpdateAdmin_valid_ok() throws Exception {
+        AdminEntity base = adminRepository.findAll().get(0);
+        base.setName("AdminModificado");
+        AdminEntity result = adminService.updateAdmin(base.getId(), base);
+        assertEquals("AdminModificado", result.getName());
+    }
+
+    @Test
+    void testUpdateAdmin_notFound_exception() {
+        AdminEntity fake = new AdminEntity();
+        fake.setId(888L);
+        fake.setName("Falso");
+        fake.setEmail("correo@falso.com");
+
+        assertThrows(EntityNotFoundException.class, () -> {
+            adminService.updateAdmin(888L, fake);
+        });
+    }
+
+    @Test
+    void testDeleteAdmin_valid_ok() {
+        AdminEntity base = adminRepository.findAll().get(0);
+        adminService.deleteAdmin(base.getId());
+        assertTrue(adminRepository.findAll().isEmpty());
+    }
+
+    @Test
+    void testDeleteAdmin_notFound_exception() {
+        assertThrows(EntityNotFoundException.class, () -> {
+            adminService.deleteAdmin(999L);
         });
     }
 }
