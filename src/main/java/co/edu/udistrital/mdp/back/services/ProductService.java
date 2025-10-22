@@ -21,12 +21,18 @@ public class ProductService {
     @Autowired
     private OrderDetailRepository orderDetailRepository;
 
+    private static final String productNotFoundMessage = "Product not found";
+
     public List<ProductEntity> findAll() {
         return productRepository.findAll();
     }
-
+    
     public Optional<ProductEntity> findById(Long id) {
         return productRepository.findById(id);
+    }
+    public ProductEntity getByIdOrThrow(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(productNotFoundMessage));
     }
 
     @Transactional
@@ -37,9 +43,31 @@ public class ProductService {
     }
 
     @Transactional
+    public ProductEntity update(Long productId, ProductEntity incoming) {
+        ProductEntity current = getById(productId);
+
+        if (incoming.getName() != null)        current.setName(incoming.getName());
+        if (incoming.getDescription() != null) current.setDescription(incoming.getDescription());
+
+        if (incoming.getPrice() != null) {
+            validatePrice(incoming.getPrice());
+            current.setPrice(roundToTwoDecimals(incoming.getPrice()));
+        }
+       
+        if (incoming.getStock() != null) {
+            int newStock = incoming.getStock();
+            int reserved = orderDetailRepository.countReservedForProduct(productId);
+            if (newStock < reserved) {
+                throw new IllegalArgumentException("Stock cannot be less than reserved quantity in open orders");
+            }
+            current.setStock(newStock);
+        }
+        return productRepository.save(current);
+    }
+
+    @Transactional
     public ProductEntity updateStock(Long productId, int newStock) {
-        ProductEntity product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        ProductEntity product = getByIdOrThrow(productId);
 
         int reserved = orderDetailRepository.countReservedForProduct(productId);
         if (newStock < reserved) {
