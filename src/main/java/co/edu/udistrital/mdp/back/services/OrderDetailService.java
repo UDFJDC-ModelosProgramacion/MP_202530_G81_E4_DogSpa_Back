@@ -1,5 +1,7 @@
 package co.edu.udistrital.mdp.back.services;
 
+import java.util.List;
+
 import co.edu.udistrital.mdp.back.entities.OrderDetailEntity;
 import co.edu.udistrital.mdp.back.entities.OrderEntity;
 import co.edu.udistrital.mdp.back.entities.OrderStatus;
@@ -45,6 +47,17 @@ public class OrderDetailService {
             throw new IllegalOperationException("Product has no price configured");
         }
         return dbProduct.getPrice() * d.getQuantity();
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderDetailEntity> getAllOrderDetails() {
+        return orderDetailRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public OrderDetailEntity getOrderDetailById(Long id) throws EntityNotFoundException {
+        return orderDetailRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(orderDetailNotFoundMessage));
     }
 
    @Transactional
