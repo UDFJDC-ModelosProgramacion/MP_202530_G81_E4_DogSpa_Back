@@ -12,7 +12,6 @@ import co.edu.udistrital.mdp.back.repositories.PersonRepository;
 import co.edu.udistrital.mdp.back.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumSet;
@@ -22,21 +21,28 @@ import java.util.Set;
 @Service
 public class OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private OrderDetailRepository orderDetailRepository;
-    @Autowired
-    private PersonRepository personRepository;
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
+    private final OrderDetailRepository orderDetailRepository;
+    private final PersonRepository personRepository;
 
-    private static final String orderNotFoundMessage = "Order not found";
+    private static final String ORDER_NOT_FOUND_MESSAGE = "Order not found";
+
+    // Constructor injection instead of field injection
+    public OrderService(OrderRepository orderRepository,
+                       ProductRepository productRepository,
+                       OrderDetailRepository orderDetailRepository,
+                       PersonRepository personRepository) {
+        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
+        this.orderDetailRepository = orderDetailRepository;
+        this.personRepository = personRepository;
+    }
 
     @Transactional
     public OrderEntity findById(Long orderId) throws EntityNotFoundException {
         return orderRepository.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException(orderNotFoundMessage));
+                .orElseThrow(() -> new EntityNotFoundException(ORDER_NOT_FOUND_MESSAGE));
     }
 
     @Transactional
@@ -57,8 +63,9 @@ public class OrderService {
             incoming.setStatus(OrderStatus.PENDING);
         }
 
-        if (incoming.getOrderDetail() != null) {
-            for (OrderDetailEntity d : incoming.getOrderDetail()) {
+        // FIXED: Changed getOrderDetail() to getOrderDetails() (plural)
+        if (incoming.getOrderDetails() != null) {
+            for (OrderDetailEntity d : incoming.getOrderDetails()) {
                 attachProductIfOnlyId(d); 
                 d.setOrder(incoming);
                 if (d.getSubtotal() == null) {
@@ -77,7 +84,7 @@ public class OrderService {
             throws IllegalOperationException, EntityNotFoundException {
 
         OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException(orderNotFoundMessage));
+                .orElseThrow(() -> new EntityNotFoundException(ORDER_NOT_FOUND_MESSAGE));
 
         OrderStatus current = order.getStatus();
 
@@ -145,7 +152,7 @@ public class OrderService {
         throws IllegalOperationException, EntityNotFoundException {
 
         OrderEntity current = orderRepository.findById(orderId)
-            .orElseThrow(() -> new EntityNotFoundException(orderNotFoundMessage));
+            .orElseThrow(() -> new EntityNotFoundException(ORDER_NOT_FOUND_MESSAGE));
 
         if (OrderStatus.isImmutable(current.getStatus())) {
             throw new IllegalOperationException(
@@ -164,7 +171,7 @@ public class OrderService {
     public void deleteOrder(Long orderId)
         throws EntityNotFoundException, IllegalOperationException {
         OrderEntity order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new EntityNotFoundException(orderNotFoundMessage));
+            .orElseThrow(() -> new EntityNotFoundException(ORDER_NOT_FOUND_MESSAGE));
 
         if (OrderStatus.isImmutable(order.getStatus())) {
             throw new IllegalOperationException("Cannot delete an order in status " + order.getStatus() + ".");
@@ -217,9 +224,18 @@ public class OrderService {
             d.setProduct(product);
         }
     }
-    public List<OrderEntity> getAllOrders() { return findAll(); }
-    public OrderEntity getOrderById(Long id) throws EntityNotFoundException { return findById(id); }
-    public Double getOrderDetail(OrderDetailEntity d) { return d.getSubtotal(); }
-    public Double calcLineSubtotal(OrderDetailEntity detail) { return detail.getSubtotal(); }
-
+    
+    public List<OrderEntity> getAllOrders() { 
+        return findAll(); 
+    }
+    
+    public OrderEntity getOrderById(Long id) throws EntityNotFoundException { 
+        return findById(id); 
+    }
+    
+    // FIXED: Removed the incorrect getOrderDetail method that was expecting incoming OrderDetailEntity
+    // This method should calculate line subtotal from OrderDetailEntity
+    public Double calcLineSubtotal(OrderDetailEntity detail) { 
+        return detail.getSubtotal(); 
+    }
 }
