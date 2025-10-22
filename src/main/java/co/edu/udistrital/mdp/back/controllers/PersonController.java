@@ -1,44 +1,58 @@
 package co.edu.udistrital.mdp.back.controllers;
 
+import java.lang.reflect.Type;
 import java.util.List;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
+import co.edu.udistrital.mdp.back.dto.UserDTO;
 import co.edu.udistrital.mdp.back.entities.PersonEntity;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.services.PersonService;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/persons")
-@RequiredArgsConstructor
 public class PersonController {
 
     private final PersonService personService;
+    private final ModelMapper modelMapper;
+
+    public PersonController(PersonService personService, ModelMapper modelMapper) {
+        this.personService = personService;
+        this.modelMapper = modelMapper;
+    }
 
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
-    public List<PersonEntity> findAll() {
-        return personService.getPersons();
+    public List<UserDTO> findAll() {
+        List<PersonEntity> persons = personService.getPersons();
+        Type listType = new TypeToken<List<UserDTO>>() {}.getType();
+        return modelMapper.map(persons, listType);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public PersonEntity findOne(@PathVariable("id") Long id) {
-        return personService.getPerson(id);
+    public UserDTO findOne(@PathVariable("id") Long id) {
+        PersonEntity person = personService.getPerson(id);
+        return modelMapper.map(person, UserDTO.class);
     }
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    public PersonEntity create(@RequestBody PersonEntity person) throws IllegalOperationException {
-        return personService.createPerson(person);
+    public UserDTO create(@RequestBody UserDTO personDTO) throws IllegalOperationException {
+        PersonEntity person = modelMapper.map(personDTO, PersonEntity.class);
+        PersonEntity newPerson = personService.createPerson(person);
+        return modelMapper.map(newPerson, UserDTO.class);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public PersonEntity update(@PathVariable("id") Long id, @RequestBody PersonEntity person)
+    public UserDTO update(@PathVariable("id") Long id, @RequestBody UserDTO personDTO)
             throws IllegalOperationException {
-        return personService.updatePerson(id, person);
+        PersonEntity person = modelMapper.map(personDTO, PersonEntity.class);
+        PersonEntity updatedPerson = personService.updatePerson(id, person);
+        return modelMapper.map(updatedPerson, UserDTO.class);
     }
 
     @DeleteMapping("/{id}")

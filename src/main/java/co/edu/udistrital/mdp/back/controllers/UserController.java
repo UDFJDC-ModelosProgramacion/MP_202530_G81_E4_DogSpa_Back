@@ -3,20 +3,22 @@ package co.edu.udistrital.mdp.back.controllers;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import co.edu.udistrital.mdp.back.dto.UserDTO;
 import co.edu.udistrital.mdp.back.entities.UserEntity;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.services.UserService;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/users")
-@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
     private final ModelMapper modelMapper;
+
+    public UserController(UserService userService, ModelMapper modelMapper) {
+        this.userService = userService;
+        this.modelMapper = modelMapper;
+    }
 
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
