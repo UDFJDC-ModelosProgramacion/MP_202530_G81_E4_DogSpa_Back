@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BranchDetailDTO extends BranchDTO {
-    private List<ServiceDTO> reviews = new ArrayList<>();
-	private List<MultimediaDTO> authors = new ArrayList<>();
+    private List<ServiceDTO> services = new ArrayList<>();
+	private List<MultimediaDTO> multimedias = new ArrayList<>();
     
 }
