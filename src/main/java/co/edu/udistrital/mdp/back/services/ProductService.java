@@ -100,4 +100,9 @@ public class ProductService {
         if (value == null) return null;
         return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
+    
+    public ProductEntity getById(Long id) {
+    return getByIdOrThrow(id);
+    }
+
 }

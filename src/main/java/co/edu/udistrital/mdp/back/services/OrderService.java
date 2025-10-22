@@ -217,4 +217,9 @@ public class OrderService {
             d.setProduct(product);
         }
     }
+    public List<OrderEntity> getAllOrders() { return findAll(); }
+    public OrderEntity getOrderById(Long id) throws EntityNotFoundException { return findById(id); }
+    public Double getOrderDetail(OrderDetailEntity d) { return d.getSubtotal(); }
+    public Double calcLineSubtotal(OrderDetailEntity detail) { return detail.getSubtotal(); }
+
 }
