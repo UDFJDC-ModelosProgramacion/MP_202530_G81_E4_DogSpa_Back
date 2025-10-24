@@ -1,4 +1,3 @@
-
 package co.edu.udistrital.mdp.back.services;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -6,8 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.List;
-
+import java.util.List; 
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -95,7 +93,8 @@ class ReservationServiceTest {
         ReservationEntity result = reservationService.createReservation(newEntity);
         assertNotNull(result);
 
-        ReservationEntity stored = entityManager.find(ReservationEntity.class, result.getId());
+        Long resultId = result.getId();
+        ReservationEntity stored = entityManager.find(ReservationEntity.class, resultId);
         assertEquals(newEntity.getReservationStatus(), stored.getReservationStatus());
         assertEquals(newEntity.getStartTime(), stored.getStartTime());
     }
@@ -110,7 +109,8 @@ class ReservationServiceTest {
         newEntity.setBranch(branch);
         newEntity.setUser(user);
 
-        assertThrows(IllegalOperationException.class, () -> reservationService.createReservation(newEntity));
+        assertThrows(IllegalOperationException.class, 
+                () -> reservationService.createReservation(newEntity));
     }
 
     @Test
@@ -120,25 +120,31 @@ class ReservationServiceTest {
     }
 
 
-  @Test
+    @Test
     void testGetReservation() throws EntityNotFoundException {
         ReservationEntity entity = reservationList.get(0);
-        ReservationEntity resultEntity = reservationService.getReservationById(entity.getId());
+        Long entityId = entity.getId();
+        
+        ReservationEntity resultEntity = reservationService.getReservationById(entityId);
         assertNotNull(resultEntity);
         assertEquals(entity.getReservationStatus(), resultEntity.getReservationStatus());
     }
 
 
     @Test
-        void testGetInvalidReservation() {
-            assertThrows(jakarta.persistence.EntityNotFoundException.class,
-                    () -> reservationService.getReservationById(999L));
-        }
+    void testGetInvalidReservation() {
+        Long invalidId = 999L;
+        
+        assertThrows(jakarta.persistence.EntityNotFoundException.class,
+                () -> reservationService.getReservationById(invalidId));
+    }
 
 
     @Test
     void testUpdateReservation() throws EntityNotFoundException, IllegalOperationException {
         ReservationEntity entity = reservationList.get(0);
+        Long entityId = entity.getId();
+        
         ReservationEntity update = new ReservationEntity();
         update.setReservationDate(LocalDate.now().plusDays(2));
         update.setStartTime(LocalTime.of(14, 0));
@@ -147,25 +153,29 @@ class ReservationServiceTest {
         update.setBranch(branch);
         update.setUser(user);
 
-        ReservationEntity updated = reservationService.updateReservation(entity.getId(), update);
+        ReservationEntity updated = reservationService.updateReservation(entityId, update);
         assertEquals("UPDATED", updated.getReservationStatus());
         assertEquals(LocalTime.of(14, 0), updated.getStartTime());
     }
 
-   @Test
-        void testUpdateInvalidReservation() {
-            ReservationEntity updated = new ReservationEntity();
-            updated.setReservationStatus("UPDATED");
+    @Test
+    void testUpdateInvalidReservation() {
+        Long invalidId = 999L;
+        
+        ReservationEntity updated = new ReservationEntity();
+        updated.setReservationStatus("UPDATED");
 
-            assertThrows(jakarta.persistence.EntityNotFoundException.class,
-                    () -> reservationService.updateReservation(999L, updated));
-        }
+        assertThrows(jakarta.persistence.EntityNotFoundException.class,
+                () -> reservationService.updateReservation(invalidId, updated));
+    }
 
 
 
     @Test
     void testUpdateReservationInvalidTime() {
         ReservationEntity entity = reservationList.get(0);
+        Long entityId = entity.getId();
+        
         ReservationEntity update = new ReservationEntity();
         update.setStartTime(LocalTime.of(12, 0));
         update.setEndTime(LocalTime.of(10, 0));
@@ -174,21 +184,26 @@ class ReservationServiceTest {
         update.setBranch(branch);
         update.setUser(user);
 
-        assertThrows(IllegalOperationException.class, () -> reservationService.updateReservation(entity.getId(), update));
+        assertThrows(IllegalOperationException.class, 
+                () -> reservationService.updateReservation(entityId, update));
     }
 
     @Test
     void testDeleteReservation() throws EntityNotFoundException {
         ReservationEntity entity = reservationList.get(0);
-        reservationService.deleteReservation(entity.getId());
-        ReservationEntity deleted = entityManager.find(ReservationEntity.class, entity.getId());
+        Long entityId = entity.getId();
+        
+        reservationService.deleteReservation(entityId);
+        ReservationEntity deleted = entityManager.find(ReservationEntity.class, entityId);
         assertNull(deleted);
     }
 
     @Test
-        void testDeleteInvalidReservation() {
-            assertThrows(jakarta.persistence.EntityNotFoundException.class,
-                    () -> reservationService.deleteReservation(999L));
-        }
+    void testDeleteInvalidReservation() {
+        Long invalidId = 999L;
+        
+        assertThrows(jakarta.persistence.EntityNotFoundException.class,
+                () -> reservationService.deleteReservation(invalidId));
+    }
 
 }
