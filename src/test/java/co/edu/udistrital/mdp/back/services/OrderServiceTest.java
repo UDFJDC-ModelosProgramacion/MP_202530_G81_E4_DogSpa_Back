@@ -276,33 +276,53 @@ class OrderServiceTest {
         verify(orderRepository).findById(orderId);
         verifyNoMoreInteractions(orderRepository);
     }
+
     @Test
-    @DisplayName("changeStatus lanza IllegalOperationException si la transición es inválida")
-    void changeStatus_invalidTransition_throwsException() throws Exception {
-        OrderEntity order = new OrderEntity();
-        order.setId(1L);
-        order.setStatus(OrderStatus.PAID);
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+    @DisplayName("changeStatus: PAID a CONFIRMED es transición inválida")
+    void changeStatus_paidToConfirmed_forbidden() {
+        Long orderId = 1L;
+        OrderStatus newStatus = OrderStatus.CONFIRMED;
+        
+        OrderEntity paidOrder = new OrderEntity();
+        paidOrder.setId(orderId);
+        paidOrder.setStatus(OrderStatus.PAID);
+        
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(paidOrder));
 
         assertThrows(IllegalOperationException.class,
-            () -> orderService.changeStatus(1L, OrderStatus.CONFIRMED));
+                () -> orderService.changeStatus(orderId, newStatus));
+        
+        verify(orderRepository).findById(orderId);
     }
 
     @Test
-    @DisplayName("deleteOrder lanza IllegalOperationException si el pedido ya está completado")
-    void deleteOrder_immutableStatus_throwsException() {
-        OrderEntity order = new OrderEntity();
-        order.setStatus(OrderStatus.DELIVERED);
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
-        assertThrows(IllegalOperationException.class, () -> orderService.deleteOrder(1L));
+    @DisplayName("deleteOrder: orden DELIVERED no se puede eliminar")
+    void deleteOrder_delivered_forbidden() {
+        Long orderId = 1L;
+        
+        OrderEntity deliveredOrder = new OrderEntity();
+        deliveredOrder.setId(orderId);
+        deliveredOrder.setStatus(OrderStatus.DELIVERED);
+        
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(deliveredOrder));
+        
+        assertThrows(IllegalOperationException.class, 
+                () -> orderService.deleteOrder(orderId));
+        
+        verify(orderRepository).findById(orderId);
     }
 
     @Test
-    @DisplayName("updateOrder lanza EntityNotFoundException si no existe el pedido")
+    @DisplayName("updateOrder: orden no encontrada lanza EntityNotFoundException")
     void updateOrder_notFound_throwsException() {
-        when(orderRepository.findById(1L)).thenReturn(Optional.empty());
+        Long orderId = 1L;
+        OrderEntity updateData = new OrderEntity();
+        
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+        
         assertThrows(EntityNotFoundException.class, 
-            () -> orderService.updateOrder(1L, new OrderEntity()));
+                () -> orderService.updateOrder(orderId, updateData));
+        
+        verify(orderRepository).findById(orderId);
     }
-
 }
