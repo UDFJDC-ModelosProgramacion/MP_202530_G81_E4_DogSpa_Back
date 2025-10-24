@@ -14,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = ServiceService.class)
@@ -121,4 +122,30 @@ class ServiceServiceTest {
         verifyNoMoreInteractions(serviceRepository, reservationRepository);
         verifyNoInteractions(orderDetailRepository);
     }
+    @Test
+    @DisplayName("save lanza IllegalOperationException si el precio es negativo")
+    void save_invalidPrice_throwsException() {
+        ServiceEntity s = new ServiceEntity();
+        s.setPrice(-10.0);
+        assertThrows(IllegalOperationException.class, () -> serviceService.save(s));
+    }
+
+    @Test
+    @DisplayName("getServiceById lanza EntityNotFoundException si no existe")
+    void getServiceById_notFound_throwsException() {
+        when(serviceRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> serviceService.getServiceById(1L));
+    }
+
+    @Test
+    @DisplayName("delete lanza IllegalOperationException si hay reservas activas")
+    void delete_withActiveReservations_throwsException() {
+        ServiceEntity s = new ServiceEntity();
+        s.setId(1L);
+        when(serviceRepository.findById(1L)).thenReturn(Optional.of(s));
+        when(reservationRepository.countByService_IdAndReservationStatus(1L, "SCHEDULED"))
+            .thenReturn(2);
+        assertThrows(IllegalOperationException.class, () -> serviceService.delete(1L));
+    }
+
 }

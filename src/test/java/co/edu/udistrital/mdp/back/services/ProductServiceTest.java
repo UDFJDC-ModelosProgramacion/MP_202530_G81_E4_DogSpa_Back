@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = ProductService.class) // carga solo el bean del servicio
@@ -171,4 +172,31 @@ class ProductServiceTest {
             verifyNoMoreInteractions(productRepository, orderDetailRepository);
         }
     }
+    @Test
+    @DisplayName("save lanza IllegalArgumentException si el precio es negativo")
+    void save_invalidPrice_throwsException() {
+        ProductEntity p = new ProductEntity();
+        p.setPrice(-5.0);
+        assertThrows(IllegalArgumentException.class, () -> productService.save(p));
+    }
+
+    @Test
+    @DisplayName("updateStock lanza IllegalArgumentException si stock < reservado")
+    void updateStock_reservedGreaterThanNewStock() {
+        ProductEntity p = new ProductEntity();
+        p.setId(1L);
+        p.setStock(10);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(p));
+        when(orderDetailRepository.countReservedForProduct(1L)).thenReturn(20);
+        assertThrows(IllegalArgumentException.class, 
+            () -> productService.updateStock(1L, 5));
+    }
+
+    @Test
+    @DisplayName("deleteById lanza IllegalStateException si tiene detalles de orden")
+    void deleteById_withOrders_throwsException() {
+        when(orderDetailRepository.countByProductId(1L)).thenReturn(2);
+        assertThrows(IllegalStateException.class, () -> productService.deleteById(1L));
+    }
+
 }

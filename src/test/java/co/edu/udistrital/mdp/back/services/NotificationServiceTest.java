@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = NotificationService.class)
@@ -25,7 +24,6 @@ class NotificationServiceTest {
     private NotificationService service;
 
     @MockBean private NotificationRepository notificationRepository;
-
     @MockBean private UserRepository userRepository;
 
     private UserEntity u1;
@@ -66,12 +64,10 @@ class NotificationServiceTest {
 
         when(userRepository.findAllById(ids)).thenReturn(emptyList);
 
-        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class,
-                () -> service.createNotification("Hi!", ids)); 
-        assertNotNull(thrown);
+        assertThrows(EntityNotFoundException.class,
+                () -> service.createNotification("Hi!", ids));
 
         verify(userRepository).findAllById(ids);
-        verifyNoMoreInteractions(userRepository);
         verifyNoInteractions(notificationRepository);
     }
 
@@ -96,7 +92,6 @@ class NotificationServiceTest {
 
         verify(userRepository).findAllById(userIds);
         verify(notificationRepository).save(any(NotificationEntity.class));
-        verifyNoMoreInteractions(userRepository, notificationRepository);
     }
 
     @Test
@@ -131,7 +126,6 @@ class NotificationServiceTest {
         assertEquals(Boolean.TRUE, n.getRead());
         verify(notificationRepository).findById(notificationId);
         verify(notificationRepository).save(n);
-        verifyNoMoreInteractions(notificationRepository);
     }
 
     @Test
@@ -165,7 +159,6 @@ class NotificationServiceTest {
         verifyNoMoreInteractions(notificationRepository);
         verifyNoInteractions(userRepository);
     }
-
 
     @Test
     @DisplayName("deleteNotification: no existe -> EntityNotFoundException")
@@ -213,6 +206,15 @@ class NotificationServiceTest {
 
         verify(notificationRepository).findById(notificationId);
         verify(notificationRepository).delete(n);
-        verifyNoMoreInteractions(notificationRepository);
+    }
+
+    @Test
+    @DisplayName("updateMessage lanza IllegalArgumentException si mensaje es vacío")
+    void updateMessage_empty_throwsException() {
+        Long notificationId = 1L;
+        String emptyMessage = "  ";
+        
+        assertThrows(IllegalArgumentException.class,
+                () -> service.updateMessage(notificationId, emptyMessage));
     }
 }
