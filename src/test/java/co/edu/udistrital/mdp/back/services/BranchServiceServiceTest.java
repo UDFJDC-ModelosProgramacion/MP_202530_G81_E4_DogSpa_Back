@@ -39,9 +39,13 @@ class BranchServiceServiceTest {
     private List<ServiceEntity> servicesList = new ArrayList<>();
 
     @BeforeEach
-    void setUp() throws IllegalOperationException, EntityNotFoundException {
+    void setUp() {
         clearData();
-        insertData();
+        try {
+            insertData();
+        } catch (IllegalOperationException | EntityNotFoundException e) {
+            fail("Setup failed: " + e.getMessage());
+        }
     }
 
     private void clearData() {
@@ -80,9 +84,11 @@ class BranchServiceServiceTest {
     void testAddServiceToBranch() throws EntityNotFoundException {
         BranchEntity branch = branchesList.get(1);
         ServiceEntity service = servicesList.get(1);
+        Long branchId = branch.getId();
+        Long serviceId = service.getId();
 
-        branchServiceService.addServiceToBranch(branch.getId(), service.getId());
-        List<ServiceEntity> services = branchServiceService.getServices(branch.getId());
+        branchServiceService.addServiceToBranch(branchId, serviceId);
+        List<ServiceEntity> services = branchServiceService.getServices(branchId);
 
         assertNotNull(services);
         assertTrue(services.contains(service));
@@ -91,40 +97,52 @@ class BranchServiceServiceTest {
     @Test
     void testAddServiceInvalidBranch() {
         ServiceEntity service = servicesList.get(0);
-        assertThrows(EntityNotFoundException.class, () -> {
-            branchServiceService.addServiceToBranch(0L, service.getId());
-        });
+        Long serviceId = service.getId();
+        
+        assertThrows(EntityNotFoundException.class, () -> 
+            branchServiceService.addServiceToBranch(0L, serviceId)
+        );
     }
 
     @Test
     void testAddServiceInvalidService() {
         BranchEntity branch = branchesList.get(0);
-        assertThrows(EntityNotFoundException.class, () -> {
-            branchServiceService.addServiceToBranch(branch.getId(), 0L);
-        });
+        Long branchId = branch.getId();
+        
+        assertThrows(EntityNotFoundException.class, () -> 
+            branchServiceService.addServiceToBranch(branchId, 0L)
+        );
     }
 
     @Test
     void testGetServices() throws EntityNotFoundException {
-        List<ServiceEntity> list = branchServiceService.getServices(branchesList.get(0).getId());
+        BranchEntity branch = branchesList.get(0);
+        Long branchId = branch.getId();
+        ServiceEntity expectedService = servicesList.get(0);
+        Long expectedServiceId = expectedService.getId();
+        
+        List<ServiceEntity> list = branchServiceService.getServices(branchId);
+        
         assertEquals(1, list.size());
-        assertEquals(servicesList.get(0).getId(), list.get(0).getId());
+        assertEquals(expectedServiceId, list.get(0).getId());
     }
 
     @Test
     void testGetServicesInvalidBranch() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            branchServiceService.getServices(0L);
-        });
+        assertThrows(EntityNotFoundException.class, () -> 
+            branchServiceService.getServices(0L)
+        );
     }
 
     @Test
     void testRemoveServiceFromBranch() throws EntityNotFoundException {
         BranchEntity branch = branchesList.get(0);
         ServiceEntity service = servicesList.get(0);
+        Long branchId = branch.getId();
+        Long serviceId = service.getId();
 
-        branchServiceService.removeServiceFromBranch(branch.getId(), service.getId());
-        List<ServiceEntity> services = branchServiceService.getServices(branch.getId());
+        branchServiceService.removeServiceFromBranch(branchId, serviceId);
+        List<ServiceEntity> services = branchServiceService.getServices(branchId);
 
         assertFalse(services.contains(service));
     }
@@ -132,16 +150,20 @@ class BranchServiceServiceTest {
     @Test
     void testRemoveServiceInvalidBranch() {
         ServiceEntity service = servicesList.get(0);
-        assertThrows(EntityNotFoundException.class, () -> {
-            branchServiceService.removeServiceFromBranch(0L, service.getId());
-        });
+        Long serviceId = service.getId();
+        
+        assertThrows(EntityNotFoundException.class, () -> 
+            branchServiceService.removeServiceFromBranch(0L, serviceId)
+        );
     }
 
     @Test
     void testRemoveServiceInvalidService() {
         BranchEntity branch = branchesList.get(0);
-        assertThrows(EntityNotFoundException.class, () -> {
-            branchServiceService.removeServiceFromBranch(branch.getId(), 0L);
-        });
+        Long branchId = branch.getId();
+        
+        assertThrows(EntityNotFoundException.class, () -> 
+            branchServiceService.removeServiceFromBranch(branchId, 0L)
+        );
     }
 }

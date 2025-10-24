@@ -45,12 +45,14 @@ class NotificationServiceTest {
     @Test
     @DisplayName("createNotification: mensaje nulo o vacío -> IllegalArgumentException")
     void createNotification_emptyMessage_throws() {
+        List<Long> userIds = List.of(1L);
+        
         IllegalArgumentException ex1 = assertThrows(IllegalArgumentException.class,
-                () -> service.createNotification(null, List.of(1L)));
+                () -> service.createNotification(null, userIds));
         assertNotNull(ex1);
 
         IllegalArgumentException ex2 = assertThrows(IllegalArgumentException.class,
-                () -> service.createNotification("   ", List.of(1L)));
+                () -> service.createNotification("   ", userIds));
         assertNotNull(ex2);
 
         verifyNoInteractions(userRepository, notificationRepository);
@@ -59,9 +61,10 @@ class NotificationServiceTest {
     @Test
     @DisplayName("createNotification: sin usuarios encontrados -> EntityNotFoundException")
     void createNotification_noUsers_throws() {
-        var ids = List.of(99L); 
+        List<Long> ids = List.of(99L);
+        List<UserEntity> emptyList = List.of();
 
-        when(userRepository.findAllById(ids)).thenReturn(List.of());
+        when(userRepository.findAllById(ids)).thenReturn(emptyList);
 
         EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class,
                 () -> service.createNotification("Hi!", ids)); 
@@ -75,20 +78,23 @@ class NotificationServiceTest {
     @Test
     @DisplayName("createNotification: OK guarda con fecha, read = false y usuarios asignados")
     void createNotification_ok() throws Exception {
-        when(userRepository.findAllById(List.of(1L, 2L))).thenReturn(List.of(u1, u2));
+        List<Long> userIds = List.of(1L, 2L);
+        List<UserEntity> users = List.of(u1, u2);
+        
+        when(userRepository.findAllById(userIds)).thenReturn(users);
         when(notificationRepository.save(any(NotificationEntity.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
 
-        NotificationEntity saved = service.createNotification("Nuevo aviso", List.of(1L, 2L));
+        NotificationEntity saved = service.createNotification("Nuevo aviso", userIds);
 
         assertNotNull(saved);
         assertEquals("Nuevo aviso", saved.getMessage());
         assertNotNull(saved.getDate());
         assertTrue(saved.getDate() instanceof Date);
         assertEquals(Boolean.FALSE, saved.getRead());
-        assertEquals(List.of(u1, u2), saved.getUsers()); // el service usa setUser(List<UserEntity>)
+        assertEquals(users, saved.getUsers());
 
-        verify(userRepository).findAllById(List.of(1L, 2L));
+        verify(userRepository).findAllById(userIds);
         verify(notificationRepository).save(any(NotificationEntity.class));
         verifyNoMoreInteractions(userRepository, notificationRepository);
     }
@@ -96,31 +102,34 @@ class NotificationServiceTest {
     @Test
     @DisplayName("markAsRead: notificación no existe -> EntityNotFoundException")
     void markAsRead_notFound() {
-        when(notificationRepository.findById(123L)).thenReturn(Optional.empty());
+        Long notificationId = 123L;
+        when(notificationRepository.findById(notificationId)).thenReturn(Optional.empty());
 
-        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, () -> service.markAsRead(123L));
+        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, 
+                () -> service.markAsRead(notificationId));
         assertNotNull(thrown);
 
-        verify(notificationRepository).findById(123L);
+        verify(notificationRepository).findById(notificationId);
         verifyNoMoreInteractions(notificationRepository);
     }
 
     @Test
     @DisplayName("markAsRead: OK cambia read a true y guarda")
     void markAsRead_ok() throws Exception {
+        Long notificationId = 10L;
         NotificationEntity n = new NotificationEntity();
-        n.setId(10L);
+        n.setId(notificationId);
         n.setMessage("Ping");
         n.setRead(false);
 
-        when(notificationRepository.findById(10L)).thenReturn(Optional.of(n));
+        when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(n));
         when(notificationRepository.save(any(NotificationEntity.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
 
-        service.markAsRead(10L);
+        service.markAsRead(notificationId);
 
         assertEquals(Boolean.TRUE, n.getRead());
-        verify(notificationRepository).findById(10L);
+        verify(notificationRepository).findById(notificationId);
         verify(notificationRepository).save(n);
         verifyNoMoreInteractions(notificationRepository);
     }
@@ -128,12 +137,15 @@ class NotificationServiceTest {
     @Test
     @DisplayName("getUserNotifications: onlyUnread=true usa findByUserIdAndReadFalse")
     void getUserNotifications_onlyUnread() {
-        when(notificationRepository.findByUsers_IdAndReadFalse(1L)).thenReturn(List.of());
+        Long userId = 1L;
+        List<NotificationEntity> emptyList = List.of();
+        
+        when(notificationRepository.findByUsers_IdAndReadFalse(userId)).thenReturn(emptyList);
 
-        var result = service.getUserNotifications(1L, true);
+        List<NotificationEntity> result = service.getUserNotifications(userId, true);
 
         assertNotNull(result);
-        verify(notificationRepository).findByUsers_IdAndReadFalse(1L);
+        verify(notificationRepository).findByUsers_IdAndReadFalse(userId);
         verifyNoMoreInteractions(notificationRepository);
         verifyNoInteractions(userRepository);
     }
@@ -141,12 +153,15 @@ class NotificationServiceTest {
     @Test
     @DisplayName("getUserNotifications: onlyUnread=false usa findByUserId")
     void getUserNotifications_all() {
-        when(notificationRepository.findByUsers_Id(1L)).thenReturn(List.of());
+        Long userId = 1L;
+        List<NotificationEntity> emptyList = List.of();
+        
+        when(notificationRepository.findByUsers_Id(userId)).thenReturn(emptyList);
 
-        var result = service.getUserNotifications(1L, false);
+        List<NotificationEntity> result = service.getUserNotifications(userId, false);
 
         assertNotNull(result);
-        verify(notificationRepository).findByUsers_Id(1L);
+        verify(notificationRepository).findByUsers_Id(userId);
         verifyNoMoreInteractions(notificationRepository);
         verifyNoInteractions(userRepository);
     }
@@ -155,43 +170,48 @@ class NotificationServiceTest {
     @Test
     @DisplayName("deleteNotification: no existe -> EntityNotFoundException")
     void deleteNotification_notFound() {
-        when(notificationRepository.findById(77L)).thenReturn(Optional.empty());
+        Long notificationId = 77L;
+        when(notificationRepository.findById(notificationId)).thenReturn(Optional.empty());
 
-        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, () -> service.deleteNotification(77L));
+        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, 
+                () -> service.deleteNotification(notificationId));
         assertNotNull(thrown);
 
-        verify(notificationRepository).findById(77L);
+        verify(notificationRepository).findById(notificationId);
         verifyNoMoreInteractions(notificationRepository);
     }
 
     @Test
     @DisplayName("deleteNotification: no se puede eliminar si no está leída -> IllegalArgumentException")
     void deleteNotification_unread_forbidden() {
+        Long notificationId = 11L;
         NotificationEntity n = new NotificationEntity();
-        n.setId(11L);
+        n.setId(notificationId);
         n.setRead(false);
 
-        when(notificationRepository.findById(11L)).thenReturn(Optional.of(n));
+        when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(n));
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> service.deleteNotification(11L));
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, 
+                () -> service.deleteNotification(notificationId));
         assertNotNull(thrown);
 
-        verify(notificationRepository).findById(11L);
+        verify(notificationRepository).findById(notificationId);
         verifyNoMoreInteractions(notificationRepository);
     }
 
     @Test
     @DisplayName("deleteNotification: leída -> elimina")
     void deleteNotification_read_ok() throws Exception {
+        Long notificationId = 12L;
         NotificationEntity n = new NotificationEntity();
-        n.setId(12L);
+        n.setId(notificationId);
         n.setRead(true);
 
-        when(notificationRepository.findById(12L)).thenReturn(Optional.of(n));
+        when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(n));
 
-        service.deleteNotification(12L);
+        service.deleteNotification(notificationId);
 
-        verify(notificationRepository).findById(12L);
+        verify(notificationRepository).findById(notificationId);
         verify(notificationRepository).delete(n);
         verifyNoMoreInteractions(notificationRepository);
     }
