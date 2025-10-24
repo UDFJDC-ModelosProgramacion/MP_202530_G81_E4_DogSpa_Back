@@ -1,4 +1,3 @@
-
 package co.edu.udistrital.mdp.back.services;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -68,8 +67,9 @@ class BranchServiceTest {
 
         BranchEntity result = branchService.createBranch(newEntity);
         assertNotNull(result);
-
-        BranchEntity stored = entityManager.find(BranchEntity.class, result.getId());
+        
+        Long resultId = result.getId();
+        BranchEntity stored = entityManager.find(BranchEntity.class, resultId);
         assertEquals(newEntity.getName(), stored.getName());
         assertEquals(newEntity.getAddress(), stored.getAddress());
         assertEquals(newEntity.getPhone(), stored.getPhone());
@@ -93,7 +93,7 @@ class BranchServiceTest {
         BranchEntity newEntity = new BranchEntity();
         newEntity.setName("Sucursal Telefono Malo");
         newEntity.setAddress("Calle 45");
-        newEntity.setPhone("12ABCD"); // inválido
+        newEntity.setPhone("12ABCD");
         newEntity.setZone("Occidente");
 
         assertThrows(IllegalOperationException.class, () -> branchService.createBranch(newEntity));
@@ -101,10 +101,12 @@ class BranchServiceTest {
 
 
     @Test
-    void testCreateBranchDuplicateId() throws IllegalOperationException {
+    void testCreateBranchDuplicateId() {
         BranchEntity existing = branchList.get(0);
+        Long existingId = existing.getId();
+        
         BranchEntity duplicate = new BranchEntity();
-        duplicate.setId(existing.getId());
+        duplicate.setId(existingId);
         duplicate.setName("Sucursal Duplicada");
         duplicate.setAddress("Calle 999");
         duplicate.setPhone("3103334444");
@@ -123,7 +125,9 @@ class BranchServiceTest {
     @Test
     void testGetBranch() throws EntityNotFoundException {
         BranchEntity entity = branchList.get(0);
-        BranchEntity result = branchService.getBranch(entity.getId());
+        Long entityId = entity.getId();
+        
+        BranchEntity result = branchService.getBranch(entityId);
         assertNotNull(result);
         assertEquals(entity.getName(), result.getName());
     }
@@ -137,13 +141,15 @@ class BranchServiceTest {
     @Test
     void testUpdateBranch() throws EntityNotFoundException, IllegalOperationException {
         BranchEntity entity = branchList.get(0);
+        Long entityId = entity.getId();
+        
         BranchEntity update = new BranchEntity();
         update.setName("Sucursal Actualizada");
         update.setAddress("Carrera 99");
         update.setPhone("3205556666");
         update.setZone("Sur");
 
-        BranchEntity updated = branchService.updateBranch(entity.getId(), update);
+        BranchEntity updated = branchService.updateBranch(entityId, update);
         assertEquals("Sucursal Actualizada", updated.getName());
         assertEquals("3205556666", updated.getPhone());
     }
@@ -163,21 +169,25 @@ class BranchServiceTest {
     @Test
     void testUpdateBranchInvalidData() {
         BranchEntity entity = branchList.get(0);
+        Long entityId = entity.getId();
+        
         BranchEntity update = new BranchEntity();
         update.setName(" ");
         update.setAddress("Sin dirección");
-        update.setPhone("abc123"); // teléfono inválido
+        update.setPhone("abc123");
         update.setZone("Norte");
 
-        assertThrows(IllegalOperationException.class, () -> branchService.updateBranch(entity.getId(), update));
+        assertThrows(IllegalOperationException.class, () -> branchService.updateBranch(entityId, update));
     }
 
 
     @Test
     void testDeleteBranch() throws EntityNotFoundException {
         BranchEntity entity = branchList.get(0);
-        branchService.deleteBranch(entity.getId());
-        BranchEntity deleted = entityManager.find(BranchEntity.class, entity.getId());
+        Long entityId = entity.getId();
+        
+        branchService.deleteBranch(entityId);
+        BranchEntity deleted = entityManager.find(BranchEntity.class, entityId);
         assertNull(deleted);
     }
 

@@ -79,87 +79,94 @@ class OrderDetailServiceTest {
     @Test
     @DisplayName("addOrderDetail: orden no existe -> EntityNotFoundException")
     void addOrderDetail_notFound() {
-        when(orderRepository.findById(999L)).thenReturn(Optional.empty());
+        Long invalidOrderId = 999L;
+        when(orderRepository.findById(invalidOrderId)).thenReturn(Optional.empty());
 
-        var newDetail = new OrderDetailEntity();
+        OrderDetailEntity newDetail = new OrderDetailEntity();
         newDetail.setQuantity(1);
         newDetail.setProduct(product); 
 
         assertThrows(EntityNotFoundException.class,
-                () -> service.addOrderDetail(999L, newDetail));
+                () -> service.addOrderDetail(invalidOrderId, newDetail));
 
-        verify(orderRepository).findById(999L);
+        verify(orderRepository).findById(invalidOrderId);
         verifyNoInteractions(orderDetailRepository, productRepository);
     }
 
     @Test
     @DisplayName("addOrderDetail: no se puede agregar a una orden PAID")
     void addOrderDetail_paidForbidden() {
-        when(orderRepository.findById(12L)).thenReturn(Optional.of(orderPaid));
+        Long paidOrderId = 12L;
+        when(orderRepository.findById(paidOrderId)).thenReturn(Optional.of(orderPaid));
 
-        var newDetail = new OrderDetailEntity();
+        OrderDetailEntity newDetail = new OrderDetailEntity();
         newDetail.setQuantity(1);
         newDetail.setProduct(product);
 
         assertThrows(IllegalOperationException.class,
-                () -> service.addOrderDetail(12L, newDetail));
+                () -> service.addOrderDetail(paidOrderId, newDetail));
 
-        verify(orderRepository).findById(12L);
+        verify(orderRepository).findById(paidOrderId);
         verifyNoInteractions(orderDetailRepository, productRepository);
     }
 
     @Test
     @DisplayName("addOrderDetail: no se puede agregar a una orden CANCELLED")
     void addOrderDetail_cancelledForbidden() {
-        when(orderRepository.findById(13L)).thenReturn(Optional.of(orderCancelled));
+        Long cancelledOrderId = 13L;
+        when(orderRepository.findById(cancelledOrderId)).thenReturn(Optional.of(orderCancelled));
 
-        var newDetail = new OrderDetailEntity();
+        OrderDetailEntity newDetail = new OrderDetailEntity();
         newDetail.setQuantity(1);
         newDetail.setProduct(product);
 
         assertThrows(IllegalOperationException.class,
-                () -> service.addOrderDetail(13L, newDetail));
+                () -> service.addOrderDetail(cancelledOrderId, newDetail));
 
-        verify(orderRepository).findById(13L);
+        verify(orderRepository).findById(cancelledOrderId);
         verifyNoInteractions(orderDetailRepository, productRepository);
     }
 
     @Test
     @DisplayName("addOrderDetail: quantity <= 0 -> IllegalOperationException")
     void addOrderDetail_invalidQuantity() {
-        when(orderRepository.findById(10L)).thenReturn(Optional.of(orderPending));
+        Long pendingOrderId = 10L;
+        when(orderRepository.findById(pendingOrderId)).thenReturn(Optional.of(orderPending));
 
-        var newDetail = new OrderDetailEntity();
+        OrderDetailEntity newDetail = new OrderDetailEntity();
         newDetail.setQuantity(0);
         newDetail.setProduct(product);
 
         assertThrows(IllegalOperationException.class,
-                () -> service.addOrderDetail(10L, newDetail));
+                () -> service.addOrderDetail(pendingOrderId, newDetail));
 
-        verify(orderRepository).findById(10L);
+        verify(orderRepository).findById(pendingOrderId);
         verifyNoInteractions(orderDetailRepository, productRepository);
     }
 
     @Test
     @DisplayName("addOrderDetail: OK calcula subtotal (price * quantity) y guarda; persiste recálculo de la orden")
     void addOrderDetail_ok() throws Exception {
-        when(orderRepository.findById(10L)).thenReturn(Optional.of(orderPending));
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        Long pendingOrderId = 10L;
+        Long productId = 1L;
+        
+        when(orderRepository.findById(pendingOrderId)).thenReturn(Optional.of(orderPending));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(orderDetailRepository.save(any(OrderDetailEntity.class))).thenAnswer(inv -> inv.getArgument(0));
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        var newDetail = new OrderDetailEntity();
+        OrderDetailEntity newDetail = new OrderDetailEntity();
         newDetail.setQuantity(3);
         newDetail.setProduct(product);
 
-        var saved = service.addOrderDetail(10L, newDetail);
+        OrderDetailEntity saved = service.addOrderDetail(pendingOrderId, newDetail);
 
         assertSame(orderPending, saved.getOrder());
         assertEquals(3, saved.getQuantity());
         assertEquals(75.0, saved.getSubtotal());
 
-        verify(orderRepository).findById(10L);
-        verify(productRepository).findById(1L);
+        verify(orderRepository).findById(pendingOrderId);
+        verify(productRepository).findById(productId);
         verify(orderDetailRepository).save(newDetail);
         verify(orderRepository).save(orderPending);
     }
@@ -168,12 +175,15 @@ class OrderDetailServiceTest {
     @Test
     @DisplayName("updateOrderDetail: detalle no existe -> EntityNotFoundException")
     void updateOrderDetail_notFound() {
-        when(orderDetailRepository.findById(100L)).thenReturn(Optional.empty());
+        Long detailId = 100L;
+        when(orderDetailRepository.findById(detailId)).thenReturn(Optional.empty());
+
+        OrderDetailEntity updateDetail = new OrderDetailEntity();
 
         assertThrows(EntityNotFoundException.class,
-                () -> service.updateOrderDetail(100L, new OrderDetailEntity()));
+                () -> service.updateOrderDetail(detailId, updateDetail));
 
-        verify(orderDetailRepository).findById(100L);
+        verify(orderDetailRepository).findById(detailId);
         verifyNoMoreInteractions(orderDetailRepository);
         verifyNoInteractions(orderRepository, productRepository);
     }
@@ -181,17 +191,19 @@ class OrderDetailServiceTest {
     @Test
     @DisplayName("updateOrderDetail: orden PAID o CANCELLED -> IllegalOperationException")
     void updateOrderDetail_forbiddenStates() {
+        Long detailId = 100L;
+        
         existingDetail.setOrder(orderPaid);
-        when(orderDetailRepository.findById(100L)).thenReturn(Optional.of(existingDetail));
+        when(orderDetailRepository.findById(detailId)).thenReturn(Optional.of(existingDetail));
         assertThrows(IllegalOperationException.class,
-                () -> service.updateOrderDetail(100L, existingDetail));
+                () -> service.updateOrderDetail(detailId, existingDetail));
 
         existingDetail.setOrder(orderCancelled);
-        when(orderDetailRepository.findById(100L)).thenReturn(Optional.of(existingDetail));
+        when(orderDetailRepository.findById(detailId)).thenReturn(Optional.of(existingDetail));
         assertThrows(IllegalOperationException.class,
-                () -> service.updateOrderDetail(100L, existingDetail));
+                () -> service.updateOrderDetail(detailId, existingDetail));
 
-        verify(orderDetailRepository, times(2)).findById(100L);
+        verify(orderDetailRepository, times(2)).findById(detailId);
         verifyNoMoreInteractions(orderDetailRepository);
         verifyNoInteractions(productRepository);
     }
@@ -199,15 +211,16 @@ class OrderDetailServiceTest {
     @Test
     @DisplayName("updateOrderDetail: quantity <= 0 -> IllegalOperationException")
     void updateOrderDetail_invalidQuantity() {
-        when(orderDetailRepository.findById(100L)).thenReturn(Optional.of(existingDetail));
+        Long detailId = 100L;
+        when(orderDetailRepository.findById(detailId)).thenReturn(Optional.of(existingDetail));
 
-        var incoming = new OrderDetailEntity();
+        OrderDetailEntity incoming = new OrderDetailEntity();
         incoming.setQuantity(0);
 
         assertThrows(IllegalOperationException.class,
-                () -> service.updateOrderDetail(100L, incoming));
+                () -> service.updateOrderDetail(detailId, incoming));
 
-        verify(orderDetailRepository).findById(100L);
+        verify(orderDetailRepository).findById(detailId);
         verifyNoMoreInteractions(orderDetailRepository);
         verifyNoInteractions(productRepository);
     }
@@ -215,16 +228,18 @@ class OrderDetailServiceTest {
     @Test
     @DisplayName("updateOrderDetail: CONFIRMED -> no se permiten cambios (solo PENDING)")
     void updateOrderDetail_confirmed_forbidden() {
+        Long detailId = 100L;
+        
         existingDetail.setOrder(orderConfirmed);
-        when(orderDetailRepository.findById(100L)).thenReturn(Optional.of(existingDetail));
+        when(orderDetailRepository.findById(detailId)).thenReturn(Optional.of(existingDetail));
 
-        var incoming = new OrderDetailEntity();
+        OrderDetailEntity incoming = new OrderDetailEntity();
         incoming.setQuantity(5);
 
         assertThrows(IllegalOperationException.class,
-                () -> service.updateOrderDetail(100L, incoming));
+                () -> service.updateOrderDetail(detailId, incoming));
 
-        verify(orderDetailRepository).findById(100L);
+        verify(orderDetailRepository).findById(detailId);
         verifyNoMoreInteractions(orderDetailRepository);
         verifyNoInteractions(productRepository);
     }
@@ -232,22 +247,24 @@ class OrderDetailServiceTest {
     @Test
     @DisplayName("updateOrderDetail: PENDING permite cambios; recalcula subtotal (price * quantity) y guarda")
     void updateOrderDetail_pending_allowsAndRecalculates() throws Exception {
-        // Detalle asociado a PENDING (ya en setUp)
-        when(orderDetailRepository.findById(100L)).thenReturn(Optional.of(existingDetail));
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        Long detailId = 100L;
+        Long productId = 1L;
+        
+        when(orderDetailRepository.findById(detailId)).thenReturn(Optional.of(existingDetail));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(orderDetailRepository.save(any(OrderDetailEntity.class))).thenAnswer(inv -> inv.getArgument(0));
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        var incoming = new OrderDetailEntity();
+        OrderDetailEntity incoming = new OrderDetailEntity();
         incoming.setQuantity(9);
         incoming.setProduct(product); 
 
-        var saved = service.updateOrderDetail(100L, incoming);
+        OrderDetailEntity saved = service.updateOrderDetail(detailId, incoming);
 
         assertEquals(9, saved.getQuantity());
         assertEquals(25.0 * 9, saved.getSubtotal());
-        verify(orderDetailRepository).findById(100L);
-        verify(productRepository).findById(1L);
+        verify(orderDetailRepository).findById(detailId);
+        verify(productRepository).findById(productId);
         verify(orderDetailRepository).save(existingDetail);
         verify(orderRepository).save(orderPending); 
     }
@@ -256,12 +273,13 @@ class OrderDetailServiceTest {
     @Test
     @DisplayName("deleteOrderDetail: detalle no existe -> EntityNotFoundException")
     void deleteOrderDetail_notFound() {
-        when(orderDetailRepository.findById(100L)).thenReturn(Optional.empty());
+        Long detailId = 100L;
+        when(orderDetailRepository.findById(detailId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
-                () -> service.deleteOrderDetail(100L));
+                () -> service.deleteOrderDetail(detailId));
 
-        verify(orderDetailRepository).findById(100L);
+        verify(orderDetailRepository).findById(detailId);
         verifyNoMoreInteractions(orderDetailRepository);
         verifyNoInteractions(orderRepository);
     }
@@ -269,17 +287,19 @@ class OrderDetailServiceTest {
     @Test
     @DisplayName("deleteOrderDetail: orden PAID o CANCELLED -> IllegalOperationException")
     void deleteOrderDetail_forbiddenStates() {
+        Long detailId = 100L;
+        
         existingDetail.setOrder(orderPaid);
-        when(orderDetailRepository.findById(100L)).thenReturn(Optional.of(existingDetail));
+        when(orderDetailRepository.findById(detailId)).thenReturn(Optional.of(existingDetail));
         assertThrows(IllegalOperationException.class,
-                () -> service.deleteOrderDetail(100L));
+                () -> service.deleteOrderDetail(detailId));
 
         existingDetail.setOrder(orderCancelled);
-        when(orderDetailRepository.findById(100L)).thenReturn(Optional.of(existingDetail));
+        when(orderDetailRepository.findById(detailId)).thenReturn(Optional.of(existingDetail));
         assertThrows(IllegalOperationException.class,
-                () -> service.deleteOrderDetail(100L));
+                () -> service.deleteOrderDetail(detailId));
 
-        verify(orderDetailRepository, times(2)).findById(100L);
+        verify(orderDetailRepository, times(2)).findById(detailId);
         verifyNoMoreInteractions(orderDetailRepository);
         verifyNoInteractions(orderRepository);
     }
@@ -287,13 +307,14 @@ class OrderDetailServiceTest {
     @Test
     @DisplayName("deleteOrderDetail: PENDING -> elimina y persiste recálculo de la orden")
     void deleteOrderDetail_ok() throws Exception {
-        when(orderDetailRepository.findById(100L)).thenReturn(Optional.of(existingDetail));
+        Long detailId = 100L;
+        when(orderDetailRepository.findById(detailId)).thenReturn(Optional.of(existingDetail));
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        service.deleteOrderDetail(100L);
+        service.deleteOrderDetail(detailId);
 
-        verify(orderDetailRepository).findById(100L);
+        verify(orderDetailRepository).findById(detailId);
         verify(orderDetailRepository).delete(existingDetail);
-        verify(orderRepository).save(orderPending); // recálculo de total
+        verify(orderRepository).save(orderPending);
     }
 }
