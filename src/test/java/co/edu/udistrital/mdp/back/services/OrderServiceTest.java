@@ -5,6 +5,7 @@ import co.edu.udistrital.mdp.back.entities.OrderEntity;
 import co.edu.udistrital.mdp.back.entities.OrderStatus;
 import co.edu.udistrital.mdp.back.entities.ProductEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
+import co.edu.udistrital.mdp.back.entities.UserEntity;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.OrderDetailRepository;
 import co.edu.udistrital.mdp.back.repositories.OrderRepository;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -325,4 +327,153 @@ class OrderServiceTest {
         
         verify(orderRepository).findById(orderId);
     }
+    @Test
+    @DisplayName("findById: retorna orden existente correctamente")
+    void findById_ok() throws Exception {
+        when(orderRepository.findById(100L)).thenReturn(Optional.of(order));
+        OrderEntity result = orderService.findById(100L);
+        assertNotNull(result);
+        assertEquals(order, result);
+        verify(orderRepository).findById(100L);
+    }
+
+    @Test
+    @DisplayName("findAll: retorna lista completa")
+    void findAll_ok() {
+        List<OrderEntity> mockList = List.of(order);
+        when(orderRepository.findAll()).thenReturn(mockList);
+        List<OrderEntity> result = orderService.findAll();
+        assertEquals(1, result.size());
+        verify(orderRepository).findAll();
+    }
+
+    @Test
+    @DisplayName("getAllOrders y getOrderById delegan correctamente")
+    void getAllOrders_getOrderById_ok() throws Exception {
+        when(orderRepository.findAll()).thenReturn(List.of(order));
+        when(orderRepository.findById(100L)).thenReturn(Optional.of(order));
+
+        List<OrderEntity> all = orderService.getAllOrders();
+        OrderEntity byId = orderService.getOrderById(100L);
+
+        assertEquals(1, all.size());
+        assertEquals(order, byId);
+        verify(orderRepository).findAll();
+        verify(orderRepository).findById(100L);
+    }
+
+    @Test
+    @DisplayName("isValidTransition: valida transiciones permitidas y prohibidas")
+    void isValidTransition_cobertura() {
+        assertTrue(invokeIsValid(OrderStatus.PENDING, OrderStatus.CONFIRMED));
+        assertFalse(invokeIsValid(OrderStatus.PAID, OrderStatus.CONFIRMED));
+        assertFalse(invokeIsValid(OrderStatus.CANCELLED, OrderStatus.PAID));
+    }
+
+    // Helper para probar método privado mediante reflexión
+    private boolean invokeIsValid(OrderStatus current, OrderStatus target) {
+        try {
+            var m = OrderService.class.getDeclaredMethod("isValidTransition", OrderStatus.class, OrderStatus.class);
+            m.setAccessible(true);
+            return (boolean) m.invoke(orderService, current, target);
+        } catch (Exception e) {
+            fail(e);
+            return false;
+        }
+    }
+
+    @Test
+    @DisplayName("calcLineSubtotal retorna subtotal correctamente")
+    void calcLineSubtotal_ok() {
+        detail.setSubtotal(75.0);
+        Double subtotal = orderService.calcLineSubtotal(detail);
+        assertEquals(75.0, subtotal);
+    }
+
+    @Test
+    @DisplayName("recalculateTotalAmount: calcula total con descuento")
+    void recalculateTotalAmount_ok() throws Exception {
+        detail.setSubtotal(100.0);
+        order.setDiscount(0.1); // 10%
+        order.setOrderDetails(List.of(detail));
+
+        var m = OrderService.class.getDeclaredMethod("recalculateTotalAmount", OrderEntity.class);
+        m.setAccessible(true);
+        double total = (double) m.invoke(orderService, order);
+
+        assertEquals(90.0, total, 0.001);
+    }
+
+    @Test
+    @DisplayName("attachProductIfOnlyId: lanza excepción si producto nulo")
+    void attachProductIfOnlyId_productNull() throws Exception {
+        OrderDetailEntity d = new OrderDetailEntity();
+
+        var m = OrderService.class.getDeclaredMethod("attachProductIfOnlyId", OrderDetailEntity.class);
+        m.setAccessible(true);
+
+        InvocationTargetException ex = assertThrows(InvocationTargetException.class, () -> m.invoke(orderService, d));
+        assertTrue(ex.getCause() instanceof EntityNotFoundException);
+    }
+
+
+    @Test
+    @DisplayName("attachProductIfOnlyId: busca producto si solo viene el id")
+    void attachProductIfOnlyId_onlyId_ok() throws Exception {
+        OrderDetailEntity d = new OrderDetailEntity();
+        ProductEntity p = new ProductEntity();
+        p.setId(5L);
+        d.setProduct(p);
+
+        when(productRepository.findById(5L)).thenReturn(Optional.of(product));
+
+        var m = OrderService.class.getDeclaredMethod("attachProductIfOnlyId", OrderDetailEntity.class);
+        m.setAccessible(true);
+        m.invoke(orderService, d);
+
+        assertEquals(product, d.getProduct());
+        verify(productRepository).findById(5L);
+    }
+
+    @Test
+    @DisplayName("createOrder: usuario no existe -> EntityNotFoundException")
+    void createOrder_userNotFound() {
+        OrderEntity newOrder = new OrderEntity();
+
+        UserEntity user = new UserEntity();
+        user.setId(9L);
+        newOrder.setUser(user);
+
+        when(personRepository.findById(9L)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> orderService.createOrder(newOrder));
+    }
+
+
+    @Test
+    @DisplayName("createOrder: se guarda correctamente con detalles y subtotal")
+    void createOrder_ok() throws Exception {
+        detail.setSubtotal(75.0);
+        order.setUser(null);
+        order.setDiscount(0.0);
+        when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        OrderEntity result = orderService.createOrder(order);
+        assertNotNull(result);
+        assertEquals(OrderStatus.PENDING, result.getStatus());
+        verify(orderRepository).save(order);
+    }
+
+    @Test
+    @DisplayName("changeStatus -> DELIVERED: permitido desde SHIPPED")
+    void changeStatus_delivered_ok() throws Exception {
+        order.setStatus(OrderStatus.SHIPPED);
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        OrderEntity updated = orderService.changeStatus(order.getId(), OrderStatus.DELIVERED);
+        assertEquals(OrderStatus.DELIVERED, updated.getStatus());
+        verify(orderRepository).save(order);
+    }
+
 }
