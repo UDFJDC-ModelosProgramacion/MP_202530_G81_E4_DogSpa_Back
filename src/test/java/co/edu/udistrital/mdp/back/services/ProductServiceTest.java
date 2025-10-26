@@ -199,4 +199,77 @@ class ProductServiceTest {
         assertThrows(IllegalStateException.class, () -> productService.deleteById(1L));
     }
 
+    @Test
+    @DisplayName("getByIdOrThrow lanza IllegalArgumentException si producto no existe")
+    void getByIdOrThrow_notFound_throwsException() {
+        when(productRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> productService.getByIdOrThrow(99L));
+        verify(productRepository).findById(99L);
+    }
+
+    @Test
+    @DisplayName("save lanza IllegalArgumentException si el precio es null")
+    void save_nullPrice_throwsException() {
+        ProductEntity p = new ProductEntity();
+        p.setPrice(null);
+        assertThrows(IllegalArgumentException.class, () -> productService.save(p));
+    }
+
+    @Test
+    @DisplayName("update actualiza nombre, descripción y precio correctamente")
+    void update_validFields_ok() {
+        ProductEntity existing = new ProductEntity();
+        existing.setId(1L);
+        existing.setName("Old");
+        existing.setDescription("Old desc");
+        existing.setPrice(10.0);
+        existing.setStock(5);
+
+        ProductEntity incoming = new ProductEntity();
+        incoming.setName("New");
+        incoming.setDescription("New desc");
+        incoming.setPrice(20.5);
+        incoming.setStock(8);
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(orderDetailRepository.countReservedForProduct(1L)).thenReturn(0);
+        when(productRepository.save(any(ProductEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        var result = productService.update(1L, incoming);
+
+        assertEquals("New", result.getName());
+        assertEquals("New desc", result.getDescription());
+        assertEquals(20.5, result.getPrice());
+        assertEquals(8, result.getStock());
+    }
+
+    @Test
+    @DisplayName("update lanza IllegalArgumentException si stock < reservado")
+    void update_stockLessThanReserved_throwsException() {
+        ProductEntity existing = new ProductEntity();
+        existing.setId(1L);
+        existing.setStock(10);
+
+        ProductEntity incoming = new ProductEntity();
+        incoming.setStock(2);
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(orderDetailRepository.countReservedForProduct(1L)).thenReturn(5);
+
+        assertThrows(IllegalArgumentException.class, () -> productService.update(1L, incoming));
+    }
+
+    @Test
+    @DisplayName("roundToTwoDecimals devuelve null si el valor es null")
+    void roundToTwoDecimals_null_returnsNull() {
+        try {
+            var method = ProductService.class.getDeclaredMethod("roundToTwoDecimals", Double.class);
+            method.setAccessible(true);
+            Double result = (Double) method.invoke(productService, new Object[]{null});
+            assertNull(result);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
 }
