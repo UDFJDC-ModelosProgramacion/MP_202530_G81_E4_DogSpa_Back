@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Column;
 import jakarta.persistence.ManyToMany;
 import lombok.Data;
 import uk.co.jemos.podam.common.PodamExclude;
@@ -13,6 +14,8 @@ import uk.co.jemos.podam.common.PodamExclude;
 public class NotificationEntity extends BaseEntity {
     private String message;
     private Date date;
+
+    @Column(name = "is_read")
     private Boolean read;
 
     @PodamExclude

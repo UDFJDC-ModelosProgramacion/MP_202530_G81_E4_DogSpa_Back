@@ -84,19 +84,8 @@ public class NotificationController {
    
     /* ========================= ASOCIACIÓN USUARIOS ========================= */
 
-    @PostMapping("/{notificationId}/users/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public NotificationDTO addUser(@PathVariable Long notificationId, @PathVariable Long userId)
-            throws EntityNotFoundException {
-        NotificationEntity notification = notificationService.addUserToNotification(notificationId, userId);
-        return modelMapper.map(notification, NotificationDTO.class);
-    }
-
-    @DeleteMapping("/{notificationId}/users/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeUser(@PathVariable Long notificationId, @PathVariable Long userId)
-            throws EntityNotFoundException {
-        notificationService.removeUserFromNotification(notificationId, userId);
-    }
+    /* Las operaciones de asociación usuario-notificación (GET/POST/DELETE sobre
+       /{notificationId}/users) se manejan en `NotificationUserController` para
+       separar responsabilidad y evitar mapeos duplicados. */
 
 }
