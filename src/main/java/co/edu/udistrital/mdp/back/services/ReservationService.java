@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import co.edu.udistrital.mdp.back.entities.ReservationEntity;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.ReservationRepository;
+import co.edu.udistrital.mdp.back.repositories.BranchRepository;
+import co.edu.udistrital.mdp.back.repositories.ServiceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
@@ -19,11 +21,26 @@ public class ReservationService {
     private static final String RESERVATION_NOT_FOUND_MESSAGE = "No reservation found with ID: ";
 
     private final ReservationRepository reservationRepository;
+    private final BranchRepository branchRepository;
+    private final ServiceRepository serviceRepository;
 
     @Transactional
     public ReservationEntity createReservation(@Valid ReservationEntity reservation)
             throws IllegalOperationException {
         validateReservationTimes(reservation);
+        // Resolve branch and service entities if only ID provided
+        if (reservation.getBranch() != null && reservation.getBranch().getId() != null) {
+            var branch = branchRepository.findById(reservation.getBranch().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Branch not found with id " + reservation.getBranch().getId()));
+            reservation.setBranch(branch);
+        }
+
+        if (reservation.getService() != null && reservation.getService().getId() != null) {
+            var service = serviceRepository.findById(reservation.getService().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Service not found with id " + reservation.getService().getId()));
+            reservation.setService(service);
+        }
+
         return reservationRepository.save(reservation);
     }
 

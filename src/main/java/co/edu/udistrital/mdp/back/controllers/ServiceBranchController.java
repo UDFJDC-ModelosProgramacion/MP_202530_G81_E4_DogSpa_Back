@@ -14,7 +14,7 @@ import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.services.ServiceBranchService;
 
 @RestController
-@RequestMapping("/api/services")
+@RequestMapping("/services")
 public class ServiceBranchController {
 
     @Autowired

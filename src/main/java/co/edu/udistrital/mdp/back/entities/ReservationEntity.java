@@ -16,6 +16,7 @@ public class ReservationEntity extends BaseEntity {
     private String reservationStatus;
     private LocalTime startTime;
     private LocalTime endTime;
+    private String petName;
 
     @PodamExclude
     @ManyToOne

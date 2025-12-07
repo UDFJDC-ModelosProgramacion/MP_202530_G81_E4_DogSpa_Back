@@ -193,6 +193,97 @@ SET @sql = IF(@do=0, 'SELECT "SKIP"', CONCAT(
 ));
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
+-- ===== Agregados adicionales: más sucursales, servicios, productos y multimedia (imágenes) =====
+
+-- Sucursales adicionales
+INSERT INTO `branch_entity` (`name`, `address`, `phone`, `zone`)
+SELECT 'Este PetCare', 'Transversal 12 #78-90', '3107778888', 'Este'
+WHERE NOT EXISTS (SELECT 1 FROM `branch_entity` WHERE `name` = 'Este PetCare');
+
+INSERT INTO `branch_entity` (`name`, `address`, `phone`, `zone`)
+SELECT 'Occidente Pets', 'Calle 140 #20-10', '3109990000', 'Occidente'
+WHERE NOT EXISTS (SELECT 1 FROM `branch_entity` WHERE `name` = 'Occidente Pets');
+
+INSERT INTO `branch_entity` (`name`, `address`, `phone`, `zone`)
+SELECT 'Veterinaria Central', 'Avenida Principal 200', '3101212121', 'Centro'
+WHERE NOT EXISTS (SELECT 1 FROM `branch_entity` WHERE `name` = 'Veterinaria Central');
+
+-- Servicios adicionales
+INSERT INTO `service_entity` (`name`, `description`, `price`, `duration`)
+SELECT 'Spa deluxe', 'Tratamiento completo: baño, cepillado, acondicionador y fragancia', 60000.0, 120
+WHERE NOT EXISTS (SELECT 1 FROM `service_entity` WHERE `name` = 'Spa deluxe');
+
+INSERT INTO `service_entity` (`name`, `description`, `price`, `duration`)
+SELECT 'Guardería día', 'Cuidado diurno con juego y supervisión', 30000.0, 480
+WHERE NOT EXISTS (SELECT 1 FROM `service_entity` WHERE `name` = 'Guardería día');
+
+INSERT INTO `service_entity` (`name`, `description`, `price`, `duration`)
+SELECT 'Baño medicado', 'Baño con producto antiparasitario recetado por el veterinario', 35000.0, 60
+WHERE NOT EXISTS (SELECT 1 FROM `service_entity` WHERE `name` = 'Baño medicado');
+
+INSERT INTO `service_entity` (`name`, `description`, `price`, `duration`)
+SELECT 'Corte y estilizado', 'Corte estético y estilizado según raza y preferencias', 50000.0, 90
+WHERE NOT EXISTS (SELECT 1 FROM `service_entity` WHERE `name` = 'Corte y estilizado');
+
+-- Productos adicionales
+INSERT INTO `product_entity` (`name`, `category`, `description`, `price`, `stock`)
+SELECT 'Acondicionador para perros', 'Higiene', 'Acondicionador nutritivo para pelo suave y brillante', 17000.0, 40
+WHERE NOT EXISTS (SELECT 1 FROM `product_entity` WHERE `name` = 'Acondicionador para perros');
+
+INSERT INTO `product_entity` (`name`, `category`, `description`, `price`, `stock`)
+SELECT 'Correa retráctil', 'Accesorios', 'Correa retráctil 5m resistente', 35000.0, 25
+WHERE NOT EXISTS (SELECT 1 FROM `product_entity` WHERE `name` = 'Correa retráctil');
+
+INSERT INTO `product_entity` (`name`, `category`, `description`, `price`, `stock`)
+SELECT 'Snack dental', 'Alimentos', 'Snack masticable para higiene dental', 5000.0, 120
+WHERE NOT EXISTS (SELECT 1 FROM `product_entity` WHERE `name` = 'Snack dental');
+
+INSERT INTO `product_entity` (`name`, `category`, `description`, `price`, `stock`)
+SELECT 'Bolsa de alimento 10kg', 'Alimentos', 'Alimento completo para perros adultos - 10kg', 150000.0, 10
+WHERE NOT EXISTS (SELECT 1 FROM `product_entity` WHERE `name` = 'Bolsa de alimento 10kg');
+
+INSERT INTO `product_entity` (`name`, `category`, `description`, `price`, `stock`)
+SELECT 'Juguete interactivo', 'Juguetes', 'Juguete con dispensador de snacks para entretenimiento', 22000.0, 35
+WHERE NOT EXISTS (SELECT 1 FROM `product_entity` WHERE `name` = 'Juguete interactivo');
+
+-- Multimedia (imágenes) para productos - sólo si no existen las mismas URL para ese producto
+-- URLs tomadas de Unsplash (uso libre para pruebas). Reemplazar por URLs locales/CDN en producción.
+INSERT INTO `multimedia_entity` (`type`, `url`, `product_id`)
+SELECT 'IMAGE', 'https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=800&q=60', p.id
+FROM `product_entity` p
+WHERE p.name = 'Shampoo para perros'
+	AND NOT EXISTS (SELECT 1 FROM `multimedia_entity` m WHERE m.`url` = 'https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=800&q=60' AND m.`product_id` = p.id);
+
+INSERT INTO `multimedia_entity` (`type`, `url`, `product_id`)
+SELECT 'IMAGE', 'https://images.unsplash.com/photo-1525253086316-d0c936c814f8?auto=format&fit=crop&w=800&q=60', p.id
+FROM `product_entity` p
+WHERE p.name = 'Acondicionador para perros'
+	AND NOT EXISTS (SELECT 1 FROM `multimedia_entity` m WHERE m.`url` = 'https://images.unsplash.com/photo-1525253086316-d0c936c814f8?auto=format&fit=crop&w=800&q=60' AND m.`product_id` = p.id);
+
+INSERT INTO `multimedia_entity` (`type`, `url`, `product_id`)
+SELECT 'IMAGE', 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=800&q=60', p.id
+FROM `product_entity` p
+WHERE p.name = 'Juguete interactivo'
+	AND NOT EXISTS (SELECT 1 FROM `multimedia_entity` m WHERE m.`url` = 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=800&q=60' AND m.`product_id` = p.id);
+
+INSERT INTO `multimedia_entity` (`type`, `url`, `product_id`)
+SELECT 'IMAGE', 'https://images.unsplash.com/photo-1601758123927-6c1b3f0a6f9b?auto=format&fit=crop&w=800&q=60', p.id
+FROM `product_entity` p
+WHERE p.name = 'Bolsa de alimento 10kg'
+	AND NOT EXISTS (SELECT 1 FROM `multimedia_entity` m WHERE m.`url` = 'https://images.unsplash.com/photo-1601758123927-6c1b3f0a6f9b?auto=format&fit=crop&w=800&q=60' AND m.`product_id` = p.id);
+
+INSERT INTO `multimedia_entity` (`type`, `url`, `product_id`)
+SELECT 'IMAGE', 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?auto=format&fit=crop&w=800&q=60', p.id
+FROM `product_entity` p
+WHERE p.name = 'Correa retráctil'
+	AND NOT EXISTS (SELECT 1 FROM `multimedia_entity` m WHERE m.`url` = 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?auto=format&fit=crop&w=800&q=60' AND m.`product_id` = p.id);
+
+INSERT INTO `multimedia_entity` (`type`, `url`, `product_id`)
+SELECT 'IMAGE', 'https://images.unsplash.com/photo-1602524812400-1c7a9b8b4f5d?auto=format&fit=crop&w=800&q=60', p.id
+FROM `product_entity` p
+WHERE p.name = 'Snack dental'
+	AND NOT EXISTS (SELECT 1 FROM `multimedia_entity` m WHERE m.`url` = 'https://images.unsplash.com/photo-1602524812400-1c7a9b8b4f5d?auto=format&fit=crop&w=800&q=60' AND m.`product_id` = p.id);
+
 COMMIT;
 
 -- Fin de inserts (robustos frente a tablas creadas por Hibernate)

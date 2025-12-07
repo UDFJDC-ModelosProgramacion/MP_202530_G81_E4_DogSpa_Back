@@ -9,7 +9,7 @@ import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.services.AdminService;
 
 @RestController
-@RequestMapping("/api/admins")
+@RequestMapping("/admins")
 public class AdminController {
 
     private final AdminService adminService;

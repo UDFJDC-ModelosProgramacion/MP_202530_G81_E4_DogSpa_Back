@@ -15,7 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/products")
 public class ProductController {
 
     private final ProductService productService;
