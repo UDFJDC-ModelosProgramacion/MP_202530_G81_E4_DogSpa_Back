@@ -23,7 +23,7 @@ import co.edu.udistrital.mdp.back.services.ServiceService;
 
 
 @RestController
-@RequestMapping("/services")
+@RequestMapping("/api/services")
 public class ServiceController {
     
     private final ServiceService serviceService;

@@ -19,7 +19,7 @@ import org.modelmapper.TypeToken;
 import co.edu.udistrital.mdp.back.dto.OrderDTO;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/api/orders")
 public class OrderController {
 
     private final OrderService orderService;

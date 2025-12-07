@@ -17,7 +17,7 @@ import java.util.List;
 import co.edu.udistrital.mdp.back.dto.NotificationDTO;
 
 @RestController
-@RequestMapping("/notifications")
+@RequestMapping("/api/notifications")
 public class NotificationController {
 
     private final NotificationService notificationService;

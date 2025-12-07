@@ -22,7 +22,7 @@ import co.edu.udistrital.mdp.back.services.OrderDetailService;
 
 
 @RestController
-@RequestMapping("/order-details")
+@RequestMapping("/api/order-details")
 public class OrderDetailController {
 
     private final OrderDetailService orderDetailService;
