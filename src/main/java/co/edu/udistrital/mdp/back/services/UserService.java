@@ -7,6 +7,7 @@ import co.edu.udistrital.mdp.back.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Objects;
 
 @Service
 public class UserService {
@@ -18,6 +19,22 @@ public class UserService {
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public UserEntity getUserByEmail(String email) {
+        Optional<UserEntity> user = userRepository.findByEmail(email);
+        if (user.isEmpty()) {
+            throw new co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException(USER_NOT_FOUND);
+        }
+        return user.get();
+    }
+
+    public UserEntity authenticate(String email, String password) {
+        UserEntity user = getUserByEmail(email);
+        if (!Objects.equals(user.getPassword(), password)) {
+            throw new co.edu.udistrital.mdp.back.exceptions.IllegalOperationException("Contraseña incorrecta");
+        }
+        return user;
     }
 
     public UserEntity createUser(UserEntity user) throws IllegalOperationException {

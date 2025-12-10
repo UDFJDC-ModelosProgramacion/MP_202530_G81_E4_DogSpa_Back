@@ -51,6 +51,14 @@ public class ReviewService {
         return review.get();
     }
 
+    // New: obtener reseñas por id de servicio
+    public List<ReviewEntity> getReviewsByService(Long serviceId) {
+        log.info("Fetching reviews for service id = {}", serviceId);
+        List<ReviewEntity> reviews = reviewRepository.findByService_Id(serviceId);
+        log.info("Finished fetching reviews for service id = {}: {} found", serviceId, reviews.size());
+        return reviews;
+    }
+
     @Transactional
     public ReviewEntity updateReview(Long id, ReviewEntity review)
             throws EntityNotFoundException, IllegalOperationException {

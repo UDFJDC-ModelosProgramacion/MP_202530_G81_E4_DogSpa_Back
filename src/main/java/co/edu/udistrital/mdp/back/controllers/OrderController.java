@@ -35,7 +35,8 @@ public class OrderController {
     @ResponseStatus(HttpStatus.OK)
     public List<OrderDTO> listAll() {
         List<OrderEntity> orders = orderService.getAllOrders();
-        Type listType = new TypeToken<List<OrderDTO>>() {}.getType();
+        Type listType = new TypeToken<List<OrderDTO>>() {
+        }.getType();
         return modelMapper.map(orders, listType);
     }
 
@@ -48,7 +49,7 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public OrderDTO create(@RequestBody OrderEntity body) throws EntityNotFoundException {
+    public OrderDTO create(@RequestBody OrderEntity body) throws EntityNotFoundException, IllegalOperationException {
         OrderEntity created = orderService.createOrder(body);
         return modelMapper.map(created, OrderDTO.class);
     }
@@ -72,10 +73,10 @@ public class OrderController {
 
     @PatchMapping("/{orderId}/status")
     @ResponseStatus(HttpStatus.OK)
-    public OrderEntity changeStatus(
+    public OrderDTO changeStatus(
             @PathVariable Long orderId,
-            @RequestParam("to") OrderStatus newStatus
-    ) throws EntityNotFoundException, IllegalOperationException {
-        return orderService.changeStatus(orderId, newStatus);
+            @RequestParam("to") OrderStatus newStatus) throws EntityNotFoundException, IllegalOperationException {
+        OrderEntity updated = orderService.changeStatus(orderId, newStatus);
+        return modelMapper.map(updated, OrderDTO.class);
     }
 }

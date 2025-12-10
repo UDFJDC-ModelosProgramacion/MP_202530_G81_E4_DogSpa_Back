@@ -6,7 +6,7 @@ import co.edu.udistrital.mdp.back.entities.OrderStatus;
 import co.edu.udistrital.mdp.back.entities.ProductEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
-import co.edu.udistrital.mdp.back.repositories.OrderDetailRepository;
+
 import co.edu.udistrital.mdp.back.repositories.OrderRepository;
 import co.edu.udistrital.mdp.back.repositories.PersonRepository;
 import co.edu.udistrital.mdp.back.repositories.ProductRepository;
@@ -17,25 +17,26 @@ import org.springframework.stereotype.Service;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class OrderService {
 
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
+
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
-    private final OrderDetailRepository orderDetailRepository;
     private final PersonRepository personRepository;
 
     private static final String ORDER_NOT_FOUND_MESSAGE = "Order not found";
 
     // Constructor injection instead of field injection
     public OrderService(OrderRepository orderRepository,
-                       ProductRepository productRepository,
-                       OrderDetailRepository orderDetailRepository,
-                       PersonRepository personRepository) {
+            ProductRepository productRepository,
+            PersonRepository personRepository) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
-        this.orderDetailRepository = orderDetailRepository;
         this.personRepository = personRepository;
     }
 
@@ -49,9 +50,9 @@ public class OrderService {
     public List<OrderEntity> findAll() {
         return orderRepository.findAll();
     }
-    
+
     @Transactional
-    public OrderEntity createOrder(OrderEntity incoming) throws EntityNotFoundException {
+    public OrderEntity createOrder(OrderEntity incoming) throws EntityNotFoundException, IllegalOperationException {
         if (incoming.getUser() != null && incoming.getUser().getId() != null) {
             var userId = incoming.getUser().getId();
             personRepository.findById(userId).orElseThrow(
@@ -66,18 +67,25 @@ public class OrderService {
         // FIXED: Changed getOrderDetail() to getOrderDetails() (plural)
         if (incoming.getOrderDetails() != null) {
             for (OrderDetailEntity d : incoming.getOrderDetails()) {
-                attachProductIfOnlyId(d); 
+                attachProductIfOnlyId(d);
                 d.setOrder(incoming);
                 if (d.getSubtotal() == null) {
                     d.setSubtotal(calcLineSubtotal(d));
                 }
+
+                // DECREMENT STOCK ON CREATE
+                ProductEntity product = d.getProduct();
+                if (product.getStock() < d.getQuantity()) {
+                    throw new IllegalOperationException("Not enough stock for product: " + product.getName());
+                }
+                product.setStock(product.getStock() - d.getQuantity());
+                productRepository.save(product);
             }
         }
         incoming.setTotalAmount(recalculateTotalAmount(incoming));
 
         return orderRepository.save(incoming);
     }
-
 
     @Transactional
     public OrderEntity changeStatus(Long orderId, OrderStatus newStatus)
@@ -93,27 +101,20 @@ public class OrderService {
         }
 
         switch (newStatus) {
-            case CONFIRMED -> confirmOrder(order); 
-            case PAID      -> payOrder(order);    
-            case CANCELLED -> cancelOrder(order);  
-            case SHIPPED   -> shipOrder(order);   
-            case DELIVERED -> deliverOrder(order); 
-            default        -> order.setStatus(newStatus);
+            case CONFIRMED -> confirmOrder(order);
+            case PAID -> payOrder(order);
+            case CANCELLED -> cancelOrder(order);
+            case SHIPPED -> shipOrder(order);
+            case DELIVERED -> deliverOrder(order);
+            default -> order.setStatus(newStatus);
         }
 
         return orderRepository.save(order);
     }
 
-
     private void confirmOrder(OrderEntity order) throws IllegalOperationException {
-        for (OrderDetailEntity detail : order.getOrderDetails()) {
-            ProductEntity product = detail.getProduct();
-            int reserved = orderDetailRepository.countReservedForProduct(product.getId()); 
-            int available = product.getStock() - reserved;
-            if (available < detail.getQuantity()) {
-                throw new IllegalOperationException("Not enough stock for product: " + product.getName());
-            }
-        }
+        // Stock already reserved at creation time.
+        // potentially check other business rules here.
         order.setStatus(OrderStatus.CONFIRMED);
     }
 
@@ -121,15 +122,23 @@ public class OrderService {
         if (order.getStatus() != OrderStatus.CONFIRMED) {
             throw new IllegalOperationException("Order must be CONFIRMED before payment.");
         }
-        for (OrderDetailEntity detail : order.getOrderDetails()) {
-            ProductEntity product = detail.getProduct();
-            product.setStock(product.getStock() - detail.getQuantity());
-            productRepository.save(product);
-        }
+        logger.info("Executing payOrder for order id={}. Order details count={}", order.getId(),
+                order.getOrderDetails() == null ? 0 : order.getOrderDetails().size());
+
+        // Stock already decremented at creation.
+
         order.setStatus(OrderStatus.PAID);
     }
 
     private void cancelOrder(OrderEntity order) {
+        // Return stock
+        if (order.getOrderDetails() != null) {
+            for (OrderDetailEntity detail : order.getOrderDetails()) {
+                ProductEntity product = detail.getProduct();
+                product.setStock(product.getStock() + detail.getQuantity());
+                productRepository.save(product);
+            }
+        }
         order.setStatus(OrderStatus.CANCELLED);
     }
 
@@ -149,18 +158,21 @@ public class OrderService {
 
     @Transactional
     public OrderEntity updateOrder(Long orderId, OrderEntity incoming)
-        throws IllegalOperationException, EntityNotFoundException {
+            throws IllegalOperationException, EntityNotFoundException {
 
         OrderEntity current = orderRepository.findById(orderId)
-            .orElseThrow(() -> new EntityNotFoundException(ORDER_NOT_FOUND_MESSAGE));
+                .orElseThrow(() -> new EntityNotFoundException(ORDER_NOT_FOUND_MESSAGE));
 
         if (OrderStatus.isImmutable(current.getStatus())) {
             throw new IllegalOperationException(
-                "Orders in status " + current.getStatus() + " are immutable. Only status changes via changeStatus() are allowed.");
+                    "Orders in status " + current.getStatus()
+                            + " are immutable. Only status changes via changeStatus() are allowed.");
         }
 
-        if (incoming.getOrderDate() != null) current.setOrderDate(incoming.getOrderDate());
-        if (incoming.getUser() != null)      current.setUser(incoming.getUser());
+        if (incoming.getOrderDate() != null)
+            current.setOrderDate(incoming.getOrderDate());
+        if (incoming.getUser() != null)
+            current.setUser(incoming.getUser());
         current.setDiscount(incoming.getDiscount());
         current.setTotalAmount(recalculateTotalAmount(current));
 
@@ -169,9 +181,9 @@ public class OrderService {
 
     @Transactional
     public void deleteOrder(Long orderId)
-        throws EntityNotFoundException, IllegalOperationException {
+            throws EntityNotFoundException, IllegalOperationException {
         OrderEntity order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new EntityNotFoundException(ORDER_NOT_FOUND_MESSAGE));
+                .orElseThrow(() -> new EntityNotFoundException(ORDER_NOT_FOUND_MESSAGE));
 
         if (OrderStatus.isImmutable(order.getStatus())) {
             throw new IllegalOperationException("Cannot delete an order in status " + order.getStatus() + ".");
@@ -185,11 +197,11 @@ public class OrderService {
 
     private boolean isValidTransition(OrderStatus current, OrderStatus target) {
         Set<OrderStatus> allowed = switch (current) {
-            case PENDING   -> EnumSet.of(OrderStatus.CONFIRMED, OrderStatus.CANCELLED);
+            case PENDING -> EnumSet.of(OrderStatus.CONFIRMED, OrderStatus.CANCELLED);
             case CONFIRMED -> EnumSet.of(OrderStatus.PAID, OrderStatus.CANCELLED);
-            case PAID      -> EnumSet.of(OrderStatus.SHIPPED, OrderStatus.CANCELLED); 
-            case SHIPPED   -> EnumSet.of(OrderStatus.DELIVERED);
-            case DELIVERED -> EnumSet.noneOf(OrderStatus.class); 
+            case PAID -> EnumSet.of(OrderStatus.SHIPPED, OrderStatus.CANCELLED);
+            case SHIPPED -> EnumSet.of(OrderStatus.DELIVERED);
+            case DELIVERED -> EnumSet.noneOf(OrderStatus.class);
             case CANCELLED -> EnumSet.noneOf(OrderStatus.class);
         };
         return allowed.contains(target);
@@ -199,7 +211,7 @@ public class OrderService {
         double sum = 0.0;
         if (order.getOrderDetails() != null) {
             for (OrderDetailEntity d : order.getOrderDetails()) {
-            
+
                 Double lineTotal = null;
 
                 lineTotal = d.getSubtotal();
@@ -220,22 +232,24 @@ public class OrderService {
         }
         if (d.getProduct().getId() != null && (d.getProduct().getName() == null)) {
             ProductEntity product = productRepository.findById(d.getProduct().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("Product not found with id " + d.getProduct().getId()));
+                    .orElseThrow(
+                            () -> new EntityNotFoundException("Product not found with id " + d.getProduct().getId()));
             d.setProduct(product);
         }
     }
-    
-    public List<OrderEntity> getAllOrders() { 
-        return findAll(); 
+
+    public List<OrderEntity> getAllOrders() {
+        return findAll();
     }
-    
-    public OrderEntity getOrderById(Long id) throws EntityNotFoundException { 
-        return findById(id); 
+
+    public OrderEntity getOrderById(Long id) throws EntityNotFoundException {
+        return findById(id);
     }
-    
-    // FIXED: Removed the incorrect getOrderDetail method that was expecting incoming OrderDetailEntity
+
+    // FIXED: Removed the incorrect getOrderDetail method that was expecting
+    // incoming OrderDetailEntity
     // This method should calculate line subtotal from OrderDetailEntity
-    public Double calcLineSubtotal(OrderDetailEntity detail) { 
-        return detail.getSubtotal(); 
+    public Double calcLineSubtotal(OrderDetailEntity detail) {
+        return detail.getSubtotal();
     }
 }

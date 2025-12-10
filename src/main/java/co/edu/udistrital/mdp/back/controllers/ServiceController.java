@@ -28,10 +28,12 @@ public class ServiceController {
     
     private final ServiceService serviceService;
     private final ModelMapper modelMapper;
+    private final co.edu.udistrital.mdp.back.services.ReviewService reviewService;
 
-    public ServiceController(ServiceService serviceService, ModelMapper modelMapper) {
+    public ServiceController(ServiceService serviceService, ModelMapper modelMapper, co.edu.udistrital.mdp.back.services.ReviewService reviewService) {
         this.serviceService = serviceService;
         this.modelMapper = modelMapper;
+        this.reviewService = reviewService;
     }
 
     @GetMapping
@@ -47,6 +49,52 @@ public class ServiceController {
     public ServiceDetailDTO findOne(@PathVariable Long id) throws EntityNotFoundException {
         ServiceEntity entity = serviceService.getServiceById(id);
         return modelMapper.map(entity, ServiceDetailDTO.class);
+    }
+
+    @GetMapping("/{id}/reviews")
+    @ResponseStatus(code = org.springframework.http.HttpStatus.OK)
+    public java.util.List<co.edu.udistrital.mdp.back.dto.ReviewDTO> getReviewsForService(@PathVariable Long id) {
+        java.util.List<co.edu.udistrital.mdp.back.entities.ReviewEntity> reviews = reviewService.getReviewsByService(id);
+        java.lang.reflect.Type listType = new org.modelmapper.TypeToken<java.util.List<co.edu.udistrital.mdp.back.dto.ReviewDTO>>() {}.getType();
+        java.util.List<co.edu.udistrital.mdp.back.dto.ReviewDTO> dtos = modelMapper.map(reviews, listType);
+        for (int i = 0; i < reviews.size(); i++) {
+            var re = reviews.get(i);
+            var rd = dtos.get(i);
+            if (re.getAuthor() != null) {
+                rd.setAuthorId(re.getAuthor().getId());
+                rd.setAuthorName(re.getAuthor().getName());
+            }
+        }
+        return dtos;
+    }
+
+    @PostMapping("/{id}/reviews")
+    @ResponseStatus(code = org.springframework.http.HttpStatus.CREATED)
+    public co.edu.udistrital.mdp.back.dto.ReviewDTO createReviewForService(@PathVariable Long id, @org.springframework.web.bind.annotation.RequestBody co.edu.udistrital.mdp.back.dto.ReviewDTO reviewDTO) throws co.edu.udistrital.mdp.back.exceptions.IllegalOperationException, co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException {
+        // Map fields manually and ensure service exists
+        co.edu.udistrital.mdp.back.entities.ReviewEntity review = new co.edu.udistrital.mdp.back.entities.ReviewEntity();
+        review.setRating(reviewDTO.getRating());
+        review.setComments(reviewDTO.getComments());
+        review.setReviewDate(reviewDTO.getReviewDate());
+
+        co.edu.udistrital.mdp.back.entities.ServiceEntity service = serviceService.getServiceById(id);
+        review.setService(service);
+
+        // set author if provided in DTO
+        if (reviewDTO.getAuthorId() != null) {
+            co.edu.udistrital.mdp.back.entities.UserEntity u = new co.edu.udistrital.mdp.back.entities.UserEntity();
+            u.setId(reviewDTO.getAuthorId());
+            u.setName(reviewDTO.getAuthorName());
+            review.setAuthor(u);
+        }
+
+        co.edu.udistrital.mdp.back.entities.ReviewEntity created = reviewService.createReview(review);
+        co.edu.udistrital.mdp.back.dto.ReviewDTO out = modelMapper.map(created, co.edu.udistrital.mdp.back.dto.ReviewDTO.class);
+        if (created.getAuthor() != null) {
+            out.setAuthorId(created.getAuthor().getId());
+            out.setAuthorName(created.getAuthor().getName());
+        }
+        return out;
     }
 
     @PostMapping

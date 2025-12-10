@@ -9,4 +9,6 @@ public class ReviewDTO {
     private Integer rating;
     private String comments;
     private LocalDate reviewDate;
+    private Long authorId;
+    private String authorName;
 }

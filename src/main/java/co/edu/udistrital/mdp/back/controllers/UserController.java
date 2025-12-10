@@ -35,6 +35,13 @@ public class UserController {
         return modelMapper.map(newUser, UserDTO.class);
     }
 
+    @PostMapping("/login")
+    @ResponseStatus(code = HttpStatus.OK)
+    public UserDTO login(@RequestBody UserDTO loginDTO) {
+        UserEntity user = userService.authenticate(loginDTO.getEmail(), loginDTO.getPassword());
+        return modelMapper.map(user, UserDTO.class);
+    }
+
     @PutMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public UserDTO update(@PathVariable("id") Long id, @RequestBody UserDTO userDTO)

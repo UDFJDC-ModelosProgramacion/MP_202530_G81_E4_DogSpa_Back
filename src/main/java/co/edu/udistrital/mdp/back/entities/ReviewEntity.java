@@ -2,6 +2,7 @@ package co.edu.udistrital.mdp.back.entities;
 import java.time.LocalDate;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import co.edu.udistrital.mdp.back.entities.UserEntity;
 import lombok.Data;
 import uk.co.jemos.podam.common.PodamExclude;
 
@@ -16,5 +17,9 @@ public class ReviewEntity extends BaseEntity {
     @PodamExclude
     @ManyToOne
     private ServiceEntity service;
+    
+    @PodamExclude
+    @ManyToOne
+    private UserEntity author;
     
 }
