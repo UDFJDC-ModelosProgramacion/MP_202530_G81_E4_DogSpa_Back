@@ -38,8 +38,13 @@ public class UserController {
     @PostMapping("/login")
     @ResponseStatus(code = HttpStatus.OK)
     public UserDTO login(@RequestBody UserDTO loginDTO) {
-        UserEntity user = userService.authenticate(loginDTO.getEmail(), loginDTO.getPassword());
-        return modelMapper.map(user, UserDTO.class);
+        co.edu.udistrital.mdp.back.entities.PersonEntity person = userService.authenticate(loginDTO.getEmail(),
+                loginDTO.getPassword());
+        UserDTO dto = modelMapper.map(person, UserDTO.class);
+        // Explicitly set role because depending on ModelMapper configuration it might
+        // not map transient fields
+        dto.setRole(person.getRole());
+        return dto;
     }
 
     @PutMapping("/{id}")

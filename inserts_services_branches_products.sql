@@ -473,6 +473,13 @@ WHERE p.name = 'Juguete interactivo'
     AND NOT EXISTS (SELECT 1 FROM `multimedia_entity` m WHERE m.`url` = 'https://www.tierragro.com/cdn/shop/files/pelotasnakrojo2_1024x1024_8787d808-a95c-415e-8516-6114d70a1589.webp?v=1730558949' AND m.`product_id` = p.id);
 
 
+
+-- ===== USUARIOS: ADMIN =====
+INSERT INTO `person_entity` (`dtype`, `name`, `lastname`, `email`, `password`, `address`, `telephone`, `loyaltypoints`)
+SELECT 'AdminEntity', 'Administrador', 'DogSpa', 'admin@gmail.com', 'admin123', 'Sede Central', '3000000000', NULL
+WHERE NOT EXISTS (SELECT 1 FROM `person_entity` WHERE `email` = 'admin@gmail.com');
+
+
 COMMIT;
 
 
