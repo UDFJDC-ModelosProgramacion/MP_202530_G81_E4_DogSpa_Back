@@ -3,6 +3,7 @@ package co.edu.udistrital.mdp.back.controllers;
 import java.lang.reflect.Type;
 
 import co.edu.udistrital.mdp.back.dto.ProductDTO;
+import co.edu.udistrital.mdp.back.dto.ProductDetailDTO;
 import co.edu.udistrital.mdp.back.entities.ProductEntity;
 import co.edu.udistrital.mdp.back.services.ProductService;
 
@@ -26,20 +27,19 @@ public class ProductController {
         this.modelMapper = modelMapper;
     }
 
-
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ProductDTO> listAll() {
+    public List<ProductDetailDTO> listAll() {                      
         List<ProductEntity> products = productService.findAll();
-        Type listType = new TypeToken<List<ProductDTO>>() {}.getType();
+        Type listType = new TypeToken<List<ProductDetailDTO>>() {}.getType(); 
         return modelMapper.map(products, listType);
     }
 
     @GetMapping("/{productId}")
     @ResponseStatus(HttpStatus.OK)
-    public ProductDTO getOne(@PathVariable Long productId) {
+    public ProductDetailDTO getOne(@PathVariable Long productId) { 
         ProductEntity product = productService.getByIdOrThrow(productId);
-        return modelMapper.map(product, ProductDTO.class);
+        return modelMapper.map(product, ProductDetailDTO.class);   
     }
 
     @PostMapping
