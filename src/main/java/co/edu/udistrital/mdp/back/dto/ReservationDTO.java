@@ -16,7 +16,9 @@ public class ReservationDTO {
     private BranchDTO branch;
     private ServiceDTO service;
     private String petName;
-    // also expose foreign keys so frontend can fetch related info if nested objects are missing
+    // also expose foreign keys so frontend can fetch related info if nested objects
+    // are missing
     private Long branchId;
     private Long serviceId;
+    private Long userId;
 }

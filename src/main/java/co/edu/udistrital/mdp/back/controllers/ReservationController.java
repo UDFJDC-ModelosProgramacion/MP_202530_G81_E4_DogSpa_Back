@@ -42,6 +42,7 @@ public class ReservationController {
             var dto = dtos.get(i);
             dto.setBranchId(entity.getBranch() != null ? entity.getBranch().getId() : null);
             dto.setServiceId(entity.getService() != null ? entity.getService().getId() : null);
+            dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
         }
         return dtos;
     }
@@ -53,6 +54,7 @@ public class ReservationController {
         ReservationDTO dto = modelMapper.map(reservation, ReservationDTO.class);
         dto.setBranchId(reservation.getBranch() != null ? reservation.getBranch().getId() : null);
         dto.setServiceId(reservation.getService() != null ? reservation.getService().getId() : null);
+        dto.setUserId(reservation.getUser() != null ? reservation.getUser().getId() : null);
         return dto;
     }
 
@@ -64,6 +66,7 @@ public class ReservationController {
         ReservationDTO dto = modelMapper.map(newReservation, ReservationDTO.class);
         dto.setBranchId(newReservation.getBranch() != null ? newReservation.getBranch().getId() : null);
         dto.setServiceId(newReservation.getService() != null ? newReservation.getService().getId() : null);
+        dto.setUserId(newReservation.getUser() != null ? newReservation.getUser().getId() : null);
         return dto;
     }
 
@@ -76,6 +79,7 @@ public class ReservationController {
         ReservationDTO dto = modelMapper.map(updatedReservation, ReservationDTO.class);
         dto.setBranchId(updatedReservation.getBranch() != null ? updatedReservation.getBranch().getId() : null);
         dto.setServiceId(updatedReservation.getService() != null ? updatedReservation.getService().getId() : null);
+        dto.setUserId(updatedReservation.getUser() != null ? updatedReservation.getUser().getId() : null);
         return dto;
     }
 
@@ -107,6 +111,12 @@ public class ReservationController {
             ServiceEntity s = new ServiceEntity();
             s.setId(dto.getServiceId());
             entity.setService(s);
+        }
+
+        if (dto.getUserId() != null) {
+            co.edu.udistrital.mdp.back.entities.UserEntity u = new co.edu.udistrital.mdp.back.entities.UserEntity();
+            u.setId(dto.getUserId());
+            entity.setUser(u);
         }
 
         return entity;
