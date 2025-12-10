@@ -11,7 +11,7 @@ import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.services.NotificationUserService;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/notifications")
 public class NotificationUserController {
 
     private final NotificationUserService notificationUserService;

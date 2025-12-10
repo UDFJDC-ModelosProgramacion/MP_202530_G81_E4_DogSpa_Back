@@ -14,7 +14,7 @@ import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.services.MultimediaService;
 
 @RestController
-@RequestMapping("/api/multimedias")
+@RequestMapping("/multimedias")
 public class MultimediaController {
 
     private final MultimediaService multimediaService;

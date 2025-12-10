@@ -14,7 +14,7 @@ import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.services.ProductShoppingCartService;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/products")
 public class ProductShoppingCartController {
 
     private final ProductShoppingCartService productShoppingCartService;

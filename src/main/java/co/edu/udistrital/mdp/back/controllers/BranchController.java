@@ -15,7 +15,7 @@ import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.services.BranchService;
 
 @RestController
-@RequestMapping("/api/branches")
+@RequestMapping("/branches")
 public class BranchController {
 
     @Autowired

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.udistrital.mdp.back.entities.ReviewEntity;
+import co.edu.udistrital.mdp.back.entities.ServiceEntity;
 import co.edu.udistrital.mdp.back.exceptions.EntityNotFoundException;
 import co.edu.udistrital.mdp.back.exceptions.IllegalOperationException;
 import co.edu.udistrital.mdp.back.repositories.ReviewRepository;
@@ -27,10 +28,18 @@ public class ReviewService {
         log.info("Starting review creation process with date = {}", review.getReviewDate());
         validateReview(review);
 
+        Long serviceId = review.getService().getId();
+
+        ServiceEntity service = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new IllegalOperationException("The service does not exist."));
+
+        review.setService(service);
+
         ReviewEntity savedReview = reviewRepository.save(review);
         log.info("Review creation process finished with id = {}", savedReview.getId());
         return savedReview;
     }
+
 
     public List<ReviewEntity> getReviews() {
         log.info("Starting process to retrieve all reviews");
@@ -89,4 +98,8 @@ public class ReviewService {
             throw new IllegalOperationException("The review date is required.");
         }
     }
+    public List<ReviewEntity> getReviewsByService(Long serviceId) {
+        return reviewRepository.findByServiceId(serviceId);
+    }
+
 }
