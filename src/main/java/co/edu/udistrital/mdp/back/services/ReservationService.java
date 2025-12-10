@@ -31,13 +31,15 @@ public class ReservationService {
         // Resolve branch and service entities if only ID provided
         if (reservation.getBranch() != null && reservation.getBranch().getId() != null) {
             var branch = branchRepository.findById(reservation.getBranch().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("Branch not found with id " + reservation.getBranch().getId()));
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Branch not found with id " + reservation.getBranch().getId()));
             reservation.setBranch(branch);
         }
 
         if (reservation.getService() != null && reservation.getService().getId() != null) {
             var service = serviceRepository.findById(reservation.getService().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("Service not found with id " + reservation.getService().getId()));
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Service not found with id " + reservation.getService().getId()));
             reservation.setService(service);
         }
 
@@ -47,6 +49,11 @@ public class ReservationService {
     @Transactional(readOnly = true)
     public List<ReservationEntity> getAllReservations() {
         return reservationRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservationEntity> getReservationsByUserId(Long userId) {
+        return reservationRepository.findByUserId(userId);
     }
 
     @Transactional(readOnly = true)
@@ -60,7 +67,7 @@ public class ReservationService {
             throws IllegalOperationException {
         ReservationEntity existing = reservationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(RESERVATION_NOT_FOUND_MESSAGE + id));
-        
+
         // Validate times before updating
         if (reservation.getStartTime() != null && reservation.getEndTime() != null
                 && reservation.getEndTime().isBefore(reservation.getStartTime())) {

@@ -22,9 +22,13 @@ class UserServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private co.edu.udistrital.mdp.back.repositories.AdminRepository adminRepository;
+
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
+        adminRepository.deleteAll();
 
         UserEntity u = new UserEntity();
         u.setName("BaseUser");
@@ -35,6 +39,15 @@ class UserServiceTest {
         u.setPassword("pass123");
         u.setLoyaltypoints(100);
         userRepository.save(u);
+
+        co.edu.udistrital.mdp.back.entities.AdminEntity a = new co.edu.udistrital.mdp.back.entities.AdminEntity();
+        a.setName("BaseAdmin");
+        a.setLastname("AdminLastName");
+        a.setEmail("admin@test.com");
+        a.setTelephone("3001234567");
+        a.setAddress("Oficina Central");
+        a.setPassword("adminPass");
+        adminRepository.save(a);
     }
 
     @Test
@@ -115,5 +128,37 @@ class UserServiceTest {
         assertThrows(EntityNotFoundException.class, () -> {
             userService.deleteUser(123456L);
         });
+    }
+
+    @Test
+    void testAuthenticate_User_Ok() {
+        co.edu.udistrital.mdp.back.entities.PersonEntity result = userService.authenticate("base@user.com", "pass123");
+        assertNotNull(result);
+        assertEquals("USER", result.getRole());
+        assertTrue(result instanceof UserEntity);
+    }
+
+    @Test
+    void testAuthenticate_Admin_Ok() {
+        co.edu.udistrital.mdp.back.entities.PersonEntity result = userService.authenticate("admin@test.com",
+                "adminPass");
+        assertNotNull(result);
+        assertEquals("ADMIN", result.getRole());
+        assertTrue(result instanceof co.edu.udistrital.mdp.back.entities.AdminEntity);
+    }
+
+    @Test
+    void testAuthenticate_InvalidPassword_User() {
+        assertThrows(IllegalOperationException.class, () -> userService.authenticate("base@user.com", "wrongPass"));
+    }
+
+    @Test
+    void testAuthenticate_InvalidPassword_Admin() {
+        assertThrows(IllegalOperationException.class, () -> userService.authenticate("admin@test.com", "wrongPass"));
+    }
+
+    @Test
+    void testAuthenticate_NotFound() {
+        assertThrows(EntityNotFoundException.class, () -> userService.authenticate("nobody@test.com", "anyPass"));
     }
 }

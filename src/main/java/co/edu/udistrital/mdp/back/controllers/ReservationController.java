@@ -27,9 +27,15 @@ public class ReservationController {
 
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
-    public List<ReservationDTO> findAll() {
-        List<ReservationEntity> reservations = reservationService.getAllReservations();
-        List<ReservationDTO> dtos = modelMapper.map(reservations, new TypeToken<List<ReservationDTO>>() {}.getType());
+    public List<ReservationDTO> findAll(@RequestParam(required = false) Long userId) {
+        List<ReservationEntity> reservations;
+        if (userId != null) {
+            reservations = reservationService.getReservationsByUserId(userId);
+        } else {
+            reservations = reservationService.getAllReservations();
+        }
+        List<ReservationDTO> dtos = modelMapper.map(reservations, new TypeToken<List<ReservationDTO>>() {
+        }.getType());
         // ensure foreign key ids are present even if nested objects are null
         for (int i = 0; i < reservations.size(); i++) {
             var entity = reservations.get(i);
@@ -73,7 +79,8 @@ public class ReservationController {
         return dto;
     }
 
-    // helper to convert DTO -> Entity without confusing ModelMapper about branchId vs branch.id
+    // helper to convert DTO -> Entity without confusing ModelMapper about branchId
+    // vs branch.id
     private ReservationEntity dtoToEntity(ReservationDTO dto) {
         ReservationEntity entity = new ReservationEntity();
         entity.setReservationDate(dto.getReservationDate());

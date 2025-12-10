@@ -16,7 +16,8 @@ public class ApplicationConfig {
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper mapper = new ModelMapper();
-        // Reduce implicit, ambiguous mappings (prevents errors when DTO has both nested object and id fields)
+        // Reduce implicit, ambiguous mappings (prevents errors when DTO has both nested
+        // object and id fields)
         mapper.getConfiguration()
                 .setAmbiguityIgnored(true)
                 .setFullTypeMatchingRequired(false);
@@ -36,8 +37,7 @@ public class ApplicationConfig {
                                 "http://192.168.231.1:8000",
                                 "http://192.168.187.1:8000",
                                 "http://127.0.0.1:8000",
-                                "https://dogspa-frontend.vercel.app"
-                        )
+                                "https://dogspa-frontend.vercel.app")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true)
@@ -56,8 +56,7 @@ public class ApplicationConfig {
                 "http://192.168.231.1:8000",
                 "http://192.168.187.1:8000",
                 "http://127.0.0.1:8000",
-                "https://dogspa-frontend.vercel.app"
-        ));
+                "https://dogspa-frontend.vercel.app"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);

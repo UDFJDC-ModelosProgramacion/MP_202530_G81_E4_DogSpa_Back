@@ -31,10 +31,14 @@ class OrderServiceTest {
     @Autowired
     private OrderService orderService;
 
-    @MockBean private OrderRepository orderRepository;
-    @MockBean private ProductRepository productRepository;
-    @MockBean private OrderDetailRepository orderDetailRepository;
-    @MockBean private PersonRepository personRepository; 
+    @MockBean
+    private OrderRepository orderRepository;
+    @MockBean
+    private ProductRepository productRepository;
+    @MockBean
+    private OrderDetailRepository orderDetailRepository;
+    @MockBean
+    private PersonRepository personRepository;
 
     private OrderEntity order;
     private ProductEntity product;
@@ -42,7 +46,7 @@ class OrderServiceTest {
 
     @BeforeEach
     void setUp() {
-       
+
         product = new ProductEntity();
         product.setId(1L);
         product.setName("Dog Shampoo");
@@ -78,7 +82,7 @@ class OrderServiceTest {
     void changeStatus_fromCancelled_forbidden() {
         Long orderId = 100L;
         OrderStatus newStatus = OrderStatus.CONFIRMED;
-        
+
         order.setStatus(OrderStatus.CANCELLED);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
@@ -90,41 +94,20 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("changeStatus -> CONFIRMED: falla si disponible < cantidad (stock - reservado)")
-    void changeStatus_confirmed_notEnoughStock() {
+    @DisplayName("changeStatus -> CONFIRMED: OK (stock ya fue reservado en createOrder)")
+    void changeStatus_confirmed_ok_noStockCheckNeeded() throws Exception {
         Long orderId = 100L;
-        Long productId = 1L;
         OrderStatus newStatus = OrderStatus.CONFIRMED;
-        
+
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        when(orderDetailRepository.countReservedForProduct(productId)).thenReturn(8);
-
-        assertThrows(IllegalOperationException.class,
-                () -> orderService.changeStatus(orderId, newStatus));
-
-        verify(orderRepository).findById(orderId);
-        verify(orderDetailRepository).countReservedForProduct(productId);
-        verifyNoMoreInteractions(orderRepository, orderDetailRepository, productRepository);
-    }
-
-    @Test
-    @DisplayName("changeStatus -> CONFIRMED: OK cuando hay stock suficiente")
-    void changeStatus_confirmed_ok() throws Exception {
-        Long orderId = 100L;
-        Long productId = 1L;
-        OrderStatus newStatus = OrderStatus.CONFIRMED;
-        
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        when(orderDetailRepository.countReservedForProduct(productId)).thenReturn(2);
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         OrderEntity updated = orderService.changeStatus(orderId, newStatus);
 
         assertEquals(OrderStatus.CONFIRMED, updated.getStatus());
         verify(orderRepository).findById(orderId);
-        verify(orderDetailRepository).countReservedForProduct(productId);
+        // No se verifica stock aquí
         verify(orderRepository).save(order);
-        verifyNoMoreInteractions(orderRepository, orderDetailRepository, productRepository);
     }
 
     @Test
@@ -132,8 +115,8 @@ class OrderServiceTest {
     void changeStatus_paid_requiresConfirmed() {
         Long orderId = 100L;
         OrderStatus newStatus = OrderStatus.PAID;
-        
-        order.setStatus(OrderStatus.PENDING); 
+
+        order.setStatus(OrderStatus.PENDING);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
         assertThrows(IllegalOperationException.class,
@@ -144,22 +127,24 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("changeStatus -> PAID: descuenta stock por cada ítem y persiste productos, luego guarda orden")
-    void changeStatus_paid_ok() throws Exception {
+    @DisplayName("changeStatus -> PAID: cambia estado, NO descuenta stock (ya se hizo en create)")
+    void changeStatus_paid_onlyChangesStatus() throws Exception {
         Long orderId = 100L;
         OrderStatus newStatus = OrderStatus.PAID;
-        
+
         order.setStatus(OrderStatus.CONFIRMED);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(productRepository.save(any(ProductEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         OrderEntity updated = orderService.changeStatus(orderId, newStatus);
 
         assertEquals(OrderStatus.PAID, updated.getStatus());
-        assertEquals(7, product.getStock());
+        // El stock NO debe cambiar aquí, se mantiene en 10 (porque se asume descontado
+        // en create, pero el objeto mockeado 'product' en este test específico entra
+        // con 10)
+        // OJO: En la realidad el objeto Order ya vendría con productos descontados.
+        // Aquí solo verificamos que NO llame a productRepository.save()
         verify(orderRepository).findById(orderId);
-        verify(productRepository).save(product);
         verify(orderRepository).save(order);
         verifyNoMoreInteractions(orderRepository, productRepository, orderDetailRepository);
     }
@@ -169,7 +154,7 @@ class OrderServiceTest {
     void changeStatus_paid_to_shipped_ok() throws Exception {
         Long orderId = 100L;
         OrderStatus newStatus = OrderStatus.SHIPPED;
-        
+
         order.setStatus(OrderStatus.PAID);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -187,7 +172,7 @@ class OrderServiceTest {
     void changeStatus_invalidTransition_forbidden() {
         Long orderId = 100L;
         OrderStatus newStatus = OrderStatus.SHIPPED;
-        
+
         order.setStatus(OrderStatus.PENDING);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
@@ -203,12 +188,12 @@ class OrderServiceTest {
     void updateOrder_notFound() {
         Long orderId = 100L;
         OrderEntity updateData = new OrderEntity();
-        
+
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
-        
+
         assertThrows(EntityNotFoundException.class,
                 () -> orderService.updateOrder(orderId, updateData));
-        
+
         verify(orderRepository).findById(orderId);
         verifyNoMoreInteractions(orderRepository);
     }
@@ -218,7 +203,7 @@ class OrderServiceTest {
     void updateOrder_forbiddenStates() {
         Long orderId = 100L;
         OrderEntity updateData = new OrderEntity();
-        
+
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
         order.setStatus(OrderStatus.PAID);
@@ -237,7 +222,7 @@ class OrderServiceTest {
     @DisplayName("updateOrder: estado permitido (PENDING) -> guarda la orden")
     void updateOrder_allowed_saves() throws Exception {
         Long orderId = 100L;
-        
+
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -254,12 +239,12 @@ class OrderServiceTest {
     @DisplayName("deleteOrder: orden no existe -> EntityNotFoundException")
     void deleteOrder_notFound() {
         Long orderId = 100L;
-        
+
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
-        
-        assertThrows(EntityNotFoundException.class, 
+
+        assertThrows(EntityNotFoundException.class,
                 () -> orderService.deleteOrder(orderId));
-        
+
         verify(orderRepository).findById(orderId);
         verifyNoMoreInteractions(orderRepository);
     }
@@ -268,11 +253,11 @@ class OrderServiceTest {
     @DisplayName("deleteOrder: si está PAID -> IllegalOperationException")
     void deleteOrder_paid_forbidden() {
         Long orderId = 100L;
-        
+
         order.setStatus(OrderStatus.PAID);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
-        assertThrows(IllegalOperationException.class, 
+        assertThrows(IllegalOperationException.class,
                 () -> orderService.deleteOrder(orderId));
 
         verify(orderRepository).findById(orderId);
@@ -284,16 +269,16 @@ class OrderServiceTest {
     void changeStatus_paidToConfirmed_forbidden() {
         Long orderId = 1L;
         OrderStatus newStatus = OrderStatus.CONFIRMED;
-        
+
         OrderEntity paidOrder = new OrderEntity();
         paidOrder.setId(orderId);
         paidOrder.setStatus(OrderStatus.PAID);
-        
+
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(paidOrder));
 
         assertThrows(IllegalOperationException.class,
                 () -> orderService.changeStatus(orderId, newStatus));
-        
+
         verify(orderRepository).findById(orderId);
     }
 
@@ -301,16 +286,16 @@ class OrderServiceTest {
     @DisplayName("deleteOrder: orden DELIVERED no se puede eliminar")
     void deleteOrder_delivered_forbidden() {
         Long orderId = 1L;
-        
+
         OrderEntity deliveredOrder = new OrderEntity();
         deliveredOrder.setId(orderId);
         deliveredOrder.setStatus(OrderStatus.DELIVERED);
-        
+
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(deliveredOrder));
-        
-        assertThrows(IllegalOperationException.class, 
+
+        assertThrows(IllegalOperationException.class,
                 () -> orderService.deleteOrder(orderId));
-        
+
         verify(orderRepository).findById(orderId);
     }
 
@@ -319,14 +304,15 @@ class OrderServiceTest {
     void updateOrder_notFound_throwsException() {
         Long orderId = 1L;
         OrderEntity updateData = new OrderEntity();
-        
+
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
-        
-        assertThrows(EntityNotFoundException.class, 
+
+        assertThrows(EntityNotFoundException.class,
                 () -> orderService.updateOrder(orderId, updateData));
-        
+
         verify(orderRepository).findById(orderId);
     }
+
     @Test
     @DisplayName("findById: retorna orden existente correctamente")
     void findById_ok() throws Exception {
@@ -416,7 +402,6 @@ class OrderServiceTest {
         assertTrue(ex.getCause() instanceof EntityNotFoundException);
     }
 
-
     @Test
     @DisplayName("attachProductIfOnlyId: busca producto si solo viene el id")
     void attachProductIfOnlyId_onlyId_ok() throws Exception {
@@ -449,19 +434,64 @@ class OrderServiceTest {
         assertThrows(EntityNotFoundException.class, () -> orderService.createOrder(newOrder));
     }
 
-
     @Test
-    @DisplayName("createOrder: se guarda correctamente con detalles y subtotal")
+    @DisplayName("createOrder: se guarda, status PENDING, descuenta stock")
     void createOrder_ok() throws Exception {
         detail.setSubtotal(75.0);
         order.setUser(null);
         order.setDiscount(0.0);
+
+        // Mock product availability
+        // product stock is 10, req is 3. OK.
+
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(productRepository.save(any(ProductEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         OrderEntity result = orderService.createOrder(order);
+
         assertNotNull(result);
         assertEquals(OrderStatus.PENDING, result.getStatus());
+        assertEquals(7, product.getStock()); // 10 - 3
+
+        verify(productRepository).save(product);
         verify(orderRepository).save(order);
+    }
+
+    @Test
+    @DisplayName("createOrder: stock insuficiente -> IllegalOperationException")
+    void createOrder_notEnoughStock() {
+        product.setStock(2); // Requesting 3
+        order.setUser(null);
+
+        assertThrows(IllegalOperationException.class, () -> orderService.createOrder(order));
+
+        verify(productRepository, never()).save(any());
+        verify(orderRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("createOrder: cancelada devuelve stock")
+    void changeStatus_cancelled_returnsStock() throws Exception {
+        Long orderId = 100L;
+
+        // Setup: Order created and PENDING. Stock was nominally already deducted in
+        // real life,
+        // but here our 'product' object is fresh from setUp with stock=10.
+        // Let's assume stock WAS 10 BEFORE order, but now it is 7 because order is
+        // pending.
+        product.setStock(7);
+
+        order.setStatus(OrderStatus.PENDING);
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(OrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(productRepository.save(any(ProductEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        OrderEntity updated = orderService.changeStatus(orderId, OrderStatus.CANCELLED);
+
+        assertEquals(OrderStatus.CANCELLED, updated.getStatus());
+        assertEquals(10, product.getStock()); // 7 + 3
+        verify(productRepository).save(product);
     }
 
     @Test
